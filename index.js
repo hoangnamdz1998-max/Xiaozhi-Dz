@@ -418,18 +418,29 @@ app.get("/proxy_lyric", async (req, res) => {
 // ─── API cho Giao diện Quản lý Web Portal ──────────────────────────────────
 app.get("/api/devices", (req, res) => {
   const saved = loadSavedDevices();
-  const connected = [];
+  const devices = [];
 
   for (const [name, dev] of connectedDevices.entries()) {
-    connected.push({
+    devices.push({
+      name: name,
       deviceName: name,
+      url: dev.url,
       wssUrl: dev.url,
       status: dev.status,
       connectedAt: dev.connectedAt,
     });
   }
 
-  res.json({ connected, saved });
+  res.json({ devices, connected: devices, saved });
+});
+
+app.get("/api/saved-devices", (req, res) => {
+  const saved = loadSavedDevices();
+  const savedDevices = saved.map(d => ({
+    ...d,
+    isConnected: connectedDevices.has(d.deviceName) && connectedDevices.get(d.deviceName).status === "connected",
+  }));
+  res.json({ savedDevices });
 });
 
 app.post("/api/connect", (req, res) => {
