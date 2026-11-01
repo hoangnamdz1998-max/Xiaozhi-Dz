@@ -11,6 +11,7 @@ const path = require("path");
 const fs = require("fs");
 const WebSocket = require("ws");
 const zing = require("./zingmp3");
+const extraTools = require("./tools");
 
 const app = express();
 app.use(cors());
@@ -141,6 +142,61 @@ const MCP_TOOLS = [
       },
     },
   },
+  {
+    name: "get_weather",
+    description: "Tra cứu thời tiết theo tỉnh thành hoặc quận huyện (nhiệt độ, mưa/nắng, độ ẩm, gió, UV).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        location: {
+          type: "string",
+          description: "Tên địa điểm cần xem thời tiết (ví dụ: 'Hà Nội', 'TP.HCM', 'Đà Nẵng', 'Hải Phòng')",
+        },
+      },
+      required: ["location"],
+    },
+  },
+  {
+    name: "get_lunar_calendar",
+    description: "Tra cứu âm lịch hôm nay, can chi ngày/tháng/năm, năm con gì theo lịch vạn niên Việt Nam.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        date: {
+          type: "string",
+          description: "Ngày dương lịch cần tra dạng YYYY-MM-DD (để trống nếu muốn xem ngày hôm nay)",
+        },
+      },
+    },
+  },
+  {
+    name: "get_latest_news",
+    description: "Điểm tin tức báo chí mới nhất trong ngày từ VnExpress.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        category: {
+          type: "string",
+          description: "Chuyên mục tin tức: 'tin-moi-nhat', 'thoi-su', 'the-gioi', 'kinh-doanh', 'giai-tri', 'the-thao'",
+          default: "tin-moi-nhat",
+        },
+      },
+    },
+  },
+  {
+    name: "web_search",
+    description: "Tìm kiếm thông tin trên internet khi cần tra cứu sự kiện mới, thông tin chưa rõ.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "Từ khóa hoặc câu hỏi cần tra cứu",
+        },
+      },
+      required: ["query"],
+    },
+  },
 ];
 
 // ─── Xử lý các lệnh gọi MCP Tool ─────────────────────────────────────────
@@ -183,6 +239,25 @@ async function handleToolCall(name, args = {}) {
     const limit = args.limit || 10;
     const charts = await zing.getTopCharts(limit);
     return { charts, message: `🔥 Top ${charts.length} bài hot` };
+  }
+
+  if (name === "get_weather") {
+    const loc = args.location || args.city || "Hanoi";
+    return await extraTools.getWeather(loc);
+  }
+
+  if (name === "get_lunar_calendar") {
+    return extraTools.getLunarCalendar(args.date);
+  }
+
+  if (name === "get_latest_news") {
+    const cat = args.category || "tin-moi-nhat";
+    return await extraTools.getLatestNews(cat);
+  }
+
+  if (name === "web_search") {
+    const q = args.query || args.q || "";
+    return await extraTools.searchWeb(q);
   }
 
   throw new Error(`Tool không hỗ trợ: ${name}`);
