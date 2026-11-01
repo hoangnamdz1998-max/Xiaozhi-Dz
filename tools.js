@@ -162,23 +162,25 @@ async function searchWeb(query) {
     const q = query.trim();
     console.log(`[WebSearch] 🔍 Đang tra cứu thông tin: "${q}"`);
 
-    // 1. Tra cứu Wikipedia Tiếng Việt (chính xác tuyệt đối cho kiến thức, tiểu sử, lịch sử, định nghĩa, nhân vật, sự kiện)
+    // 1. Tra cứu Wikipedia Tiếng Việt (trích xuất trực tiếp đoạn mở đầu văn bản chuẩn xác)
     try {
-      const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&utf8=1`;
+      const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrlimit=2&format=json`;
       const wikiRes = await fetch(wikiUrl, { timeout: 6000 });
       const wikiData = await wikiRes.json();
 
-      if (wikiData.query && wikiData.query.search && wikiData.query.search.length > 0) {
-        const top = wikiData.query.search.slice(0, 3);
-        const summaries = top.map((item) => {
-          const cleanSnippet = item.snippet.replace(/<[^>]*>?/gm, "").trim();
-          return `[${item.title}]: ${cleanSnippet}`;
-        });
-        return {
-          query,
-          ketQua: summaries.join("\n\n"),
-          nguon: "Wikipedia Tiếng Việt",
-        };
+      if (wikiData.query && wikiData.query.pages) {
+        const pages = Object.values(wikiData.query.pages)
+          .filter((p) => p.extract && p.extract.trim())
+          .slice(0, 2);
+
+        if (pages.length > 0) {
+          const summaries = pages.map((p) => `[${p.title}]:\n${p.extract.trim().substring(0, 800)}`);
+          return {
+            query,
+            ketQua: summaries.join("\n\n"),
+            nguon: "Wikipedia Tiếng Việt",
+          };
+        }
       }
     } catch (wikiErr) {
       console.warn("[WebSearch] Wikipedia fallback:", wikiErr.message);
