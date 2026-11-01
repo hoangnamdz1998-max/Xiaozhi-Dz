@@ -82,7 +82,7 @@ function updateAutoConnect(deviceName, autoConnect) {
 const MCP_TOOLS = [
   {
     name: "search_music",
-    description: "Tìm kiếm bài hát, ca sĩ trên Zing MP3 Việt Nam.",
+    description: "Tìm kiếm bài hát, ca sĩ trên Zing MP3 Việt Nam để tra cứu thông tin. LƯU Ý QUAN TRỌNG: Để phát nhạc trực tiếp ra loa của thiết bị, bạn KHÔNG gọi công cụ này mà BẮT BUỘC phải gọi công cụ phần cứng thiết bị 'self.music.play_song'.",
     inputSchema: {
       type: "object",
       properties: {
@@ -97,41 +97,6 @@ const MCP_TOOLS = [
         },
       },
       required: ["query"],
-    },
-  },
-  {
-    name: "play_music",
-    description: "Phát bài hát trực tiếp theo tên bài hát hoặc mã encodeId.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        song: {
-          type: "string",
-          description: "Tên bài hát cần phát",
-        },
-        query: {
-          type: "string",
-          description: "Tên bài hát hoặc ca sĩ",
-        },
-        encodeId: {
-          type: "string",
-          description: "Mã bài hát encodeId nếu có",
-        },
-      },
-    },
-  },
-  {
-    name: "get_stream_url",
-    description: "Lấy link MP3 trực tiếp của bài hát để phát trên thiết bị.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        encodeId: {
-          type: "string",
-          description: "Mã bài hát encodeId",
-        },
-      },
-      required: ["encodeId"],
     },
   },
   {
@@ -193,31 +158,9 @@ async function handleToolCall(name, args = {}) {
   }
 
   if (name === "play_music") {
-    let encodeId = args.encodeId;
-    let title = args.title || "";
-    let artist = args.artist || "";
-    let songQuery = args.song || args.query || args.name || "";
-
-    if (!encodeId && songQuery) {
-      const searchRes = await zing.searchSongs(songQuery, 1);
-      if (searchRes.length > 0) {
-        encodeId = searchRes[0].encodeId;
-        title = searchRes[0].title;
-        artist = searchRes[0].artist;
-      }
-    }
-
-    if (!encodeId) {
-      return { error: "Không tìm thấy bài hát yêu cầu", message: "Không tìm thấy bài hát" };
-    }
-
-    const streamUrl = await zing.getStreamUrl(encodeId);
+    const song = args.song || args.query || args.name || "bài hát";
     return {
-      encodeId,
-      title,
-      artist,
-      streamUrl,
-      message: `🎵 Đang phát: ${title}${artist ? " - " + artist : ""}`,
+      message: `Để phát bài hát ra loa thiết bị, bạn hãy gọi công cụ phần cứng 'self.music.play_song' với tham số song_name='${song}'.`,
     };
   }
 
