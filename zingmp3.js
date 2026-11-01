@@ -95,6 +95,7 @@ async function getStreamUrl(encodeId) {
       { id: encodeId },
       `ctime=TIMEid=${encodeId}version=${ZING_VERSION}`
     );
+    console.log("[ZingMP3] Stream data:", JSON.stringify(data));
     if (data.err === 0 && data.data) {
       return data.data["128"] || data.data["320"] || "";
     }

@@ -381,6 +381,18 @@ function connectToXiaozhi(deviceName, wssUrl) {
   });
 }
 
+// ─── Debug API ───────────────────────────────────────────────────────────
+app.get("/debug_stream", async (req, res) => {
+  const id = req.query.id || "qYD31k5TVTCQ";
+  try {
+    const info = await zing.getSongInfo(id);
+    const stream = await zing.getStreamUrl(id);
+    res.json({ id, info, stream });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
+
 // ─── API cho Firmware ESP32 (Esp32Music) ───────────────────────────────────
 app.get("/stream_pcm", async (req, res) => {
   const song = req.query.song || "";
