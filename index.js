@@ -63,12 +63,19 @@ function loadSavedDevices() {
     if (fs.existsSync(DEVICES_FILE)) {
       const data = fs.readFileSync(DEVICES_FILE, "utf-8");
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
   } catch (e) {
     console.error(`[storage] ❌ Lỗi đọc devices.json: ${e.message}`);
   }
-  return [];
+  return [
+    {
+      deviceName: "NAM01",
+      wssUrl: "wss://api.xiaozhi.me/mcp/?token=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEwMzA0NDIsImFnZW50SWQiOjI1Nzk2OTgsImVuZHBvaW50SWQiOiJhZ2VudF8yNTc5Njk4IiwicHVycG9zZSI6Im1jcC1lbmRwb2ludCIsImlhdCI6MTc5MzU2MzY1NiwiZXhwIjoxODI1MTIxMjU2fQ.WtcTayrm3vvlM0C9KxOc_nU1fgh6tI-1kW7p5wdTEhlcz3X2mtdQ93EE4Flfrss7lJ49lNKUVR7krcPSdWQh1Q",
+      savedAt: new Date().toISOString(),
+      autoConnect: true,
+    },
+  ];
 }
 
 function saveDevicesToFile(devices) {
@@ -219,13 +226,13 @@ const MCP_TOOLS = [
   },
   {
     name: "web_search",
-    description: "Tìm kiếm thông tin trên internet khi cần tra cứu sự kiện mới, thông tin chưa rõ.",
+    description: "Tra cứu thông tin trên Internet, Google, Wikipedia và Bách khoa toàn thư. BẮT BUỘC gọi công cụ này khi người dùng hỏi các câu hỏi kiến thức, hỏi 'ai là', 'ở đâu', 'như thế nào', 'hiện tại', 'chủ tịch nước', 'thời sự', 'nhân vật', 'tin tức'.",
     inputSchema: {
       type: "object",
       properties: {
         query: {
           type: "string",
-          description: "Từ khóa hoặc câu hỏi cần tra cứu",
+          description: "Từ khóa hoặc câu hỏi cần tra cứu (ví dụ: 'Chủ tịch nước Việt Nam', 'Sơn Tùng M-TP', 'Thời sự')",
         },
       },
       required: ["query"],

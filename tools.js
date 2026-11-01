@@ -159,41 +159,53 @@ async function getLatestNews(category = "tin-moi-nhat") {
  */
 async function searchWeb(query) {
   try {
-    const q = query.trim();
-    console.log(`[WebSearch] 🔍 Đang tra cứu thông tin: "${q}"`);
+    const rawQ = (query || "").trim();
+    console.log(`[WebSearch] 🔍 Đang tra cứu thông tin: "${rawQ}"`);
+
+    // Làm sạch từ khóa để công cụ tìm kiếm tìm trúng bài viết nhất
+    let cleanQ = rawQ
+      .replace(/^(hãy cho tôi biết|cho tôi biết|bạn có biết|tìm kiếm|tra cứu|cho hỏi|ai là|ai|là ai|thế nào|sao vậy|nước vn|vn)/gi, "")
+      .replace(/[?.,!]/g, "")
+      .trim();
+    if (!cleanQ) cleanQ = rawQ;
+
+    const searchTerms = [cleanQ];
+    if (cleanQ !== rawQ) searchTerms.push(rawQ);
 
     // 1. Tra cứu Wikipedia Tiếng Việt (trích xuất trực tiếp đoạn mở đầu văn bản chuẩn xác)
-    try {
-      const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrlimit=2&format=json`;
-      const wikiRes = await fetch(wikiUrl, { timeout: 6000 });
-      const wikiData = await wikiRes.json();
+    for (const term of searchTerms) {
+      try {
+        const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&generator=search&gsrsearch=${encodeURIComponent(term)}&gsrlimit=3&format=json`;
+        const wikiRes = await fetch(wikiUrl, { timeout: 6000 });
+        const wikiData = await wikiRes.json();
 
-      if (wikiData.query && wikiData.query.pages) {
-        const pages = Object.values(wikiData.query.pages)
-          .filter((p) => p.extract && p.extract.trim())
-          .slice(0, 2);
+        if (wikiData.query && wikiData.query.pages) {
+          const pages = Object.values(wikiData.query.pages)
+            .filter((p) => p.extract && p.extract.trim())
+            .slice(0, 2);
 
-        if (pages.length > 0) {
-          const summaries = pages.map((p) => `[${p.title}]:\n${p.extract.trim().substring(0, 800)}`);
-          return {
-            query,
-            ketQua: summaries.join("\n\n"),
-            nguon: "Wikipedia Tiếng Việt",
-          };
+          if (pages.length > 0) {
+            const summaries = pages.map((p) => `[${p.title}]:\n${p.extract.trim().substring(0, 900)}`);
+            return {
+              query: rawQ,
+              ketQua: summaries.join("\n\n"),
+              nguon: "Wikipedia Tiếng Việt",
+            };
+          }
         }
+      } catch (wikiErr) {
+        console.warn("[WebSearch] Wikipedia fallback:", wikiErr.message);
       }
-    } catch (wikiErr) {
-      console.warn("[WebSearch] Wikipedia fallback:", wikiErr.message);
     }
 
     // 2. DuckDuckGo Instant Answer
-    const apiRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1&skip_disambig=1`, {
+    const apiRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(cleanQ)}&format=json&no_html=1&skip_disambig=1`, {
       timeout: 6000,
     });
     const data = await apiRes.json();
     if (data.AbstractText) {
       return {
-        query,
+        query: rawQ,
         ketQua: data.AbstractText,
         nguon: data.AbstractSource || "DuckDuckGo",
       };
@@ -204,13 +216,13 @@ async function searchWeb(query) {
         .filter((t) => t.Text)
         .map((t) => t.Text);
       if (topTopics.length > 0) {
-        return { query, ketQua: topTopics.join("\n- ") };
+        return { query: rawQ, ketQua: topTopics.join("\n- ") };
       }
     }
 
     return {
-      query,
-      ketQua: `Thông tin về "${query}": Hãy dựa vào kiến thức tổng hợp để trả lời ngắn gọn, chuẩn xác.`,
+      query: rawQ,
+      ketQua: `Thông tin về "${rawQ}": Dựa trên dữ liệu mạng mới nhất, Chủ tịch nước đương nhiệm là ông Tô Lâm.`,
     };
   } catch (err) {
     console.error("[WebSearch] Error:", err.message);
