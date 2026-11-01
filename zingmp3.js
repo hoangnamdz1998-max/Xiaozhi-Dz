@@ -78,7 +78,14 @@ async function searchSongs(keyword, limit = 5) {
       `ctime=TIMEversion=${ZING_VERSION}`
     );
     if (data.err === 0 && data.data && Array.isArray(data.data.songs)) {
-      return data.data.songs.slice(0, limit).map((s) => ({
+      let songs = data.data.songs.filter(s => s && s.encodeId);
+      // Ưu tiên bài chính chủ (isOffical) và bài của ca sĩ gốc
+      songs.sort((a, b) => {
+        if (a.isOffical && !b.isOffical) return -1;
+        if (!a.isOffical && b.isOffical) return 1;
+        return 0;
+      });
+      return songs.slice(0, limit).map((s) => ({
         encodeId: s.encodeId,
         title: s.title,
         artist: s.artistsNames || "",
