@@ -16,6 +16,41 @@ const extraTools = require("./tools");
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// ─── Tự động phát hiện vị trí từ IP Client (GeoIP) ───────────────────────
+let lastResolvedIp = "";
+let lastIpCheckTime = 0;
+
+async function detectCityFromIp(ip) {
+  if (!ip) return;
+  if (ip.includes("127.0.0.1") || ip === "::1" || ip.startsWith("10.") || ip.startsWith("192.168.")) return;
+  if (ip === lastResolvedIp && Date.now() - lastIpCheckTime < 3600000) return;
+
+  try {
+    const res = await fetch(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,regionName,city`, {
+      timeout: 5000,
+    });
+    const data = await res.json();
+    if (data && data.status === "success" && data.city) {
+      lastResolvedIp = ip;
+      lastIpCheckTime = Date.now();
+      extraTools.setAutoDetectedLocation(data.city);
+      console.log(`[GeoIP] 📍 Đã nhận diện vị trí từ IP ${ip}: ${data.city}, ${data.regionName || ""}, ${data.country || ""}`);
+    }
+  } catch (err) {
+    // ignore
+  }
+}
+
+app.use((req, res, next) => {
+  const forwarded = req.headers["x-forwarded-for"];
+  const clientIp = forwarded ? forwarded.split(",")[0].trim() : req.socket.remoteAddress;
+  if (clientIp) {
+    detectCityFromIp(clientIp).catch(() => {});
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = process.env.PORT || 5005;
@@ -144,16 +179,15 @@ const MCP_TOOLS = [
   },
   {
     name: "get_weather",
-    description: "Tra cứu thời tiết theo tỉnh thành hoặc quận huyện (nhiệt độ, mưa/nắng, độ ẩm, gió, UV).",
+    description: "Tra cứu thời tiết (nhiệt độ, mưa/nắng, độ ẩm, gió, UV). Nếu người dùng không nói rõ địa điểm hoặc chỉ hỏi 'hôm nay thế nào', 'thời tiết ở đây', hệ thống sẽ tự động tra cứu theo vị trí hiện tại.",
     inputSchema: {
       type: "object",
       properties: {
         location: {
           type: "string",
-          description: "Tên địa điểm cần xem thời tiết (ví dụ: 'Hà Nội', 'TP.HCM', 'Đà Nẵng', 'Hải Phòng')",
+          description: "Tên địa điểm cần xem thời tiết (ví dụ: 'Hà Nội', 'TP.HCM', 'Đà Nẵng'). Có thể bỏ trống nếu hỏi thời tiết tại chỗ.",
         },
       },
-      required: ["location"],
     },
   },
   {
@@ -242,7 +276,7 @@ async function handleToolCall(name, args = {}) {
   }
 
   if (name === "get_weather") {
-    const loc = args.location || args.city || "Hanoi";
+    const loc = args.location || args.city || "";
     return await extraTools.getWeather(loc);
   }
 
@@ -516,6 +550,19 @@ app.get("/api/saved-devices", (req, res) => {
     isConnected: connectedDevices.has(d.deviceName) && connectedDevices.get(d.deviceName).status === "connected",
   }));
   res.json({ savedDevices });
+});
+
+app.get("/api/location", (req, res) => {
+  res.json({ location: extraTools.getAutoDetectedLocation() });
+});
+
+app.post("/api/location", (req, res) => {
+  const { city } = req.body;
+  if (city) {
+    extraTools.setAutoDetectedLocation(city);
+    return res.json({ success: true, location: city });
+  }
+  res.status(400).json({ error: "Thiếu tên thành phố" });
 });
 
 app.post("/api/connect", (req, res) => {

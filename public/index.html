@@ -154,6 +154,7 @@
     <div class="badge"><span class="dot"></span> MCP AI Server</div>
     <h1>🧠 VN Music + AI MCP</h1>
     <p>Mở rộng trí tuệ AI cho thiết bị Xiaozhi<br>Nhạc Việt + <span id="total-tools-badge" style="color:#a78bfa;font-weight:700">80+</span> công cụ AI</p>
+    <div style="margin-top:0.6rem;font-size:0.8rem;color:var(--muted)">📍 Vị trí dự báo thời tiết: <span id="auto-location-badge" style="color:#38bdf8;font-weight:600">Đang nhận diện...</span></div>
   </header>
 
   <!-- Guide buttons -->
@@ -522,8 +523,32 @@
     document.getElementById('bonion-toggle').textContent = bonionVisible ? '▲ Thu gọn' : '▼ Xem tất cả';
   }
 
-  // Pre-load count
+  // Auto sync location
+  async function syncLocation() {
+    try {
+      const r = await fetch(`${API}/api/location`);
+      const d = await r.json();
+      if (d && d.location) {
+        document.getElementById('auto-location-badge').textContent = d.location;
+      }
+    } catch (e) {}
+
+    try {
+      const geo = await fetch('https://ipapi.co/json/').then(res => res.json());
+      if (geo && geo.city) {
+        document.getElementById('auto-location-badge').textContent = geo.city + (geo.region ? ', ' + geo.region : '');
+        await fetch(`${API}/api/location`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ city: geo.city })
+        });
+      }
+    } catch (e) {}
+  }
+
+  // Pre-load count & location
   loadBonionTools();
+  syncLocation();
 </script>
 </body>
 </html>

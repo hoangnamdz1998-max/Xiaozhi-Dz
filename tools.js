@@ -1,12 +1,47 @@
 const fetch = require("node-fetch");
 const lunar = require("./lunar");
 
+let autoDetectedLocation = "Ho Chi Minh City";
+
+function setAutoDetectedLocation(city) {
+  if (city) {
+    autoDetectedLocation = city;
+    console.log(`[Location] 📍 Tự động cập nhật vị trí thiết bị: ${autoDetectedLocation}`);
+  }
+}
+
+function getAutoDetectedLocation() {
+  return autoDetectedLocation;
+}
+
 /**
- * 1. Tra cứu thời tiết (wttr.in)
+ * 1. Tra cứu thời tiết (wttr.in) - Tự động nhận diện vị trí
  */
-async function getWeather(location = "Hanoi") {
+async function getWeather(location) {
   try {
-    const loc = location.trim() || "Hanoi";
+    let loc = (location || "").trim();
+    const genericWords = [
+      "",
+      "hôm nay",
+      "hien tai",
+      "hiện tại",
+      "o day",
+      "ở đây",
+      "noi toi o",
+      "nơi tôi ở",
+      "cho toi",
+      "chỗ tôi",
+      "today",
+      "here",
+      "now",
+    ];
+
+    if (genericWords.includes(loc.toLowerCase())) {
+      loc = autoDetectedLocation || "Ho Chi Minh City";
+    }
+
+    console.log(`[Weather] 🌤️ Tra cứu thời tiết tại: "${loc}"`);
+
     const res = await fetch(`https://wttr.in/${encodeURIComponent(loc)}?format=j1`, {
       headers: { "User-Agent": "Xiaozhi-Weather/1.0" },
       timeout: 10000,
@@ -162,4 +197,6 @@ module.exports = {
   getLunarCalendar,
   getLatestNews,
   searchWeb,
+  setAutoDetectedLocation,
+  getAutoDetectedLocation,
 };
