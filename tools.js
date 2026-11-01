@@ -155,14 +155,38 @@ async function getLatestNews(category = "tin-moi-nhat") {
 }
 
 /**
- * 4. Tìm kiếm thông tin trên Web (DuckDuckGo Instant Answer / HTML)
+ * 4. Tìm kiếm thông tin trên Web (Wikipedia Tiếng Việt + DuckDuckGo)
  */
 async function searchWeb(query) {
   try {
-    const q = encodeURIComponent(query.trim());
-    // Try DDG Instant Answer API first
-    const apiRes = await fetch(`https://api.duckduckgo.com/?q=${q}&format=json&no_html=1&skip_disambig=1`, {
-      timeout: 8000,
+    const q = query.trim();
+    console.log(`[WebSearch] 🔍 Đang tra cứu thông tin: "${q}"`);
+
+    // 1. Tra cứu Wikipedia Tiếng Việt (chính xác tuyệt đối cho kiến thức, tiểu sử, lịch sử, định nghĩa, nhân vật, sự kiện)
+    try {
+      const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&utf8=1`;
+      const wikiRes = await fetch(wikiUrl, { timeout: 6000 });
+      const wikiData = await wikiRes.json();
+
+      if (wikiData.query && wikiData.query.search && wikiData.query.search.length > 0) {
+        const top = wikiData.query.search.slice(0, 3);
+        const summaries = top.map((item) => {
+          const cleanSnippet = item.snippet.replace(/<[^>]*>?/gm, "").trim();
+          return `[${item.title}]: ${cleanSnippet}`;
+        });
+        return {
+          query,
+          ketQua: summaries.join("\n\n"),
+          nguon: "Wikipedia Tiếng Việt",
+        };
+      }
+    } catch (wikiErr) {
+      console.warn("[WebSearch] Wikipedia fallback:", wikiErr.message);
+    }
+
+    // 2. DuckDuckGo Instant Answer
+    const apiRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1&skip_disambig=1`, {
+      timeout: 6000,
     });
     const data = await apiRes.json();
     if (data.AbstractText) {
@@ -184,7 +208,7 @@ async function searchWeb(query) {
 
     return {
       query,
-      ketQua: `Đã tìm kiếm thông tin cho "${query}". Hãy dựa vào dữ liệu có sẵn để trả lời ngắn gọn, chuẩn xác.`,
+      ketQua: `Thông tin về "${query}": Hãy dựa vào kiến thức tổng hợp để trả lời ngắn gọn, chuẩn xác.`,
     };
   } catch (err) {
     console.error("[WebSearch] Error:", err.message);
