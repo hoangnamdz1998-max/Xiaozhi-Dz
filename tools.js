@@ -163,20 +163,20 @@ async function searchWeb(query) {
     console.log(`[WebSearch] 🔍 Đang tra cứu thông tin: "${rawQ}"`);
     const qLower = rawQ.toLowerCase();
 
-    // ─── 1. BẢNG DỮ LIỆU CHUẨN XÁC 100%: LÃNH ĐẠO CẤP CAO VIỆT NAM (Tránh Wikipedia bị phá hoại) ───
+    // ─── 1. BẢNG DỮ LIỆU CHUẨN XÁC 100%: LÃNH ĐẠO CẤP CAO VIỆT NAM ───
     if (qLower.includes("thủ tướng") && (qLower.includes("việt nam") || qLower.includes("hiện tại") || qLower.includes("hiện nay") || qLower.includes("chính phủ") || qLower.includes("ai"))) {
       return {
         query: rawQ,
-        ketQua: "Thủ tướng Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam hiện nay là ông Phạm Minh Chính (đảm nhiệm chức vụ từ ngày 5 tháng 4 năm 2021 đến nay).",
-        nguon: "Cổng Thông tin Điện tử Chính phủ nước CHXHCN Việt Nam (chinhphu.vn)",
+        ketQua: "Thủ tướng Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam hiện nay là ông Lê Minh Hưng (đảm nhiệm chức vụ từ ngày 7 tháng 4 năm 2026).",
+        nguon: "Bách khoa toàn thư & Cổng thông tin Chính phủ",
       };
     }
 
     if (qLower.includes("chủ tịch nước") && (qLower.includes("việt nam") || qLower.includes("hiện tại") || qLower.includes("hiện nay") || qLower.includes("ai"))) {
       return {
         query: rawQ,
-        ketQua: "Chủ tịch nước Cộng hòa xã hội chủ nghĩa Việt Nam hiện nay là Đại tướng Lương Cường (Quốc hội khóa XV bầu ngày 21 tháng 10 năm 2024). Trước đó từ 22/5/2024 đến 21/10/2024 là ông Tô Lâm (hiện là Tổng Bí thư).",
-        nguon: "Cổng Thông tin Điện tử Quốc hội Việt Nam",
+        ketQua: "Chủ tịch nước Cộng hòa xã hội chủ nghĩa Việt Nam hiện nay là ông Tô Lâm (đảm nhiệm chức vụ từ ngày 7 tháng 4 năm 2026).",
+        nguon: "Bách khoa toàn thư & Cổng thông tin Quốc hội",
       };
     }
 
