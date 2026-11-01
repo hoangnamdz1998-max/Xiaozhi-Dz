@@ -206,7 +206,40 @@ async function searchWeb(query) {
     const searchTerms = [cleanQ];
     if (cleanQ !== rawQ) searchTerms.push(rawQ);
 
-    // 2. Tra cứu Wikipedia Tiếng Việt
+    // 2. Tra cứu Live Web Search (DuckDuckGo Lite - Quét trực tiếp toàn mạng internet theo thời gian thực)
+    try {
+      const ddgRes = await fetch("https://lite.duckduckgo.com/lite/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+        body: `q=${encodeURIComponent(cleanQ)}`,
+        timeout: 6000,
+      });
+      const html = await ddgRes.text();
+      const snippetRegex = /<td class=['"]result-snippet['"]>([\s\S]*?)<\/td>/gi;
+      const liveSnippets = [];
+      let m;
+      while ((m = snippetRegex.exec(html)) !== null && liveSnippets.length < 3) {
+        const text = m[1].replace(/<[^>]+>/g, "").replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&amp;/g, "&").trim();
+        if (text && text.length > 20) liveSnippets.push(text);
+      }
+
+      if (liveSnippets.length > 0) {
+        const todayStr = new Date().toLocaleDateString("vi-VN");
+        return {
+          query: rawQ,
+          thoiGianTraCuu: todayStr,
+          ketQua: liveSnippets.join("\n\n"),
+          nguon: "Live Web Search (Thời gian thực)",
+        };
+      }
+    } catch (liveErr) {
+      console.warn("[WebSearch] Live search fallback:", liveErr.message);
+    }
+
+    // 3. Tra cứu Wikipedia Tiếng Việt (Bách khoa toàn thư)
     for (const term of searchTerms) {
       try {
         const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&generator=search&gsrsearch=${encodeURIComponent(term)}&gsrlimit=3&format=json`;
