@@ -1,0 +1,19 @@
+{
+  "name": "xiaozhi-vn-music-mcp",
+  "version": "1.0.0",
+  "description": "Zing MP3 MCP Server cho Xiaozhi AI ESP32",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "node-fetch": "^2.7.0",
+    "uuid": "^9.0.1",
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
