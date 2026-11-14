@@ -486,6 +486,18 @@ app.get("/stream_pcm", async (req, res) => {
   }
 });
 
+// API lấy BXH Zing MP3 thời gian thực cho ESP32
+app.get("/api/chart", async (req, res) => {
+  const limit = parseInt(req.query.limit, 10) || 10;
+  try {
+    const charts = await zing.getTopCharts(limit);
+    res.json({ success: true, count: charts.length, songs: charts });
+  } catch (err) {
+    console.error(`[api/chart] ❌ Lỗi:`, err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.get("/proxy_audio", async (req, res) => {
   const id = req.query.id;
   if (!id) return res.status(400).send("Missing id");
