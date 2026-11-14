@@ -58,12 +58,6 @@ const PORT = process.env.PORT || 5005;
 const DEVICES_FILE = path.join(__dirname, "devices.json");
 const connectedDevices = new Map();
 
-// ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
-const FREE_TOOL_NAMES = ["get_gold_price", "get_weather"];
-
-const FREE_MCP_TOOLS = MCP_TOOLS.filter((t) => FREE_TOOL_NAMES.includes(t.name));
-const PRO_MCP_TOOLS = MCP_TOOLS;
-
 // ─── Quản lý lưu trữ thiết bị (devices.json) ──────────────────────────────
 function loadSavedDevices() {
   try {
@@ -372,6 +366,11 @@ const MCP_TOOLS = [
     },
   },
 ];
+
+// ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
+const FREE_TOOL_NAMES = ["get_gold_price", "get_weather"];
+const FREE_MCP_TOOLS = MCP_TOOLS.filter((t) => FREE_TOOL_NAMES.includes(t.name));
+const PRO_MCP_TOOLS = MCP_TOOLS;
 
 // ─── Xử lý các lệnh gọi MCP Tool ─────────────────────────────────────────
 async function handleToolCall(name, args = {}) {
