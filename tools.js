@@ -682,6 +682,101 @@ function getIChingHexagram(question = "") {
   };
 }
 
+// ─── 8 Tiện ích Đời sống & Giải trí Mới ──────────────────────────────────
+function getBedtimeStory(genre = "cổ tích", audience = "bé") {
+  return {
+    theLoai: genre,
+    doiTuong: audience,
+    yeuCauAI: `Bạn là một người kể chuyện truyền cảm, giọng ấm áp và nhẹ nhàng. Hãy kể một câu chuyện ngắn (${genre}) phù hợp cho ${audience} nghe trước khi đi ngủ, kết thúc bằng một bài học ý nghĩa và lời chúc ngủ ngon dịu dàng.`
+  };
+}
+
+function getJoke(type = "hài hước") {
+  const JOKES = [
+    "Thầy giáo hỏi Tèo: 'Nếu em có 5 quả táo, em cho bạn Tí 2 quả thì em còn gì?'. Tèo đáp: 'Dạ, còn một người bạn tốt ạ!'",
+    "Bác sĩ dặn bệnh nhân: 'Mỗi ngày bác nhớ uống 2 lít nước nhé!'. Bệnh nhân than: 'Uống nước thì dễ, nhưng kiếm đâu ra cái ly 2 lít hả bác sĩ?'",
+    "Hai người bạn nói chuyện: 'Cậu biết vì sao loài cá bơi dưới nước không nói chuyện không?'. 'Vì sao?'. 'Cậu thử ngậm mồm đầy nước rồi nói xem có nói được không!'",
+    "Chồng hỏi vợ: 'Em ơi, sao cơm hôm nay lại vừa khét vừa mặn thế?'. Vợ cười: 'Tại tình yêu của em dành cho anh quá nồng cháy và đậm đà đấy!'"
+  ];
+  const joke = JOKES[Math.floor(Math.random() * JOKES.length)];
+  return {
+    theLoai: type,
+    cauChuyen: joke,
+    loiNhan: "Tiếng cười bằng mười thang thuốc bổ, chúc bạn luôn vui vẻ!"
+  };
+}
+
+function getRiddle(level = "dễ") {
+  const RIDDLES = [
+    { cauDo: "Cái gì đen khi bạn mua nó, đỏ khi dùng nó, và xám xịt khi vứt nó đi?", dapAn: "Than củi" },
+    { cauDo: "Con gì đập thì sống, không đập thì chết?", dapAn: "Con tim" },
+    { cauDo: "Cái gì bạn có thể cầm ở tay trái nhưng không bao giờ cầm được ở tay phải?", dapAn: "Cùi chỏ tay phải" },
+    { cauDo: "Bỏ ngoài nướng trong, ăn ngoài bỏ trong là quả gì?", dapAn: "Bắp ngô (trái bắp)" }
+  ];
+  const r = RIDDLES[Math.floor(Math.random() * RIDDLES.length)];
+  return {
+    cauDo: r.cauDo,
+    dapAnGoiY: r.dapAn,
+    huongDanAI: "Hãy đọc câu đố cho người dùng nghe thật dí dỏm, khích lệ họ đoán trước. Nếu họ đoán sai hãy gợi ý, nếu họ xin đáp án thì hãy công bố kèm lời khen ngợi."
+  };
+}
+
+function getCookingRecipe(dish = "", ingredients = "") {
+  return {
+    monAn: dish || "món ngon mỗi ngày",
+    nguyenLieu: ingredients || "nguyên liệu sẵn có",
+    huongDanAI: `Bạn là một đầu bếp chuyên nghiệp MasterChef Việt Nam. Hãy hướng dẫn công thức nấu món '${dish}' (hoặc gợi ý món từ '${ingredients}') gồm: 1. Nguyên liệu cần chuẩn bị, 2. Các bước sơ chế và nấu chi tiết, 3. Mẹo nêm nếm gia vị chuẩn vị thơm ngon.`
+  };
+}
+
+function getHealthFitnessTip(goal = "sức khỏe") {
+  return {
+    mucTieu: goal,
+    loiKhuyenYTe: "Duy trì uống đủ nước (40ml/kg cân nặng/ngày), ngủ đủ 7-8 tiếng và vận động nhẹ nhàng sau mỗi 45 phút ngồi làm việc.",
+    huongDanAI: `Bạn là chuyên gia tư vấn dinh dưỡng và huấn luyện viên sức khỏe. Hãy đưa ra lời khuyên khoa học, thực tế và dễ áp dụng về chủ đề '${goal}'. Nhắc nhở người dùng giữ lối sống lành mạnh.`
+  };
+}
+
+function getDailyMotivation() {
+  const QUOTES = [
+    { quote: "Hành trình vạn dặm luôn bắt đầu từ một bước chân nhỏ bé.", author: "Lão Tử" },
+    { quote: "Thành công không phải là đích đến, mà là lòng can đảm tiếp tục bước đi trên con đường mình đã chọn.", author: "Winston Churchill" },
+    { quote: "Đừng chờ đợi cơ hội hoàn hảo, hãy nắm lấy cơ hội bình thường và làm cho nó trở nên hoàn hảo.", author: "Napoleon Hill" },
+    { quote: "Mỗi buổi sáng thức dậy là một cơ hội mới để bạn trở thành phiên bản tốt hơn của chính mình hôm qua.", author: "Ẩn danh" }
+  ];
+  const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  return {
+    danhNgon: q.quote,
+    tacGia: q.tacGia || q.author,
+    thongDiep: "Hãy bắt đầu ngày mới với nụ cười và năng lượng tràn đầy nhé!"
+  };
+}
+
+function getAiDebatePartner(topic = "") {
+  return {
+    chuDe: topic || "vấn đề xã hội",
+    huongDanAI: `Bạn là đối thủ tranh biện (Debate Partner) sắc sảo, logic và công tâm. Người dùng muốn tranh luận về chủ đề '${topic}'. Hãy nêu quan điểm đa chiều, đặt ra những câu hỏi phản biện gợi mở để cùng rèn luyện tư duy phản biện.`
+  };
+}
+
+function getFinancialCalculator(amount = 100000000, rate = 6, months = 12) {
+  const p = parseFloat(amount) || 100000000;
+  const r = (parseFloat(rate) || 6) / 100;
+  const t = (parseFloat(months) || 12) / 12;
+  const simpleInterest = Math.round(p * r * t);
+  const compoundInterest = Math.round(p * Math.pow(1 + r / 12, 12 * t) - p);
+
+  return {
+    soTienGoc: p.toLocaleString("vi-VN") + " VNĐ",
+    laiSuatNam: `${(r * 100).toFixed(2)}%/năm`,
+    kyHanThang: `${months} tháng`,
+    laiDon: simpleInterest.toLocaleString("vi-VN") + " VNĐ",
+    laiKepTichLuy: compoundInterest.toLocaleString("vi-VN") + " VNĐ",
+    tongNhanDuoc: (p + compoundInterest).toLocaleString("vi-VN") + " VNĐ",
+    loiKhuyen: "Lãi kép là kỳ quan thứ 8 của thế giới, tích lũy đều đặn sẽ tạo nên tài sản bền vững."
+  };
+}
+
 module.exports = {
   getWeather,
   getLunarCalendar,
@@ -698,6 +793,14 @@ module.exports = {
   getTarotReading,
   getHoroscope,
   getIChingHexagram,
+  getBedtimeStory,
+  getJoke,
+  getRiddle,
+  getCookingRecipe,
+  getHealthFitnessTip,
+  getDailyMotivation,
+  getAiDebatePartner,
+  getFinancialCalculator,
   setAutoDetectedLocation,
   getAutoDetectedLocation,
 };

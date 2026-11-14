@@ -472,6 +472,54 @@ const MCP_TOOLS = [
       }
     }
   },
+  // ─── 8 Tiện ích Đời sống, Giải trí & Trí tuệ mới ────────────────────────
+  {
+    name: "bedtime_storyteller",
+    description: "Kể chuyện đêm muộn hoặc truyện cổ tích ru bé ngủ với giọng điệu truyền cảm, ấm áp.",
+    inputSchema: { type: "object", properties: { genre: { type: "string", description: "Thể loại (cổ tích, ngụ ngôn, phiêu lưu)", default: "cổ tích" } } }
+  },
+  {
+    name: "tell_joke",
+    description: "Kể chuyện cười thư giãn, pha trò hài hước, mang lại tiếng cười sảng khoái.",
+    inputSchema: { type: "object", properties: { type: { type: "string", description: "Chủ đề tiếu lâm", default: "hài hước" } } }
+  },
+  {
+    name: "brain_riddle",
+    description: "Đố vui trí tuệ dân gian & hiện đại: Đưa ra câu đố kích thích tư duy và hướng dẫn đoán đáp án.",
+    inputSchema: { type: "object", properties: { level: { type: "string", description: "Độ khó (dễ, vừa, mẹo)", default: "mẹo" } } }
+  },
+  {
+    name: "chef_recipe",
+    description: "Vua đầu bếp MasterChef: Gợi ý món ngon mỗi ngày, hướng dẫn cách nấu ăn chi tiết từ nguyên liệu có sẵn.",
+    inputSchema: { type: "object", properties: { dish: { type: "string", description: "Tên món ăn hoặc nguyên liệu đang có" } } }
+  },
+  {
+    name: "health_fitness_coach",
+    description: "Huấn luyện viên sức khỏe & dinh dưỡng: Lời khuyên tập luyện, chế độ ăn uống khoa học, nhắc nhở giữ gìn sức khỏe.",
+    inputSchema: { type: "object", properties: { goal: { type: "string", description: "Mục tiêu (giảm cân, tăng cơ, ngủ ngon, sống khỏe)", default: "sức khỏe" } } }
+  },
+  {
+    name: "daily_motivation",
+    description: "Tiếp lửa động lực mỗi ngày: Câu danh ngôn truyền cảm hứng, lời khuyên khởi đầu ngày mới tràn đầy năng lượng tích cực.",
+    inputSchema: { type: "object", properties: {} }
+  },
+  {
+    name: "ai_debate_partner",
+    description: "Đối thủ tranh biện AI sắc sảo: Cùng người dùng tranh luận, phản biện logic đa chiều về các vấn đề xã hội, công nghệ.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề muốn tranh luận" } } }
+  },
+  {
+    name: "finance_calculator",
+    description: "Cố vấn tài chính cá nhân & tính lãi kép: Tính tiền lãi gửi tiết kiệm, lãi kép theo số tiền và kỳ hạn năm/tháng.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        amount: { type: "number", description: "Số tiền gốc (VNĐ)" },
+        rate: { type: "number", description: "Lãi suất %/năm (ví dụ 6)" },
+        months: { type: "number", description: "Kỳ hạn gửi (số tháng)" }
+      }
+    }
+  },
 ];
 
 // ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
@@ -610,6 +658,39 @@ async function handleToolCall(name, args = {}) {
 
   if (name === "iching_hexagram") {
     return extraTools.getIChingHexagram(args.question);
+  }
+
+  // 8 Tiện ích Đời sống & Giải trí mới
+  if (name === "bedtime_storyteller") {
+    return extraTools.getBedtimeStory(args.genre, args.audience);
+  }
+
+  if (name === "tell_joke") {
+    return extraTools.getJoke(args.type);
+  }
+
+  if (name === "brain_riddle") {
+    return extraTools.getRiddle(args.level);
+  }
+
+  if (name === "chef_recipe") {
+    return extraTools.getCookingRecipe(args.dish, args.ingredients);
+  }
+
+  if (name === "health_fitness_coach") {
+    return extraTools.getHealthFitnessTip(args.goal);
+  }
+
+  if (name === "daily_motivation") {
+    return extraTools.getDailyMotivation();
+  }
+
+  if (name === "ai_debate_partner") {
+    return extraTools.getAiDebatePartner(args.topic);
+  }
+
+  if (name === "finance_calculator") {
+    return extraTools.getFinancialCalculator(args.amount, args.rate, args.months);
   }
 
   if (name === "play_youtube_music") {
