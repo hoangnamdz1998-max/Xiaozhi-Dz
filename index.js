@@ -559,6 +559,25 @@ app.get("/api/saved-devices", (req, res) => {
   res.json({ savedDevices });
 });
 
+app.get("/api/chart", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const charts = await zing.getTopCharts(limit);
+    const result = charts.map((item) => ({
+      rank: item.rank,
+      title: item.title,
+      artist: item.artist,
+      id: item.encodeId,
+      duration: item.duration,
+      thumbnail: item.thumbnail,
+    }));
+    res.json(result);
+  } catch (err) {
+    console.error("[API] /api/chart error:", err.message);
+    res.status(500).json({ error: "Không thể lấy bảng xếp hạng", message: err.message });
+  }
+});
+
 app.get("/api/location", (req, res) => {
   res.json({ location: extraTools.getAutoDetectedLocation() });
 });
