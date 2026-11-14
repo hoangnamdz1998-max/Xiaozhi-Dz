@@ -12,6 +12,7 @@ const fs = require("fs");
 const WebSocket = require("ws");
 const zing = require("./zingmp3");
 const extraTools = require("./tools");
+const youtube = require("./youtube");
 
 const app = express();
 app.use(cors());
@@ -317,6 +318,20 @@ const MCP_TOOLS = [
       },
     },
   },
+  {
+    name: "play_youtube_music",
+    description: "Tìm kiếm bài hát, video nhạc trên YouTube và lấy đường dẫn âm thanh phát ra loa thiết bị Xiaozhi. BẮT BUỘC gọi công cụ này khi người dùng yêu cầu: 'phát nhạc youtube', 'mở bài hát trên youtube', 'bật nhạc trên youtube', 'nghe youtube'.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "Tên bài hát, ca sĩ hoặc từ khóa nhạc YouTube cần phát (ví dụ: 'sơn tùng remix', 'nhạc trẻ hot tiktok', 'nhạc không lời')",
+        },
+      },
+      required: ["query"],
+    },
+  },
 ];
 
 // ─── Xử lý các lệnh gọi MCP Tool ─────────────────────────────────────────
@@ -404,6 +419,28 @@ async function handleToolCall(name, args = {}) {
   if (name === "listen_radio") {
     const channel = args.channel || args.kenh || args.radio || "vov1";
     return extraTools.getRadioStations(channel);
+  }
+
+  if (name === "play_youtube_music") {
+    const q = args.query || args.q || args.song || "";
+    console.log(`[YouTube] 🔍 Đang tìm nhạc YouTube: "${q}"`);
+    const results = await youtube.searchYouTube(q, 3);
+    if (!results || results.length === 0) {
+      return { message: `Không tìm thấy bài hát "${q}" trên YouTube.` };
+    }
+    const topVideo = results[0];
+    const audioData = await youtube.getYouTubeAudioUrl(topVideo.videoId);
+    if (audioData && audioData.streamUrl) {
+      return {
+        message: `Đang phát bài hát "${audioData.title}" của ${audioData.author} từ YouTube ra loa thiết bị.`,
+        title: audioData.title,
+        author: audioData.author,
+        streamUrl: audioData.streamUrl,
+      };
+    }
+    return {
+      message: `Tìm thấy bài "${topVideo.title}" trên YouTube nhưng luồng âm thanh đang bận. Bạn vui lòng thử lại sau giây lát.`,
+    };
   }
 
   throw new Error(`Tool không hỗ trợ: ${name}`);
