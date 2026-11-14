@@ -546,6 +546,142 @@ function getRadioStations(channelName = "") {
   };
 }
 
+// ─── 10 Gia sư ngoại ngữ ────────────────────────────────────────────────
+const LANGUAGE_TUTORS = {
+  en: { lang: "Tiếng Anh (English)", greeting: "Hello! I am your English tutor. Let's practice speaking and vocabulary together!" },
+  zh: { lang: "Tiếng Trung (Mandarin Chinese)", greeting: "你好！我是你的中文老师。(Nǐ hǎo! Wǒ shì nǐ de zhōngwén lǎoshī). Hôm nay bạn muốn học chủ đề gì?" },
+  ja: { lang: "Tiếng Nhật (Japanese)", greeting: "こんにちは！日本語の先生です。(Konnichiwa! Nihongo no sensei desu). Cùng luyện giao tiếp tiếng Nhật nhé!" },
+  ko: { lang: "Tiếng Hàn (Korean)", greeting: "안녕하세요! 한국어 선생님입니다. (Annyeonghaseyo! Hangugeo seonsaengnim-imnida). Hãy cùng học tiếng Hàn nào!" },
+  fr: { lang: "Tiếng Pháp (French)", greeting: "Bonjour! Je suis votre professeur de français. Hôm nay chúng ta sẽ luyện phát âm và đàm thoại tiếng Pháp." },
+  de: { lang: "Tiếng Đức (German)", greeting: "Guten Tag! Ich bin dein Deutschlehrer. Bạn muốn học từ vựng hay ngữ pháp tiếng Đức?" },
+  ru: { lang: "Tiếng Nga (Russian)", greeting: "Здравствуйте! Я ваш учитель русского языка. (Zdravstvuyte!). Chúng ta cùng khám phá tiếng Nga nhé!" },
+  es: { lang: "Tiếng Tây Ban Nha (Spanish)", greeting: "¡Hola! Soy tu tutor de español. Cùng học thứ tiếng phổ biến top thế giới nào!" },
+  th: { lang: "Tiếng Thái (Thai)", greeting: "สวัสดีครับ/ค่ะ! (Sawatdee khrap/kha!). Tôi là gia sư tiếng Thái của bạn, cùng luyện giao tiếp nhé!" },
+  it: { lang: "Tiếng Ý (Italian)", greeting: "Ciao! Sono il tuo insegnante di italiano. Chào mừng bạn đến với lớp học tiếng Ý lãng mạn!" }
+};
+
+function getLanguageTutor(language = "en", topic = "giao tiếp cơ bản") {
+  const code = (language || "en").toLowerCase();
+  const tutor = LANGUAGE_TUTORS[code] || LANGUAGE_TUTORS.en;
+  return {
+    ngonNgu: tutor.lang,
+    chuDe: topic,
+    chaoHoi: tutor.greeting,
+    vaiTroAI: `Bạn đang đóng vai là Gia sư bản xứ dạy ${tutor.lang}. Hãy nói câu chào bằng ${tutor.lang}, phiên âm đọc nếu có, dịch nghĩa sang tiếng Việt, và đặt câu hỏi gợi mở để người học luyện nói hoặc học từ vựng theo chủ đề '${topic}'. Giữ giọng điệu thân thiện, khuyến khích.`
+  };
+}
+
+// ─── Thần số học & Bói toán tâm linh vui ──────────────────────────────────
+function getNumerology(name = "", birthDate = "") {
+  // Tính con số chủ đạo (Life Path Number) nếu có ngày sinh
+  let lifePath = 0;
+  if (birthDate) {
+    const nums = birthDate.replace(/\D/g, "");
+    if (nums.length >= 6) {
+      let sum = nums.split("").reduce((acc, d) => acc + parseInt(d, 10), 0);
+      while (sum > 11 && sum !== 22 && sum !== 33) {
+        sum = sum.toString().split("").reduce((acc, d) => acc + parseInt(d, 10), 0);
+      }
+      lifePath = sum;
+    }
+  }
+
+  const numerologyDetails = {
+    1: "Số 1: Người tiên phong, độc lập, có tài lãnh đạo và ý chí sắt đá.",
+    2: "Số 2: Người hòa giải, giàu lòng trắc ẩn, trực giác nhạy bén và gắn kết.",
+    3: "Số 3: Người truyền cảm hứng, hoạt ngôn, sáng tạo nghệ thuật và vui vẻ.",
+    4: "Số 4: Người thực tế, tỉ mỉ, có trách nhiệm cao và là điểm tựa vững chãi.",
+    5: "Số 5: Người thích tự do, ưa khám phá, linh hoạt và tràn đầy năng lượng.",
+    6: "Số 6: Người của gia đình, giàu tình yêu thương, sáng tạo và thích chăm sóc.",
+    7: "Số 7: Nhà triết học, chiêm nghiệm sâu sắc, ham học hỏi và thích khám phá bí ẩn.",
+    8: "Số 8: Người của tài chính, bản lĩnh kinh doanh, quyền lực và tự chủ độc lập.",
+    9: "Số 9: Người bao dung, lý tưởng nhân đạo cao đẹp, trọng danh dự.",
+    10: "Số 10 (Số 1): Thích nghi vượt trội, phong thái tự tin, linh hoạt mọi hoàn cảnh.",
+    11: "Số 11 (Master): Trực giác phi thường, tâm hồn nhạy cảm, người dẫn dắt tinh thần.",
+    22: "Số 22 (Master Builder): Bậc thầy kiến tạo, khả năng biến giấc mơ lớn thành hiện thực.",
+    33: "Số 33 (Master Teacher): Chữa lành, truyền tình thương và nâng đỡ tâm thức cộng đồng."
+  };
+
+  return {
+    hoTen: name || "Bạn",
+    ngaySinh: birthDate || "Chưa cung cấp",
+    soChuDao: lifePath > 0 ? lifePath : "Cần ngày tháng năm sinh để tính chính xác con số chủ đạo",
+    yNghia: lifePath > 0 ? numerologyDetails[lifePath] : "Hãy phân tích tính cách, tiềm năng, sứ mệnh cuộc đời dựa trên tên và số chủ đạo của người dùng.",
+    loiKhuyen: "Hãy phát huy thế mạnh độc bản của bạn và luôn giữ năng lượng tích cực mỗi ngày!"
+  };
+}
+
+function getTarotReading(question = "", cardName = "") {
+  const TAROT_DECK = [
+    { card: "The Fool (Kẻ Khờ)", meaning: "Khởi đầu mới, hành trình bất ngờ, hãy dũng cảm bước về phía trước.", status: "Tích cực" },
+    { card: "The Magician (Ảo Thuật Gia)", meaning: "Bạn có đầy đủ tài năng và nguồn lực để biến ý tưởng thành hiện thực.", status: "Rất tốt" },
+    { card: "The High Priestess (Nữ Tư Tế)", meaning: "Hãy lắng nghe tiếng nói trực giác và sự thông thái tĩnh lặng bên trong bạn.", status: "Bí ẩn & Tĩnh tâm" },
+    { card: "The Empress (Hoàng Hậu)", meaning: "Sự trù phú, bội thu, tình yêu đong đầy và sự phát triển tốt đẹp.", status: "Thịnh vượng" },
+    { card: "The Emperor (Hoàng Đế)", meaning: "Quyền uy, sự kỷ luật, làm chủ tình thế và sắp đặt trật tự.", status: "Vững vàng" },
+    { card: "The Lovers (Tình Nhân)", meaning: "Lựa chọn từ trái tim, sự hòa hợp trong tình cảm và các mối quan hệ.", status: "Ngọt ngào" },
+    { card: "The Chariot (Cỗ Xe)", meaning: "Ý chí quyết tâm vượt qua mọi sóng gió, thành công đang ở phía trước.", status: "Tiến lên" },
+    { card: "Strength (Sức Mạnh)", meaning: "Sự kiên nhẫn, lòng trắc ẩn và bản lĩnh kiểm soát cảm xúc nhẹ nhàng.", status: "Nội lực" },
+    { card: "The Hermit (Ẩn Sĩ)", meaning: "Khoảng lặng để chiêm nghiệm, tìm lại bản ngã và thấu suốt chân lý.", status: "Chiêm nghiệm" },
+    { card: "Wheel of Fortune (Bánh Xe Số Phận)", meaning: "Vận may xoay vần, cơ hội mới sắp gõ cửa, hãy sẵn sàng nắm bắt.", status: "May mắn" },
+    { card: "The Sun (Mặt Trời)", meaning: "Niềm vui ngập tràn, thành công rực rỡ, năng lượng tích cực dồi dào.", status: "Đại cát" }
+  ];
+
+  const picked = TAROT_DECK[Math.floor(Math.random() * TAROT_DECK.length)];
+  return {
+    cauHoi: question || "Thông điệp vũ trụ hôm nay",
+    laBai: picked.card,
+    thongDiep: picked.meaning,
+    nangLuong: picked.status,
+    loiDan: "Lá bài Tarot là gương soi tâm thức giúp bạn định hướng và tự tin hơn với sự lựa chọn của mình."
+  };
+}
+
+function getHoroscope(sign = "bạch dương", queryDate = "hôm nay") {
+  const SIGNS = {
+    "bạch dương": "Aries (21/3 - 19/4)",
+    "kim ngưu": "Taurus (20/4 - 20/5)",
+    "song tử": "Gemini (21/5 - 21/6)",
+    "cự giải": "Cancer (22/6 - 22/7)",
+    "sư tử": "Leo (23/7 - 22/8)",
+    "xử nữ": "Virgo (23/8 - 22/9)",
+    "thiên bình": "Libra (23/9 - 23/10)",
+    "bọ cạp": "Scorpio (24/10 - 22/11)",
+    "nhân mã": "Sagittarius (23/11 - 21/12)",
+    "ma kết": "Capricorn (22/12 - 19/1)",
+    "bảo bình": "Aquarius (20/1 - 18/2)",
+    "song ngư": "Pisces (19/2 - 20/3)"
+  };
+
+  const matched = Object.keys(SIGNS).find(k => sign.toLowerCase().includes(k)) || "bạch dương";
+  return {
+    cungHoangDao: matched.toUpperCase() + " - " + SIGNS[matched],
+    thoiGian: queryDate,
+    tongQuan: "Năng lượng hôm nay thích hợp để tập trung vào mục tiêu cá nhân, giao tiếp cởi mở và đón nhận cơ hội mới.",
+    tinhCam: "Sự thấu hiểu và chân thành sẽ giúp mối quan hệ thêm gắn kết và ấm áp.",
+    congViec: "Hiệu suất tốt, tự tin trình bày quan điểm sẽ nhận được sự ủng hộ.",
+    conSoMayMan: `${Math.floor(Math.random() * 9) + 1}, ${Math.floor(Math.random() * 89) + 10}`,
+    mauSacMayMan: ["Xanh dương", "Đỏ cam", "Vàng ánh kim", "Tím hoàng gia", "Xanh lục"][Math.floor(Math.random() * 5)]
+  };
+}
+
+function getIChingHexagram(question = "") {
+  const HEXAGRAMS = [
+    { name: "Thuần Càn (Trời)", meaning: "Đại cát hanh thông, thời cơ chín muồi, cương chính vững chãi." },
+    { name: "Thuần Khôn (Đất)", meaning: "Nhu thuận bao dung, đức dày nâng đỡ, lấy tĩnh chế động." },
+    { name: "Thủy Lôi Truân", meaning: "Vạn sự khởi đầu nan, cần kiên nhẫn tích lũy kinh nghiệm, chớ vội vàng." },
+    { name: "Sơn Thủy Mông", meaning: "Khai sáng mông muội, nên cầu học hỏi từ bậc tiền bối." },
+    { name: "Hỏa Thiên Đại Hữu", meaning: "Tài lộc dồi dào, đức hạnh sáng ngời, mọi sự đều thuận lợi." },
+    { name: "Địa Sơn Khiêm", meaning: "Khiêm tốn giữ mình, càng khiêm nhường càng nhận được phúc báo lớn." }
+  ];
+  const hex = HEXAGRAMS[Math.floor(Math.random() * HEXAGRAMS.length)];
+  return {
+    cauHoi: question || "Xin quẻ dịch sự vụ",
+    queDich: hex.name,
+    yNghia: hex.meaning,
+    loiKhuyenDichLy: "Kinh Dịch khuyên ta 'Thuận thiên ứng nhân', luôn giữ tâm chính trực thì hung hóa cát."
+  };
+}
+
 module.exports = {
   getWeather,
   getLunarCalendar,
@@ -557,6 +693,11 @@ module.exports = {
   getCryptoPrice,
   getLotteryResult,
   getRadioStations,
+  getLanguageTutor,
+  getNumerology,
+  getTarotReading,
+  getHoroscope,
+  getIChingHexagram,
   setAutoDetectedLocation,
   getAutoDetectedLocation,
 };

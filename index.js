@@ -377,6 +377,101 @@ const MCP_TOOLS = [
       required: ["query"],
     },
   },
+  // ─── 10 Gia sư ngoại ngữ ────────────────────────────────────────────────
+  {
+    name: "tutor_english",
+    description: "Gia sư Tiếng Anh bản xứ: Luyện phát âm, học từ vựng, giao tiếp đàm thoại tiếng Anh thường ngày hoặc phỏng vấn.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề muốn học hoặc câu tiếng Anh cần kiểm tra", default: "giao tiếp cơ bản" } } }
+  },
+  {
+    name: "tutor_chinese",
+    description: "Gia sư Tiếng Trung (Mandarin): Học phiên âm Pinyin, chữ Hán, khẩu ngữ giao tiếp, văn hóa Trung Hoa.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề tiếng Trung muốn luyện tập", default: "chào hỏi và mua sắm" } } }
+  },
+  {
+    name: "tutor_japanese",
+    description: "Gia sư Tiếng Nhật: Luyện nghe nói tiếng Nhật (Romaji, Hiragana, Kanji), đàm thoại anime, đời sống Nhật Bản.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề tiếng Nhật muốn học", default: "giao tiếp hàng ngày" } } }
+  },
+  {
+    name: "tutor_korean",
+    description: "Gia sư Tiếng Hàn: Luyện phát âm Hangul, giao tiếp phim ảnh K-Drama, K-Pop, đàm thoại tiếng Hàn chuẩn Seoul.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề tiếng Hàn cần luyện tập", default: "chào hỏi và sở thích" } } }
+  },
+  {
+    name: "tutor_french",
+    description: "Gia sư Tiếng Pháp: Phát âm giọng chuẩn Paris, từ vựng du lịch Pháp, văn phong lãng mạn thanh lịch.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề học tiếng Pháp", default: "giao tiếp du lịch" } } }
+  },
+  {
+    name: "tutor_german",
+    description: "Gia sư Tiếng Đức: Học ngữ pháp, từ vựng du học Đức, giao tiếp công việc và đời sống tại Đức.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề học tiếng Đức", default: "giao tiếp cơ bản" } } }
+  },
+  {
+    name: "tutor_russian",
+    description: "Gia sư Tiếng Nga: Luyện đọc bảng chữ cái Kirin, đàm thoại tiếng Nga giao tiếp và văn hóa Nga.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề học tiếng Nga", default: "chào hỏi và làm quen" } } }
+  },
+  {
+    name: "tutor_spanish",
+    description: "Gia sư Tiếng Tây Ban Nha: Học ngôn ngữ sôi động phổ biến toàn cầu, giao tiếp du lịch Mỹ Latinh và Tây Ban Nha.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề học tiếng Tây Ban Nha", default: "giao tiếp tự nhiên" } } }
+  },
+  {
+    name: "tutor_thai",
+    description: "Gia sư Tiếng Thái: Học câu giao tiếp du lịch Thái Lan, mua sắm ở Bangkok, phát âm chuẩn ngữ điệu.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề học tiếng Thái", default: "du lịch và ẩm thực" } } }
+  },
+  {
+    name: "tutor_italian",
+    description: "Gia sư Tiếng Ý: Học tiếng Ý chuẩn phong cách ẩm thực, nghệ thuật, du lịch Rome, Florence.",
+    inputSchema: { type: "object", properties: { topic: { type: "string", description: "Chủ đề học tiếng Ý", default: "giao tiếp ẩm thực và du lịch" } } }
+  },
+  // ─── Bói toán, Thần số học & Tâm linh vui ─────────────────────────────
+  {
+    name: "numerology_reading",
+    description: "Tra cứu Thần Số Học Pitago: Tính con số chủ đạo (Life Path), phân tích tính cách, điểm mạnh, vận mệnh theo họ tên và ngày sinh.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        name: { type: "string", description: "Họ và tên người cần tra" },
+        birthDate: { type: "string", description: "Ngày tháng năm sinh (ví dụ: '15/11/1998')" }
+      }
+    }
+  },
+  {
+    name: "tarot_divination",
+    description: "Rút bài Tarot giải mã thông điệp vũ trụ hôm nay: Xem tình duyên, sự nghiệp, tài chính hoặc một câu hỏi băn khoăn.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        question: { type: "string", description: "Câu hỏi hoặc khía cạnh muốn xin thông điệp bài Tarot" }
+      }
+    }
+  },
+  {
+    name: "horoscope_zodiac",
+    description: "Xem bói Tử vi 12 Cung Hoàng Đạo (Horoscope): Xem vận may hôm nay, tình cảm, công việc, con số may mắn của 12 chòm sao.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sign: { type: "string", description: "Tên cung hoàng đạo (ví dụ: 'Bạch Dương', 'Bọ Cạp', 'Kim Ngưu'...)" },
+        date: { type: "string", description: "Thời gian xem (hôm nay, ngày mai, tuần này)", default: "hôm nay" }
+      },
+      required: ["sign"]
+    }
+  },
+  {
+    name: "iching_hexagram",
+    description: "Gieo quẻ Kinh Dịch cổ truyền: Xin một quẻ dịch giải đoán việc làm ăn, thi cử, xuất hành, lời khuyên theo đạo lý Kinh Dịch.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        question: { type: "string", description: "Sự vụ cần xin quẻ Kinh Dịch chỉ dẫn" }
+      }
+    }
+  },
 ];
 
 // ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
@@ -487,6 +582,34 @@ async function handleToolCall(name, args = {}) {
   if (name === "listen_radio") {
     const channel = args.channel || args.kenh || args.radio || "vov1";
     return extraTools.getRadioStations(channel);
+  }
+
+  // Xử lý 10 Gia sư ngoại ngữ
+  if (name.startsWith("tutor_")) {
+    const langCode = name.replace("tutor_", "");
+    const mapLang = {
+      english: "en", chinese: "zh", japanese: "ja", korean: "ko",
+      french: "fr", german: "de", russian: "ru", spanish: "es", thai: "th", italian: "it"
+    };
+    const code = mapLang[langCode] || "en";
+    return extraTools.getLanguageTutor(code, args.topic || "giao tiếp cơ bản");
+  }
+
+  // Xử lý Thần số học & Bói toán tâm linh
+  if (name === "numerology_reading") {
+    return extraTools.getNumerology(args.name, args.birthDate);
+  }
+
+  if (name === "tarot_divination") {
+    return extraTools.getTarotReading(args.question);
+  }
+
+  if (name === "horoscope_zodiac") {
+    return extraTools.getHoroscope(args.sign, args.date);
+  }
+
+  if (name === "iching_hexagram") {
+    return extraTools.getIChingHexagram(args.question);
   }
 
   if (name === "play_youtube_music") {
