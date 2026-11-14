@@ -55,6 +55,7 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = process.env.PORT || 5005;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "123456";
 const DEVICES_FILE = path.join(__dirname, "devices.json");
 const connectedDevices = new Map();
 
@@ -797,6 +798,14 @@ app.get("/proxy_lyric", async (req, res) => {
 });
 
 // ─── API cho Giao diện Quản lý Web Portal ──────────────────────────────────
+app.post("/api/admin/login", (req, res) => {
+  const { password } = req.body;
+  if (password === ADMIN_PASSWORD) {
+    return res.json({ success: true, message: "Đăng nhập Admin thành công!" });
+  }
+  res.status(401).json({ success: false, error: "Sai mật khẩu Admin!" });
+});
+
 app.get("/api/devices", (req, res) => {
   const saved = loadSavedDevices();
   const devices = [];

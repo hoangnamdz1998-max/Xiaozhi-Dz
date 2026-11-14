@@ -151,7 +151,12 @@
 
 <div class="wrap">
   <header>
-    <div class="badge"><span class="dot"></span> MCP AI Server</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div class="badge" style="margin-bottom:0"><span class="dot"></span> MCP AI Server</div>
+      <button id="btn-admin-toggle" onclick="toggleAdminPanel()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:var(--text);padding:0.35rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.3rem">
+        <span>🔒</span> Quản trị viên
+      </button>
+    </div>
     <h1>🧠 VN Music + AI MCP</h1>
     <p>Mở rộng trí tuệ AI cho thiết bị Xiaozhi<br>Nhạc Việt + <span id="total-tools-badge" style="color:#a78bfa;font-weight:700">80+</span> công cụ AI</p>
     <div style="margin-top:0.6rem;font-size:0.8rem;color:var(--muted)">📍 Vị trí dự báo thời tiết: <span id="auto-location-badge" style="color:#38bdf8;font-weight:600">Đang nhận diện...</span></div>
@@ -222,28 +227,36 @@
     <div class="msg" id="conn-msg-pro"></div>
   </div>
 
-  <!-- Connected devices -->
-  <div class="devices-card">
-    <div class="devices-header">
-      <div class="device-count">Thiết Bị Đang Kết Nối <span id="device-count">0</span></div>
-      <button class="refresh-btn" onclick="loadDevices()">↻ Làm mới</button>
+  <!-- KHU VỰC DÀNH CHO ADMIN (Mặc định bị ẩn hoàn toàn với khách) -->
+  <div id="admin-panel" style="display:none;background:rgba(124,58,237,0.05);border:1px dashed rgba(167,139,250,0.4);border-radius:18px;padding:1.2rem;margin-bottom:1.5rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div style="font-weight:800;color:#a78bfa;font-size:0.9rem">🛡️ BẢNG ĐIỀU KHIỂN QUẢN TRỊ VIÊN (ADMIN)</div>
+      <button onclick="logoutAdmin()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:var(--red);padding:0.25rem 0.6rem;border-radius:6px;font-size:0.75rem;cursor:pointer">Đăng xuất</button>
     </div>
-    <div id="devices-list">
-      <div class="no-devices"><span>📡</span>Chưa có thiết bị nào kết nối</div>
-    </div>
-  </div>
 
-  <!-- Saved Devices -->
-  <div class="devices-card">
-    <div class="devices-header">
-      <div class="device-count">💾 THIẾT BỊ ĐÃ LƯU <span id="saved-count">0</span></div>
-      <div style="display:flex;gap:.4rem">
-        <button class="refresh-btn" onclick="loadSavedDevices()">↻ Làm mới</button>
-        <button class="refresh-btn" onclick="reconnectAll()" title="Kết nối lại tất cả">🔄 Kết nối lại</button>
+    <!-- Connected devices -->
+    <div class="devices-card" style="margin-bottom:1rem">
+      <div class="devices-header">
+        <div class="device-count">Thiết Bị Đang Kết Nối <span id="device-count">0</span></div>
+        <button class="refresh-btn" onclick="loadDevices()">↻ Làm mới</button>
+      </div>
+      <div id="devices-list">
+        <div class="no-devices"><span>📡</span>Chưa có thiết bị nào kết nối</div>
       </div>
     </div>
-    <div id="saved-devices-list">
-      <div class="no-devices"><span>💾</span>Chưa lưu thiết bị nào</div>
+
+    <!-- Saved Devices -->
+    <div class="devices-card" style="margin-bottom:0">
+      <div class="devices-header">
+        <div class="device-count">💾 THIẾT BỊ ĐÃ LƯU & DUYỆT PRO <span id="saved-count">0</span></div>
+        <div style="display:flex;gap:.4rem">
+          <button class="refresh-btn" onclick="loadSavedDevices()">↻ Làm mới</button>
+          <button class="refresh-btn" onclick="reconnectAll()" title="Kết nối lại tất cả">🔄 Kết nối lại</button>
+        </div>
+      </div>
+      <div id="saved-devices-list">
+        <div class="no-devices"><span>💾</span>Chưa lưu thiết bị nào</div>
+      </div>
     </div>
   </div>
 
@@ -300,12 +313,72 @@
 
 <script>
   const API = window.location.origin;
+  let isAdminAuthenticated = localStorage.getItem('mcp_admin_logged') === 'true';
 
-  // Load devices on start
-  loadDevices();
-  loadSavedDevices();
-  setInterval(loadDevices, 8000);
-  setInterval(loadSavedDevices, 15000);
+  // Quản lý hiển thị Admin
+  function checkAdminState() {
+    const panel = document.getElementById('admin-panel');
+    const toggleBtn = document.getElementById('btn-admin-toggle');
+    if (isAdminAuthenticated) {
+      panel.style.display = 'block';
+      toggleBtn.innerHTML = '<span>🔓</span> Admin: Đã đăng nhập';
+      toggleBtn.style.color = '#10b981';
+      toggleBtn.style.borderColor = '#10b981';
+      loadDevices();
+      loadSavedDevices();
+    } else {
+      panel.style.display = 'none';
+      toggleBtn.innerHTML = '<span>🔒</span> Quản trị viên';
+      toggleBtn.style.color = 'var(--text)';
+      toggleBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+    }
+  }
+
+  async function toggleAdminPanel() {
+    if (isAdminAuthenticated) {
+      const panel = document.getElementById('admin-panel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      return;
+    }
+
+    const pass = prompt('🔑 Nhập mật khẩu Quản trị viên để mở bảng điều khiển:');
+    if (!pass) return;
+
+    try {
+      const r = await fetch(`${API}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pass })
+      });
+      const d = await r.json();
+      if (d.success) {
+        isAdminAuthenticated = true;
+        localStorage.setItem('mcp_admin_logged', 'true');
+        toast('👑 Đăng nhập Admin thành công!', 'ok');
+        checkAdminState();
+      } else {
+        toast('❌ ' + (d.error || 'Sai mật khẩu!'), 'err');
+      }
+    } catch (e) {
+      toast('Lỗi: ' + e.message, 'err');
+    }
+  }
+
+  function logoutAdmin() {
+    isAdminAuthenticated = false;
+    localStorage.removeItem('mcp_admin_logged');
+    toast('Đã đăng xuất tài khoản Admin', 'ok');
+    checkAdminState();
+  }
+
+  // Khởi động kiểm tra quyền
+  checkAdminState();
+  setInterval(() => {
+    if (isAdminAuthenticated) {
+      loadDevices();
+      loadSavedDevices();
+    }
+  }, 10000);
 
   function switchTab(type) {
     const isFree = type === 'free';
