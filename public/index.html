@@ -121,25 +121,26 @@
     .saved-device-meta{display:flex;gap:.4rem;margin-top:.3rem;flex-wrap:wrap}
     .saved-time{font-size:.68rem;color:var(--muted);margin-top:.2rem}
 
-    /* Tools */
-    .tools-row{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-bottom:1.2rem}
+    /* Tools - Bố cục 3 cột siêu gọn gàng */
+    .tools-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:1rem}
+    @media(max-width:768px){.tools-grid-3{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:480px){.tools-grid-3{grid-template-columns:1fr}}
+    .tool-chip{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:10px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .2s}
+    .tool-chip:hover{border-color:rgba(124,58,237,.45);background:rgba(124,58,237,.08);transform:translateY(-1px)}
+    .tool-chip span.chip-icon{font-size:1.1rem;flex-shrink:0}
+    .tool-chip span.chip-text{overflow:hidden;text-overflow:ellipsis}
+
     @media(max-width:580px){
       .wrap{padding:0 0.8rem 3rem}
       header{padding:2rem 0.5rem 1.5rem}
       h1{font-size:1.8rem}
       .main-card{padding:1.2rem}
       .devices-card{padding:1.2rem}
-      .tools-row{grid-template-columns:1fr}
       .saved-device-item{flex-direction:column;align-items:flex-start}
       .saved-actions{width:100%;justify-content:flex-end;margin-top:0.4rem}
       #admin-modal > div:nth-child(2) > div{flex-direction:column}
       #admin-modal > div:nth-child(2) > div button{width:100%}
     }
-    .tool-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem;transition:all .3s}
-    .tool-card:hover{border-color:rgba(124,58,237,.4);transform:translateY(-3px);box-shadow:0 10px 28px rgba(124,58,237,.1)}
-    .tool-icon{font-size:1.6rem;margin-bottom:.6rem}
-    .tool-name{font-size:.8rem;font-weight:700;color:#a78bfa;font-family:'Courier New',monospace;margin-bottom:.3rem}
-    .tool-desc{font-size:.77rem;color:var(--muted);line-height:1.6}
 
     /* spinner */
     .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:rotate .7s linear infinite;display:inline-block}
@@ -258,64 +259,64 @@
   </div>
 
   <!-- 1. Danh sách tính năng Miễn Phí (Ai cũng dùng được) -->
-  <div class="devices-card" style="border-left:4px solid #10b981">
+  <div class="devices-card" style="border-left:4px solid #10b981;margin-bottom:1.2rem">
     <div class="devices-header">
-      <div class="device-count" style="color:#10b981">🟢 GÓI MIỄN PHÍ (FREE) <span>2 CÔNG CỤ</span></div>
-      <span style="font-size:0.75rem;color:var(--muted)">Ai đăng ký cũng dùng được ngay</span>
+      <div class="device-count" style="color:#10b981">🟢 GÓI TIÊU CHUẨN (MIỄN PHÍ) <span>2 TÍNH NĂNG</span></div>
+      <span style="font-size:0.75rem;color:var(--muted)">Ai cũng dùng được ngay</span>
     </div>
-    <div class="tools-row" style="grid-template-columns:repeat(2, 1fr)">
-      <div class="tool-card"><div class="tool-icon">🥇</div><div class="tool-name">get_gold_price</div><div class="tool-desc">Tra cứu giá vàng SJC, DOJI, PNJ mới nhất</div></div>
-      <div class="tool-card"><div class="tool-icon">🌤️</div><div class="tool-name">get_weather</div><div class="tool-desc">Dự báo thời tiết thông minh theo vị trí</div></div>
+    <div class="tools-grid-3">
+      <div class="tool-chip"><span class="chip-icon">🥇</span><span class="chip-text">Giá vàng SJC / DOJI / PNJ</span></div>
+      <div class="tool-chip"><span class="chip-icon">🌤️</span><span class="chip-text">Dự báo thời tiết thông minh</span></div>
     </div>
   </div>
 
   <!-- 2. Danh sách tính năng PRO (Cần duyệt) -->
-  <div class="devices-card" style="border-left:4px solid #a78bfa">
+  <div class="devices-card" style="border-left:4px solid #a78bfa;margin-bottom:1.2rem">
     <div class="devices-header">
-      <div class="device-count" style="color:#a78bfa">👑 GÓI PRO (NÂNG CAO) <span>27 CÔNG CỤ ĐỈNH CAO</span></div>
-      <span style="font-size:0.75rem;color:#f59e0b">Yêu cầu duyệt từ Quản trị viên</span>
+      <div class="device-count" style="color:#a78bfa">👑 GÓI PRO (NÂNG CAO) <span>27 TÍNH NĂNG</span></div>
+      <span style="font-size:0.75rem;color:#f59e0b">Duyệt bởi Admin</span>
     </div>
 
-    <!-- Nhóm Âm nhạc & Tiện ích -->
-    <div style="font-size:0.75rem;font-weight:700;color:#c084fc;margin:0.8rem 0 0.5rem;text-transform:uppercase;letter-spacing:0.05em">🎵 Âm Nhạc, Đài FM & Đời Sống</div>
-    <div class="tools-row">
-      <div class="tool-card"><div class="tool-icon">▶️</div><div class="tool-name">play_music</div><div class="tool-desc">Phát nhạc Zing MP3 chất lượng cao</div></div>
-      <div class="tool-card"><div class="tool-icon">📺</div><div class="tool-name">play_youtube_music</div><div class="tool-desc">Phát nhạc YouTube trực tiếp ra loa</div></div>
-      <div class="tool-card"><div class="tool-icon">📻</div><div class="tool-name">listen_radio</div><div class="tool-desc">Đài FM: VOV1, VOV3, VOH 99.9MHz</div></div>
-      <div class="tool-card"><div class="tool-icon">🔍</div><div class="tool-name">search_music</div><div class="tool-desc">Tìm kiếm kho nhạc Zing MP3 & YouTube</div></div>
-      <div class="tool-card"><div class="tool-icon">🔥</div><div class="tool-name">get_top_charts</div><div class="tool-desc">Bảng xếp hạng nhạc hot thịnh hành</div></div>
-      <div class="tool-card"><div class="tool-icon">⛽</div><div class="tool-name">get_gasoline_price</div><div class="tool-desc">Giá xăng dầu Petrolimex hôm nay</div></div>
-      <div class="tool-card"><div class="tool-icon">💵</div><div class="tool-name">get_exchange_rate</div><div class="tool-desc">Tỷ giá Vietcombank: USD, EUR, JPY...</div></div>
-      <div class="tool-card"><div class="tool-icon">🪙</div><div class="tool-name">get_crypto_price</div><div class="tool-desc">Giá Bitcoin & Crypto sàn Binance</div></div>
-      <div class="tool-card"><div class="tool-icon">🎰</div><div class="tool-name">get_lottery_result</div><div class="tool-desc">Kết quả Xổ số 3 miền: Bắc, Trung, Nam</div></div>
-      <div class="tool-card"><div class="tool-icon">📅</div><div class="tool-name">get_lunar_calendar</div><div class="tool-desc">Lịch vạn niên, xem ngày tốt hoàng đạo</div></div>
-      <div class="tool-card"><div class="tool-icon">📰</div><div class="tool-name">get_latest_news</div><div class="tool-desc">Điểm tin tức thời sự nóng VnExpress</div></div>
-      <div class="tool-card"><div class="tool-icon">🌐</div><div class="tool-name">web_search</div><div class="tool-desc">Tra cứu toàn mạng Internet & Wikipedia</div></div>
-      <div class="tool-card"><div class="tool-icon">📝</div><div class="tool-name">get_lyrics</div><div class="tool-desc">Lời bài hát đồng bộ thời gian thực</div></div>
+    <!-- Nhóm Âm nhạc & Đời sống -->
+    <div style="font-size:0.73rem;font-weight:700;color:#c084fc;margin:0.5rem 0 0.4rem;text-transform:uppercase">🎵 Âm Nhạc, Đài FM & Đời Sống (13)</div>
+    <div class="tools-grid-3">
+      <div class="tool-chip"><span class="chip-icon">▶️</span><span class="chip-text">Phát nhạc Zing MP3</span></div>
+      <div class="tool-chip"><span class="chip-icon">📺</span><span class="chip-text">Phát nhạc YouTube ra loa</span></div>
+      <div class="tool-chip"><span class="chip-icon">📻</span><span class="chip-text">Đài FM: VOV1, VOV3, VOH 99.9</span></div>
+      <div class="tool-chip"><span class="chip-icon">🔍</span><span class="chip-text">Tìm kiếm bài hát nhanh</span></div>
+      <div class="tool-chip"><span class="chip-icon">🔥</span><span class="chip-text">Top bài hát thịnh hành</span></div>
+      <div class="tool-chip"><span class="chip-icon">📝</span><span class="chip-text">Lời bài hát đồng bộ</span></div>
+      <div class="tool-chip"><span class="chip-icon">⛽</span><span class="chip-text">Giá xăng Petrolimex</span></div>
+      <div class="tool-chip"><span class="chip-icon">💵</span><span class="chip-text">Tỷ giá Vietcombank</span></div>
+      <div class="tool-chip"><span class="chip-icon">🪙</span><span class="chip-text">Giá Bitcoin / Crypto Binance</span></div>
+      <div class="tool-chip"><span class="chip-icon">🎰</span><span class="chip-text">Kết quả Xổ số 3 miền</span></div>
+      <div class="tool-chip"><span class="chip-icon">📅</span><span class="chip-text">Lịch vạn niên & ngày tốt</span></div>
+      <div class="tool-chip"><span class="chip-icon">📰</span><span class="chip-text">Điểm tin nóng VnExpress</span></div>
+      <div class="tool-chip"><span class="chip-icon">🌐</span><span class="chip-text">Tra cứu Internet & Wikipedia</span></div>
     </div>
 
     <!-- Nhóm Gia sư 10 Ngôn Ngữ -->
-    <div style="font-size:0.75rem;font-weight:700;color:#38bdf8;margin:1.2rem 0 0.5rem;text-transform:uppercase;letter-spacing:0.05em">🌍 Gia Sư 10 Ngoại Ngữ Bản Xứ (Luyện Nói & Dạy Học)</div>
-    <div class="tools-row">
-      <div class="tool-card"><div class="tool-icon">🇬🇧</div><div class="tool-name">tutor_english</div><div class="tool-desc">Gia sư Tiếng Anh: Luyện phát âm, đàm thoại, từ vựng chuẩn bản xứ</div></div>
-      <div class="tool-card"><div class="tool-icon">🇨🇳</div><div class="tool-name">tutor_chinese</div><div class="tool-desc">Gia sư Tiếng Trung: Luyện phát âm Pinyin, chữ Hán, khẩu ngữ giao tiếp</div></div>
-      <div class="tool-card"><div class="tool-icon">🇯🇵</div><div class="tool-name">tutor_japanese</div><div class="tool-desc">Gia sư Tiếng Nhật: Đàm thoại Kaiwa, luyện nghe nói Romaji, Hiragana</div></div>
-      <div class="tool-card"><div class="tool-icon">🇰🇷</div><div class="tool-name">tutor_korean</div><div class="tool-desc">Gia sư Tiếng Hàn: Giao tiếp chuẩn Seoul, luyện nghe nói như phim K-Drama</div></div>
-      <div class="tool-card"><div class="tool-icon">🇫🇷</div><div class="tool-name">tutor_french</div><div class="tool-desc">Gia sư Tiếng Pháp: Phát âm chuẩn ngữ điệu Paris, tiếng Pháp du lịch</div></div>
-      <div class="tool-card"><div class="tool-icon">🇩🇪</div><div class="tool-name">tutor_german</div><div class="tool-desc">Gia sư Tiếng Đức: Luyện ngữ pháp, từ vựng và đàm thoại du học Đức</div></div>
-      <div class="tool-card"><div class="tool-icon">🇷🇺</div><div class="tool-name">tutor_russian</div><div class="tool-desc">Gia sư Tiếng Nga: Luyện đọc bảng chữ cái Kirin, đàm thoại giao tiếp</div></div>
-      <div class="tool-card"><div class="tool-icon">🇪🇸</div><div class="tool-name">tutor_spanish</div><div class="tool-desc">Gia sư Tiếng Tây Ban Nha: Ngôn ngữ phổ biến toàn cầu, giao tiếp du lịch</div></div>
-      <div class="tool-card"><div class="tool-icon">🇹🇭</div><div class="tool-name">tutor_thai</div><div class="tool-desc">Gia sư Tiếng Thái: Học câu giao tiếp du lịch, mua sắm chuẩn Bangkok</div></div>
-      <div class="tool-card"><div class="tool-icon">🇮🇹</div><div class="tool-name">tutor_italian</div><div class="tool-desc">Gia sư Tiếng Ý: Đàm thoại văn hóa nghệ thuật, ẩm thực nước Ý</div></div>
+    <div style="font-size:0.73rem;font-weight:700;color:#38bdf8;margin:0.8rem 0 0.4rem;text-transform:uppercase">🌍 Gia Sư 10 Ngoại Ngữ Bản Xứ (10)</div>
+    <div class="tools-grid-3">
+      <div class="tool-chip"><span class="chip-icon">🇬🇧</span><span class="chip-text">Gia sư Tiếng Anh</span></div>
+      <div class="tool-chip"><span class="chip-icon">🇨🇳</span><span class="chip-text">Gia sư Tiếng Trung</span></div>
+      <div class="tool-chip"><span class="chip-icon">🇯🇵</span><span class="chip-text">Gia sư Tiếng Nhật</span></div>
+      <div class="tool-chip"><span class="chip-icon">🇰🇷</span><span class="chip-text">Gia sư Tiếng Hàn</span></div>
+      <div class="tool-chip"><span class="chip-icon">🇫🇷</span><span class="chip-text">Gia sư Tiếng Pháp</span></div>
+      <div class="tool-chip"><span class="chip-icon">🇩🇪</span><span class="chip-text">Gia sư Tiếng Đức</span></div>
+      <div class="tool-chip"><span class="chip-icon">🇷🇺</span><span class="chip-text">Gia sư Tiếng Nga</span></div>
+      <div class="tool-chip"><span class="chip-icon">🇪🇸</span><span class="chip-text">Gia sư Tiếng Tây Ban Nha</span></div>
+      <div class="tool-chip"><span class="chip-icon">🇹🇭</span><span class="chip-text">Gia sư Tiếng Thái</span></div>
+      <div class="tool-chip"><span class="chip-icon">🇮🇹</span><span class="chip-text">Gia sư Tiếng Ý</span></div>
     </div>
 
     <!-- Nhóm Bói Toán & Thần Số Học -->
-    <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;margin:1.2rem 0 0.5rem;text-transform:uppercase;letter-spacing:0.05em">✨ Thần Số Học, Tarot & Bói Toán Tâm Linh Vui</div>
-    <div class="tools-row">
-      <div class="tool-card"><div class="tool-icon">🔢</div><div class="tool-name">numerology_reading</div><div class="tool-desc">Thần số học Pitago: Tính con số chủ đạo, sứ mệnh & đường đời</div></div>
-      <div class="tool-card"><div class="tool-icon">🔮</div><div class="tool-name">tarot_divination</div><div class="tool-desc">Bói bài Tarot: Rút lá bài giải mã thông điệp vũ trụ về tình duyên, sự nghiệp</div></div>
-      <div class="tool-card"><div class="tool-icon">♈</div><div class="tool-name">horoscope_zodiac</div><div class="tool-desc">Tử vi 12 Cung Hoàng Đạo: Xem vận may, tình duyên, con số may mắn hôm nay</div></div>
-      <div class="tool-card"><div class="tool-icon">☯️</div><div class="tool-name">iching_hexagram</div><div class="tool-desc">Gieo quẻ Kinh Dịch: Bốc quẻ dịch giải đoán công việc, xuất hành, lời khuyên cổ nhân</div></div>
+    <div style="font-size:0.73rem;font-weight:700;color:#f59e0b;margin:0.8rem 0 0.4rem;text-transform:uppercase">✨ Thần Số Học, Tarot & Tâm Linh (4)</div>
+    <div class="tools-grid-3">
+      <div class="tool-chip"><span class="chip-icon">🔢</span><span class="chip-text">Thần số học Pitago</span></div>
+      <div class="tool-chip"><span class="chip-icon">🔮</span><span class="chip-text">Bói bài Tarot thông điệp</span></div>
+      <div class="tool-chip"><span class="chip-icon">♈</span><span class="chip-text">Tử vi 12 Cung Hoàng Đạo</span></div>
+      <div class="tool-chip"><span class="chip-icon">☯️</span><span class="chip-text">Gieo quẻ Kinh Dịch</span></div>
     </div>
   </div>
 
