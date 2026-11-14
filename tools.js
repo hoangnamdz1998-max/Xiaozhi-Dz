@@ -408,9 +408,40 @@ async function getCryptoPrice(symbol = "BTC") {
 }
 
 /**
- * 9. Tra cứu kết quả xổ số kiến thiết miền Bắc (XSMB)
+ * 9. Tra cứu kết quả xổ số kiến thiết 3 miền (Miền Bắc XSMB, Miền Nam XSMN, Miền Trung XSMT)
  */
-async function getLotteryResult(date) {
+async function getLotteryResult(region = "mb") {
+  const reg = (region || "mb").toLowerCase();
+
+  // Miền Nam hoặc Miền Trung
+  if (reg.includes("nam") || reg.includes("mn")) {
+    try {
+      const res = await fetch("https://xosodaiphat.com/rss/ket-qua-xo-so-mien-nam.rss", {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
+        timeout: 7000,
+      });
+      const xml = await res.text();
+      const itemMatch = /<item>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/i.exec(xml);
+      if (itemMatch) {
+        const title = itemMatch[1].replace(/<[^>]+>/g, "").trim();
+        const desc = itemMatch[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        return {
+          daiXoSo: "Xổ số kiến thiết Miền Nam (XSMN)",
+          tieuDe: title,
+          chiTiet: desc.substring(0, 350),
+          nguon: "Xổ số Đại Phát (xosodaiphat.com)",
+        };
+      }
+    } catch (err) {
+      console.warn("[Lottery MN] RSS error:", err.message);
+    }
+    return {
+      daiXoSo: "Xổ số kiến thiết Miền Nam (XSMN)",
+      thongBao: "Xổ số Miền Nam mở thưởng lúc 16h15 hàng ngày với các đài TP.HCM, Đồng Nai, Cần Thơ, Tiền Giang...",
+    };
+  }
+
+  // Mặc định: Miền Bắc (XSMB)
   try {
     const res = await fetch(
       "https://raw.githubusercontent.com/khiemdoan/vietnam-lottery-xsmb-analysis/refs/heads/main/data/xsmb.json",
@@ -430,7 +461,7 @@ async function getLotteryResult(date) {
       };
     }
   } catch (err) {
-    console.warn("[Lottery] Error:", err.message);
+    console.warn("[Lottery MB] Error:", err.message);
   }
   return {
     thongBao: "Hiện chưa có kết quả quay thưởng mới nhất cho ngày này hoặc đài chưa mở thưởng.",
@@ -438,23 +469,33 @@ async function getLotteryResult(date) {
 }
 
 /**
- * 10. Danh sách và phát Radio Trực tuyến (VOV1, VOV3, VOV Giao Thông,...)
+ * 10. Danh sách và phát Radio Trực tuyến / Đài FM (VOV1, VOV3, VOV Giao Thông, VOH FM 99.9MHz...)
  */
 const RADIO_CHANNELS = [
   {
     id: "vov1",
-    ten: "VOV1 - Thời sự Chính trị Tổng hợp",
+    ten: "VOV1 - Thời sự Chính trị Tổng hợp (FM 100MHz)",
     streamUrl: "https://str.vov.gov.vn/vovlive/vov1.sdp_aac/chunklist.m3u8",
   },
   {
     id: "vov3",
-    ten: "VOV3 - Âm nhạc & Giải trí",
+    ten: "VOV3 - Âm nhạc & Giải trí (FM 102.7MHz)",
     streamUrl: "https://str.vov.gov.vn/vovlive/vov3.sdp_aac/chunklist.m3u8",
   },
   {
     id: "vov_gt",
-    ten: "VOV Giao Thông Hà Nội (FM 91MHz)",
+    ten: "VOV Giao Thông (FM 91MHz)",
     streamUrl: "https://str.vov.gov.vn/vovlive/vovGTHN.sdp_aac/chunklist.m3u8",
+  },
+  {
+    id: "voh_999",
+    ten: "VOH FM 99.9 MHz - Đài Tiếng nói Nhân dân TP.HCM",
+    streamUrl: "https://strm.voh.com.vn/radio/channel2/playlist.m3u8",
+  },
+  {
+    id: "voh_956",
+    ten: "VOH Giao thông Đô thị FM 95.6 MHz",
+    streamUrl: "https://strm.voh.com.vn/radio/channel3/playlist.m3u8",
   },
 ];
 
@@ -462,12 +503,26 @@ function getRadioStations(channelName = "") {
   if (!channelName) {
     return {
       danhSachKenh: RADIO_CHANNELS.map((k) => ({ id: k.id, ten: k.ten })),
-      huongDan: "Yêu cầu người dùng chọn kênh (ví dụ: 'VOV1', 'VOV3', 'VOV Giao thông'). Sau đó gọi phát kênh tương ứng.",
+      huongDan: "Yêu cầu người dùng chọn kênh (ví dụ: 'VOV1', 'VOV3', 'VOV Giao thông', 'Đài FM 99.9', 'VOH'). Sau đó gọi phát kênh tương ứng.",
     };
   }
   const q = channelName.toLowerCase();
-  const found = RADIO_CHANNELS.find((c) => c.id.includes(q) || c.ten.toLowerCase().includes(q)) || RADIO_CHANNELS[0];
+  const found =
+    RADIO_CHANNELS.find(
+      (c) =>
+        c.id.includes(q) ||
+        c.ten.toLowerCase().includes(q) ||
+        (q.includes("99") && c.id === "voh_999") ||
+        (q.includes("95") && c.id === "voh_956") ||
+        (q.includes("giao thông") && c.id === "vov_gt")
+    ) || RADIO_CHANNELS[0];
+
   return {
+    kenh: found.ten,
+    url: found.streamUrl,
+    loiNhan: `Đang phát đài phát thanh ${found.ten}.`,
+  };
+}
     kenh: found.ten,
     url: found.streamUrl,
     loiNhan: `Đang phát kênh radio ${found.ten}.`,

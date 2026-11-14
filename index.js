@@ -291,26 +291,27 @@ const MCP_TOOLS = [
   },
   {
     name: "get_lottery_result",
-    description: "Tra cứu kết quả xổ số kiến thiết Miền Bắc (XSMB) mới nhất hôm nay.",
+    description: "Tra cứu kết quả xổ số kiến thiết 3 miền: Miền Bắc (XSMB), Miền Nam (XSMN, xổ số đài TP.HCM, miền Nam), Miền Trung. BẮT BUỘC gọi công cụ này khi người dùng hỏi kết quả xổ số, số đề, đài miền nam, đài miền bắc.",
     inputSchema: {
       type: "object",
       properties: {
-        date: {
+        region: {
           type: "string",
-          description: "Ngày quay thưởng DD-MM-YYYY (để trống nếu muốn xem kết quả mới nhất)",
+          description: "Vùng miền hoặc đài cần xem: 'mb' (miền Bắc), 'mn' hoặc 'nam' (miền Nam), 'mt' (miền Trung)",
+          default: "mb",
         },
       },
     },
   },
   {
     name: "listen_radio",
-    description: "Nghe đài phát thanh Radio trực tuyến các đài quốc gia Việt Nam (VOV1, VOV3, VOV Giao thông).",
+    description: "Nghe đài phát thanh Radio FM trực tuyến: VOV1 (Thời sự FM 100MHz), VOV3 (Âm nhạc FM 102.7MHz), VOV Giao thông (FM 91MHz), VOH FM 99.9MHz (Đài tiếng nói Nhân dân TP.HCM), VOH FM 95.6MHz. BẮT BUỘC gọi công cụ này khi người dùng bảo 'mở đài FM', 'nghe radio', 'bật VOV', 'nghe đài VOV Giao thông', 'nghe đài 99.9'.",
     inputSchema: {
       type: "object",
       properties: {
         channel: {
           type: "string",
-          description: "Tên kênh radio muốn nghe: 'vov1', 'vov3', 'vov_gt' hoặc 'VOV Giao thông'",
+          description: "Tên kênh radio hoặc tần số FM: 'vov1', 'vov3', 'vov_gt', 'voh_999' (FM 99.9), 'voh_956' (FM 95.6) hoặc 'fm'",
           default: "vov1",
         },
       },
@@ -396,11 +397,13 @@ async function handleToolCall(name, args = {}) {
   }
 
   if (name === "get_lottery_result") {
-    return await extraTools.getLotteryResult(args.date);
+    const region = args.region || args.mien || args.dai || "mb";
+    return await extraTools.getLotteryResult(region);
   }
 
   if (name === "listen_radio") {
-    return extraTools.getRadioStations(args.channel);
+    const channel = args.channel || args.kenh || args.radio || "vov1";
+    return extraTools.getRadioStations(channel);
   }
 
   throw new Error(`Tool không hỗ trợ: ${name}`);
