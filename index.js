@@ -96,14 +96,17 @@ function saveDevicesToFile(devices) {
   }
 }
 
-function addSavedDevice(deviceName, wssUrl, requestedPro = false) {
+function addSavedDevice(deviceName, wssUrl, requestedPro = false, deviceSecret = "") {
   const devices = loadSavedDevices();
   const idx = devices.findIndex((d) => d.deviceName === deviceName);
   
+  const generatedSecret = deviceSecret || (idx >= 0 && devices[idx].deviceSecret ? devices[idx].deviceSecret : Math.random().toString(36).substring(2, 12));
+
   // Thiết bị đăng ký Pro sẽ vào hàng chờ (isApproved: false, isPro: false) cho đến khi admin duyệt
   const entry = {
     deviceName,
     wssUrl,
+    deviceSecret: generatedSecret,
     savedAt: new Date().toISOString(),
     autoConnect: true,
     isPro: requestedPro ? false : false,
@@ -117,6 +120,7 @@ function addSavedDevice(deviceName, wssUrl, requestedPro = false) {
     devices.push(entry);
   }
   saveDevicesToFile(devices);
+  return generatedSecret;
 }
 
 function approveProDevice(deviceName, approve = true) {
@@ -138,11 +142,18 @@ function isDevicePro(deviceName) {
   return dev ? !!dev.isPro : false;
 }
 
-function removeSavedDevice(deviceName) {
+function removeSavedDevice(deviceName, secret = "", isAdmin = false) {
   const devices = loadSavedDevices();
-  const filtered = devices.filter((d) => d.deviceName !== deviceName);
-  saveDevicesToFile(filtered);
-  return filtered.length < devices.length;
+  const target = devices.find((d) => d.deviceName === deviceName);
+  if (!target) return false;
+
+  // Nếu là admin hoặc cung cấp đúng secret của máy mình thì cho phép xóa
+  if (isAdmin || (secret && target.deviceSecret === secret) || !target.deviceSecret) {
+    const filtered = devices.filter((d) => d.deviceName !== deviceName);
+    saveDevicesToFile(filtered);
+    return true;
+  }
+  return false;
 }
 
 function updateAutoConnect(deviceName, autoConnect) {
@@ -827,7 +838,12 @@ app.get("/api/devices", (req, res) => {
 app.get("/api/saved-devices", (req, res) => {
   const saved = loadSavedDevices();
   const savedDevices = saved.map(d => ({
-    ...d,
+    deviceName: d.deviceName,
+    savedAt: d.savedAt,
+    autoConnect: d.autoConnect,
+    isPro: d.isPro,
+    isApproved: d.isApproved,
+    requestedPro: d.requestedPro,
     isConnected: connectedDevices.has(d.deviceName) && connectedDevices.get(d.deviceName).status === "connected",
   }));
   res.json({ savedDevices });
@@ -872,14 +888,14 @@ app.post("/api/connect", (req, res) => {
   }
 
   const isProReq = !!requestedPro;
-  addSavedDevice(deviceName, wssUrl, isProReq);
+  const secret = addSavedDevice(deviceName, wssUrl, isProReq);
   connectToXiaozhi(deviceName, wssUrl);
 
   const msg = isProReq
     ? `Thiết bị ${deviceName} đã đăng ký gói PRO (đang vào danh sách chờ admin duyệt, tạm thời dùng các tính năng Free).`
     : `Thiết bị ${deviceName} đã kết nối thành công với gói Miễn Phí!`;
 
-  res.json({ success: true, message: msg, requestedPro: isProReq });
+  res.json({ success: true, message: msg, requestedPro: isProReq, deviceSecret: secret });
 });
 
 app.post("/api/devices/approve-pro", (req, res) => {
@@ -914,14 +930,21 @@ app.post("/api/disconnect", (req, res) => {
 
 app.delete("/api/devices/:name", (req, res) => {
   const deviceName = req.params.name;
+  const secret = req.headers["x-device-secret"] || req.query.secret || "";
+  const isAdmin = req.headers["x-admin-password"] === ADMIN_PASSWORD;
+
+  const ok = removeSavedDevice(deviceName, secret, isAdmin);
+  if (!ok) {
+    return res.status(403).json({ success: false, error: "Bạn không có quyền xóa thiết bị của người khác!" });
+  }
+
   const dev = connectedDevices.get(deviceName);
   if (dev) {
     if (dev.reconnectTimer) clearTimeout(dev.reconnectTimer);
     if (dev.ws) dev.ws.close();
     connectedDevices.delete(deviceName);
   }
-  removeSavedDevice(deviceName);
-  res.json({ success: true });
+  res.json({ success: true, message: `Đã xóa thiết bị ${deviceName}` });
 });
 
 app.patch("/api/devices/:name/auto-connect", (req, res) => {

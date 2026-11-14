@@ -162,21 +162,11 @@
     <div style="margin-top:0.6rem;font-size:0.8rem;color:var(--muted)">📍 Vị trí dự báo thời tiết: <span id="auto-location-badge" style="color:#38bdf8;font-weight:600">Đang nhận diện...</span></div>
   </header>
 
-  <!-- Connect Tabs -->
-  <div style="display:flex;gap:0.6rem;margin-bottom:1rem">
-    <button id="tab-free" onclick="switchTab('free')" style="flex:1;padding:0.75rem;border-radius:12px;border:1px solid #10b981;background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all .2s">
-      🟢 GÓI MIỄN PHÍ (Duyệt ngay)
-    </button>
-    <button id="tab-pro" onclick="switchTab('pro')" style="flex:1;padding:0.75rem;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:var(--muted);font-weight:700;font-size:0.9rem;cursor:pointer;transition:all .2s">
-      👑 GÓI PRO (Chờ duyệt)
-    </button>
-  </div>
-
-  <!-- Form 1: Gói Miễn Phí -->
-  <div class="main-card" id="card-free" style="border-color:rgba(16,185,129,0.3)">
-    <div class="card-label" style="color:#10b981">🟢 ĐĂNG KÝ GÓI MIỄN PHÍ (Duyệt tự động tức thì)</div>
+  <!-- Form 1: Gói Miễn Phí (Tiêu chuẩn) ở trên -->
+  <div class="main-card" id="card-free" style="border-color:rgba(16,185,129,0.3);margin-bottom:1.5rem">
+    <div class="card-label" style="color:#10b981">🟢 1. GÓI TIÊU CHUẨN (MIỄN PHÍ - DUYỆT TỰ ĐỘNG TỨC THÌ)</div>
     <div style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem">
-      Bao gồm: 🥇 <strong>Tra cứu giá vàng SJC/DOJI</strong> & 🌤️ <strong>Dự báo thời tiết thông minh</strong>.
+      Bao gồm: 🥇 <strong>Tra cứu giá vàng SJC/DOJI</strong> & 🌤️ <strong>Dự báo thời tiết thông minh</strong> (Ai cũng có thể đăng ký).
     </div>
     <div class="form-row">
       <label for="inp-name-free">Tên Thiết Bị</label>
@@ -187,15 +177,14 @@
       <input id="inp-wss-free" type="text" placeholder="wss://api.xiaozhi.me/mcp/?token=..." autocomplete="off" />
     </div>
     <button class="btn-connect" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 20px rgba(16,185,129,0.35)" onclick="doConnect('free')">
-      <span id="conn-spinner-free" class="spin hidden"></span>
-      <span>🔌 KẾT NỐI MIỄN PHÍ NGAY</span>
+      <span>🔌 KẾT NỐI GÓI TIÊU CHUẨN (MIỄN PHÍ)</span>
     </button>
     <div class="msg" id="conn-msg-free"></div>
   </div>
 
-  <!-- Form 2: Gói PRO -->
-  <div class="main-card" id="card-pro" style="display:none;border-color:rgba(167,139,250,0.4)">
-    <div class="card-label" style="color:#a78bfa">👑 ĐĂNG KÝ GÓI PRO (Vào danh sách chờ duyệt)</div>
+  <!-- Form 2: Gói PRO (Lướt xuống là gói PRO) -->
+  <div class="main-card" id="card-pro" style="border-color:rgba(167,139,250,0.4);margin-bottom:1.5rem">
+    <div class="card-label" style="color:#a78bfa">👑 2. GÓI NÂNG CAO (PRO - CẦN ADMIN DUYỆT)</div>
     
     <!-- Hộp thông báo dùng thử & phí kích hoạt -->
     <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:0.9rem 1.1rem;margin-bottom:1.1rem;font-size:0.83rem;line-height:1.6">
@@ -221,42 +210,24 @@
       <input id="inp-wss-pro" type="text" placeholder="wss://api.xiaozhi.me/mcp/?token=..." autocomplete="off" />
     </div>
     <button class="btn-connect" style="background:linear-gradient(135deg,#7c3aed,#9333ea);box-shadow:0 4px 20px rgba(124,58,237,0.45)" onclick="doConnect('pro')">
-      <span id="conn-spinner-pro" class="spin hidden"></span>
-      <span>👑 GỬI YÊU CẦU ĐĂNG KÝ PRO</span>
+      <span>👑 GỬI YÊU CẦU ĐĂNG KÝ GÓI PRO</span>
     </button>
     <div class="msg" id="conn-msg-pro"></div>
   </div>
 
-  <!-- KHU VỰC DÀNH CHO ADMIN (Mặc định bị ẩn hoàn toàn với khách) -->
-  <div id="admin-panel" style="display:none;background:rgba(124,58,237,0.05);border:1px dashed rgba(167,139,250,0.4);border-radius:18px;padding:1.2rem;margin-bottom:1.5rem">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-      <div style="font-weight:800;color:#a78bfa;font-size:0.9rem">🛡️ BẢNG ĐIỀU KHIỂN QUẢN TRỊ VIÊN (ADMIN)</div>
-      <button onclick="logoutAdmin()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:var(--red);padding:0.25rem 0.6rem;border-radius:6px;font-size:0.75rem;cursor:pointer">Đăng xuất</button>
-    </div>
-
-    <!-- Connected devices -->
-    <div class="devices-card" style="margin-bottom:1rem">
-      <div class="devices-header">
-        <div class="device-count">Thiết Bị Đang Kết Nối <span id="device-count">0</span></div>
-        <button class="refresh-btn" onclick="loadDevices()">↻ Làm mới</button>
-      </div>
-      <div id="devices-list">
-        <div class="no-devices"><span>📡</span>Chưa có thiết bị nào kết nối</div>
+  <!-- Xuống nữa là: Danh sách các thiết bị đã kết nối (Ai cũng nhìn thấy để theo dõi trạng thái, nhưng chỉ xóa được máy của mình) -->
+  <div class="devices-card" style="margin-bottom:1.5rem">
+    <div class="devices-header">
+      <div class="device-count">📡 DANH SÁCH THIẾT BỊ ĐÃ KẾT NỐI <span id="saved-count">0</span></div>
+      <div style="display:flex;gap:.4rem">
+        <button class="refresh-btn" onclick="loadSavedDevices()">↻ Làm mới</button>
       </div>
     </div>
-
-    <!-- Saved Devices -->
-    <div class="devices-card" style="margin-bottom:0">
-      <div class="devices-header">
-        <div class="device-count">💾 THIẾT BỊ ĐÃ LƯU & DUYỆT PRO <span id="saved-count">0</span></div>
-        <div style="display:flex;gap:.4rem">
-          <button class="refresh-btn" onclick="loadSavedDevices()">↻ Làm mới</button>
-          <button class="refresh-btn" onclick="reconnectAll()" title="Kết nối lại tất cả">🔄 Kết nối lại</button>
-        </div>
-      </div>
-      <div id="saved-devices-list">
-        <div class="no-devices"><span>💾</span>Chưa lưu thiết bị nào</div>
-      </div>
+    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.8rem">
+      Hiển thị trạng thái Tiêu chuẩn / PRO. Bạn chỉ có thể bấm xóa thiết bị do chính trình duyệt của bạn thêm vào.
+    </div>
+    <div id="saved-devices-list">
+      <div class="no-devices"><span>📡</span>Chưa có thiết bị nào trong danh sách</div>
     </div>
   </div>
 
@@ -315,33 +286,53 @@
   const API = window.location.origin;
   let isAdminAuthenticated = localStorage.getItem('mcp_admin_logged') === 'true';
 
+  // Quản lý thiết bị của chính người dùng này trong LocalStorage
+  function getMySecrets() {
+    try {
+      return JSON.parse(localStorage.getItem('my_device_secrets') || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  function saveDeviceSecret(name, secret) {
+    if (!name || !secret) return;
+    const secrets = getMySecrets();
+    secrets[name] = secret;
+    localStorage.setItem('my_device_secrets', JSON.stringify(secrets));
+  }
+
+  function forgetDeviceSecret(name) {
+    const secrets = getMySecrets();
+    delete secrets[name];
+    localStorage.setItem('my_device_secrets', JSON.stringify(secrets));
+  }
+
   // Quản lý hiển thị Admin
   function checkAdminState() {
-    const panel = document.getElementById('admin-panel');
     const toggleBtn = document.getElementById('btn-admin-toggle');
     if (isAdminAuthenticated) {
-      panel.style.display = 'block';
-      toggleBtn.innerHTML = '<span>🔓</span> Admin: Đã đăng nhập';
+      toggleBtn.innerHTML = '<span>🔓</span> Admin: Đã đăng nhập (Bấm để đăng xuất)';
       toggleBtn.style.color = '#10b981';
       toggleBtn.style.borderColor = '#10b981';
-      loadDevices();
       loadSavedDevices();
     } else {
-      panel.style.display = 'none';
       toggleBtn.innerHTML = '<span>🔒</span> Quản trị viên';
       toggleBtn.style.color = 'var(--text)';
       toggleBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+      loadSavedDevices();
     }
   }
 
   async function toggleAdminPanel() {
     if (isAdminAuthenticated) {
-      const panel = document.getElementById('admin-panel');
-      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      if (confirm('Bạn có muốn đăng xuất khỏi quyền Quản trị viên?')) {
+        logoutAdmin();
+      }
       return;
     }
 
-    const pass = prompt('🔑 Nhập mật khẩu Quản trị viên để mở bảng điều khiển:');
+    const pass = prompt('🔑 Nhập mật khẩu Quản trị viên để duyệt Pro:');
     if (!pass) return;
 
     try {
@@ -367,6 +358,9 @@
   function logoutAdmin() {
     isAdminAuthenticated = false;
     localStorage.removeItem('mcp_admin_logged');
+    toast('Đã đăng xuất tài khoản Admin', 'ok');
+    checkAdminState();
+  }
     toast('Đã đăng xuất tài khoản Admin', 'ok');
     checkAdminState();
   }
@@ -431,11 +425,13 @@
       const d = await r.json();
 
       if (d.success) {
+        if (d.deviceSecret) {
+          saveDeviceSecret(name, d.deviceSecret);
+        }
         showMsg(d.message, 'ok', msgId);
         toast('✅ ' + d.message, 'ok');
         document.getElementById(nameId).value = '';
         document.getElementById(wssId).value = '';
-        loadDevices();
         loadSavedDevices();
       } else {
         showMsg('❌ ' + (d.error || 'Kết nối thất bại'), 'err', msgId);
@@ -519,42 +515,52 @@
       return;
     }
 
+    const mySecrets = getMySecrets();
+
     list.innerHTML = devices.map(d => {
-      const shortUrl = d.wssUrl.replace('wss://api.xiaozhi.me/mcp/', 'wss://...xiaozhi...').substring(0, 50) + '...';
+      const isMyDevice = !!mySecrets[d.deviceName] || isAdminAuthenticated;
       const savedTime = d.savedAt ? new Date(d.savedAt).toLocaleString('vi-VN') : '';
       const autoClass = d.autoConnect !== false ? 'auto-on' : 'auto-off';
-      const autoText  = d.autoConnect !== false ? '🟢 Auto' : '⏸️ Manual';
-      const onlineBadge = d.isConnected ? '<span class="saved-badge online">⚡ Online</span>' : '';
+      const autoText  = d.autoConnect !== false ? '🟢 Tự kết nối' : '⏸️ Thủ công';
+      const onlineBadge = d.isConnected ? '<span class="saved-badge online">⚡ Online</span>' : '<span class="saved-badge auto-off">Chưa kết nối</span>';
+      
       const planBadge = d.isPro
-        ? '<span class="saved-badge" style="background:rgba(167,139,250,0.2);color:#a78bfa;border:1px solid rgba(167,139,250,0.4)">👑 PRO</span>'
+        ? '<span class="saved-badge" style="background:rgba(167,139,250,0.25);color:#c084fc;border:1px solid rgba(167,139,250,0.5)">👑 PRO</span>'
         : (d.requestedPro && !d.isApproved
             ? '<span class="saved-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.4)">⏳ Chờ duyệt PRO</span>'
-            : '<span class="saved-badge" style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)">Miễn Phí</span>');
+            : '<span class="saved-badge" style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)">🟢 Tiêu chuẩn (Free)</span>');
 
-      const adminApproveBtn = !d.isPro
-        ? `<button class="btn-sm" style="background:#7c3aed;color:#fff;font-weight:700" onclick="approveDevicePro('${esc(d.deviceName)}', true)" title="Duyệt cấp quyền PRO">👑 Duyệt PRO</button>`
-        : `<button class="btn-sm" style="background:rgba(255,255,255,0.08);color:var(--muted)" onclick="approveDevicePro('${esc(d.deviceName)}', false)" title="Hạ xuống gói Free">Hạ Free</button>`;
+      // Nút duyệt PRO / Hạ Free CHỈ HIỆN KHI ĐÃ ĐĂNG NHẬP ADMIN
+      let adminApproveBtn = '';
+      if (isAdminAuthenticated) {
+        adminApproveBtn = !d.isPro
+          ? `<button class="btn-sm" style="background:#7c3aed;color:#fff;font-weight:700" onclick="approveDevicePro('${esc(d.deviceName)}', true)" title="Duyệt cấp quyền PRO">👑 Duyệt PRO</button>`
+          : `<button class="btn-sm" style="background:rgba(255,255,255,0.08);color:var(--muted)" onclick="approveDevicePro('${esc(d.deviceName)}', false)" title="Hạ xuống gói Free">Hạ Free</button>`;
+      }
+
+      // Nút xóa chỉ hiện nếu thiết bị này là của người đó (lưu trong mySecrets) hoặc người đó là Admin
+      const deleteBtn = isMyDevice
+        ? `<button class="btn-sm btn-remove" onclick="removeSavedDevice('${esc(d.deviceName)}')" title="Xóa thiết bị của bạn">🗑️ Xóa</button>`
+        : '';
 
       return `
         <div class="saved-device-item">
-          <div class="device-icon">${d.isPro ? '👑' : '💾'}</div>
+          <div class="device-icon">${d.isPro ? '👑' : '🤖'}</div>
           <div class="device-info" style="flex:1;min-width:0">
-            <div class="device-name">${esc(d.deviceName)}</div>
-            <div class="device-url">${esc(shortUrl)}</div>
-            <div class="saved-device-meta">
+            <div style="display:flex;align-items:center;gap:0.5rem">
+              <span class="device-name" style="font-weight:700">${esc(d.deviceName)}</span>
+              ${isMyDevice ? '<span style="font-size:0.65rem;background:rgba(56,189,248,0.15);color:#38bdf8;padding:1px 6px;border-radius:4px;border:1px solid rgba(56,189,248,0.3)">Của bạn</span>' : ''}
+            </div>
+            <div class="saved-device-meta" style="margin-top:0.4rem">
               ${planBadge}
               <span class="saved-badge ${autoClass}">${autoText}</span>
               ${onlineBadge}
             </div>
-            <div class="saved-time">Lưu lúc: ${savedTime}</div>
+            <div class="saved-time">Đăng ký: ${savedTime}</div>
           </div>
           <div class="saved-actions">
             ${adminApproveBtn}
-            ${!d.isConnected ? `<button class="btn-sm btn-reconnect" onclick="reconnectSaved('${esc(d.deviceName)}')">🔌 Kết nối</button>` : ''}
-            <button class="btn-sm btn-auto ${d.autoConnect !== false ? '' : 'off'}" onclick="toggleAutoConnect('${esc(d.deviceName)}', ${d.autoConnect === false})">
-              ${d.autoConnect !== false ? '⏸️' : '▶️'}
-            </button>
-            <button class="btn-sm btn-remove" onclick="removeSavedDevice('${esc(d.deviceName)}')">🗑️</button>
+            ${deleteBtn}
           </div>
         </div>`;
     }).join('');
@@ -627,15 +633,25 @@
   }
 
   async function removeSavedDevice(name) {
-    if (!confirm(`Xóa "${name}" khỏi danh sách đã lưu?`)) return;
+    if (!confirm(`Bạn có chắc muốn xóa thiết bị "${name}"?`)) return;
     try {
-      const r = await fetch(`${API}/api/remove-saved-device`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deviceName: name })
+      const mySecrets = getMySecrets();
+      const secret = mySecrets[name] || '';
+      const headers = { 'Content-Type': 'application/json' };
+      if (secret) headers['x-device-secret'] = secret;
+      if (isAdminAuthenticated) headers['x-admin-password'] = '123456'; // fallback nếu có
+
+      const r = await fetch(`${API}/api/devices/${encodeURIComponent(name)}`, {
+        method: 'DELETE',
+        headers
       });
       const d = await r.json();
-      toast(d.message, d.success ? 'ok' : 'err');
+      if (d.success) {
+        forgetDeviceSecret(name);
+        toast(`🗑️ ${d.message || 'Đã xóa thiết bị!'}`, 'ok');
+      } else {
+        toast('❌ ' + (d.error || 'Không thể xóa!'), 'err');
+      }
       loadSavedDevices();
     } catch(e) {
       toast('Lỗi: ' + e.message, 'err');
