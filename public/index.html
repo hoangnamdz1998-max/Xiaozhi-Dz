@@ -244,16 +244,13 @@
     <div class="msg" id="conn-msg-pro"></div>
   </div>
 
-  <!-- Xuống nữa là: Danh sách các thiết bị đã kết nối (Ai cũng nhìn thấy để theo dõi trạng thái, nhưng chỉ xóa được máy của mình) -->
+  <!-- Xuống nữa là: Danh sách các thiết bị đã kết nối -->
   <div class="devices-card" style="margin-bottom:1.5rem">
     <div class="devices-header">
       <div class="device-count">📡 DANH SÁCH THIẾT BỊ ĐÃ KẾT NỐI <span id="saved-count">0</span></div>
       <div style="display:flex;gap:.4rem">
         <button class="refresh-btn" onclick="loadSavedDevices()">↻ Làm mới</button>
       </div>
-    </div>
-    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.8rem">
-      Hiển thị trạng thái Tiêu chuẩn / PRO. Bạn chỉ có thể bấm xóa thiết bị do chính trình duyệt của bạn thêm vào.
     </div>
     <div id="saved-devices-list">
       <div class="no-devices"><span>📡</span>Chưa có thiết bị nào trong danh sách</div>
