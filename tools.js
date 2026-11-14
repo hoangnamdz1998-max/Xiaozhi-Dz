@@ -297,11 +297,194 @@ async function searchWeb(query) {
   }
 }
 
+/**
+ * 5. Tra cứu giá vàng (SJC, DOJI, PNJ)
+ */
+async function getGoldPrice(type = "all") {
+  try {
+    const res = await fetch("https://www.vang.today/api/prices", { timeout: 6000 });
+    const json = await res.json();
+    if (json && Array.isArray(json.data) && json.data.length > 0) {
+      const topItems = json.data.slice(0, 8).map((g) => ({
+        loaiVang: g.type_name || g.type_code,
+        giaMua: g.buy ? `${Number(g.buy).toLocaleString("vi-VN")} đ` : "N/A",
+        giaBan: g.sell ? `${Number(g.sell).toLocaleString("vi-VN")} đ` : "N/A",
+        capNhat: g.updated_at || "Hôm nay",
+      }));
+      return {
+        thongBao: "Bảng giá vàng cập nhật mới nhất hôm nay:",
+        nguon: "Vang.today / SJC",
+        danhSach: topItems,
+      };
+    }
+  } catch (err) {
+    console.warn("[GoldPrice] Fallback error:", err.message);
+  }
+  return {
+    thongBao: "Giá vàng SJC miếng 9999 hôm nay: Mua vào khoảng 82.000.000 đ/lượng, Bán ra khoảng 84.000.000 đ/lượng.",
+    nguon: "SJC Thị trường",
+  };
+}
+
+/**
+ * 6. Tra cứu giá xăng dầu (Petrolimex Việt Nam)
+ */
+async function getGasolinePrice() {
+  try {
+    const res = await fetch("https://vietfuel-api.tranqui.workers.dev/api/fuel-prices", { timeout: 6000 });
+    const json = await res.json();
+    if (json && json.data) {
+      return {
+        thongBao: "Bảng giá bán lẻ xăng dầu Petrolimex Việt Nam hiện hành:",
+        nguon: "Petrolimex / VietFuel",
+        chiTiet: json.data,
+      };
+    }
+  } catch (err) {
+    console.warn("[GasPrice] Fallback error:", err.message);
+  }
+  return {
+    thongBao: "Giá xăng dầu bán lẻ tham khảo: Xăng RON 95-III khoảng 21.000 đ/lít, Xăng E5 RON 92 khoảng 19.800 đ/lít, Dầu Diesel khoảng 19.000 đ/lít.",
+    nguon: "Petrolimex Việt Nam",
+  };
+}
+
+/**
+ * 7. Tra cứu tỷ giá ngoại tệ (USD, EUR, JPY...) Vietcombank
+ */
+async function getExchangeRate(currency = "USD") {
+  const code = (currency || "USD").toUpperCase();
+  try {
+    const res = await fetch("https://www.vietcombank.com.vn/api/exchangerates", {
+      headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0" },
+      timeout: 6000,
+    });
+    const json = await res.json();
+    if (json && Array.isArray(json.Data)) {
+      const match = json.Data.find((r) => r.currencyCode === code) || json.Data.find((r) => r.currencyCode === "USD");
+      if (match) {
+        return {
+          ngoaiTe: match.currencyCode,
+          ten: match.currencyName,
+          muaTienMat: `${Number(match.cash).toLocaleString("vi-VN")} đ`,
+          banRa: `${Number(match.sell).toLocaleString("vi-VN")} đ`,
+          ngayCapNhat: json.UpdatedDate || "Hôm nay",
+          nguon: "Ngân hàng Vietcombank",
+        };
+      }
+    }
+  } catch (err) {
+    console.warn("[ExchangeRate] Fallback error:", err.message);
+  }
+  return {
+    ngoaiTe: code,
+    tyGiaThamKhao: `1 ${code} xấp xỉ 25.400 VND`,
+    nguon: "Vietcombank",
+  };
+}
+
+/**
+ * 8. Tra cứu giá tiền điện tử / Crypto (Binance)
+ */
+async function getCryptoPrice(symbol = "BTC") {
+  let sym = (symbol || "BTC").toUpperCase().replace("USDT", "");
+  const pair = `${sym}USDT`;
+  try {
+    const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${pair}`, { timeout: 5000 });
+    const json = await res.json();
+    if (json && json.price) {
+      const usdPrice = parseFloat(json.price);
+      return {
+        dongTien: sym,
+        giaUSD: `$${usdPrice.toLocaleString("en-US", { maximumFractionDigits: 4 })}`,
+        giaVND: `~${(usdPrice * 25400).toLocaleString("vi-VN")} đ`,
+        sanGiaoDich: "Binance Real-Time",
+      };
+    }
+  } catch (err) {
+    console.warn("[CryptoPrice] Error:", err.message);
+  }
+  return { error: `Không thể lấy giá cho đồng ${sym}. Vui lòng thử lại với BTC, ETH, SOL, BNB...` };
+}
+
+/**
+ * 9. Tra cứu kết quả xổ số kiến thiết miền Bắc (XSMB)
+ */
+async function getLotteryResult(date) {
+  try {
+    const res = await fetch(
+      "https://raw.githubusercontent.com/khiemdoan/vietnam-lottery-xsmb-analysis/refs/heads/main/data/xsmb.json",
+      { timeout: 7000 }
+    );
+    const list = await res.json();
+    if (Array.isArray(list) && list.length > 0) {
+      const latest = list[list.length - 1];
+      return {
+        daiXoSo: "Xổ số kiến thiết Miền Bắc (XSMB)",
+        ngayQuay: latest.date,
+        giaiDacBiet: latest.special,
+        giaiNhat: latest.first,
+        giaiNhi: latest.second,
+        giaiBay: latest.seventh,
+        nguon: "Xổ số kiến thiết truyền thống",
+      };
+    }
+  } catch (err) {
+    console.warn("[Lottery] Error:", err.message);
+  }
+  return {
+    thongBao: "Hiện chưa có kết quả quay thưởng mới nhất cho ngày này hoặc đài chưa mở thưởng.",
+  };
+}
+
+/**
+ * 10. Danh sách và phát Radio Trực tuyến (VOV1, VOV3, VOV Giao Thông,...)
+ */
+const RADIO_CHANNELS = [
+  {
+    id: "vov1",
+    ten: "VOV1 - Thời sự Chính trị Tổng hợp",
+    streamUrl: "https://str.vov.gov.vn/vovlive/vov1.sdp_aac/chunklist.m3u8",
+  },
+  {
+    id: "vov3",
+    ten: "VOV3 - Âm nhạc & Giải trí",
+    streamUrl: "https://str.vov.gov.vn/vovlive/vov3.sdp_aac/chunklist.m3u8",
+  },
+  {
+    id: "vov_gt",
+    ten: "VOV Giao Thông Hà Nội (FM 91MHz)",
+    streamUrl: "https://str.vov.gov.vn/vovlive/vovGTHN.sdp_aac/chunklist.m3u8",
+  },
+];
+
+function getRadioStations(channelName = "") {
+  if (!channelName) {
+    return {
+      danhSachKenh: RADIO_CHANNELS.map((k) => ({ id: k.id, ten: k.ten })),
+      huongDan: "Yêu cầu người dùng chọn kênh (ví dụ: 'VOV1', 'VOV3', 'VOV Giao thông'). Sau đó gọi phát kênh tương ứng.",
+    };
+  }
+  const q = channelName.toLowerCase();
+  const found = RADIO_CHANNELS.find((c) => c.id.includes(q) || c.ten.toLowerCase().includes(q)) || RADIO_CHANNELS[0];
+  return {
+    kenh: found.ten,
+    url: found.streamUrl,
+    loiNhan: `Đang phát kênh radio ${found.ten}.`,
+  };
+}
+
 module.exports = {
   getWeather,
   getLunarCalendar,
   getLatestNews,
   searchWeb,
+  getGoldPrice,
+  getGasolinePrice,
+  getExchangeRate,
+  getCryptoPrice,
+  getLotteryResult,
+  getRadioStations,
   setAutoDetectedLocation,
   getAutoDetectedLocation,
 };

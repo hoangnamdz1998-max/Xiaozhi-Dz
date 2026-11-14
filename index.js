@@ -238,6 +238,84 @@ const MCP_TOOLS = [
       required: ["query"],
     },
   },
+  {
+    name: "get_gold_price",
+    description: "Tra cứu giá vàng trong nước hôm nay (SJC, DOJI, PNJ, vàng 9999, giá mua và giá bán).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        type: {
+          type: "string",
+          description: "Loại vàng muốn tra (mặc định 'all' để xem tổng hợp SJC, PNJ, DOJI)",
+          default: "all",
+        },
+      },
+    },
+  },
+  {
+    name: "get_gasoline_price",
+    description: "Tra cứu giá xăng dầu Petrolimex Việt Nam hôm nay (giá xăng RON 95, E5 RON 92, dầu DO).",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
+  {
+    name: "get_exchange_rate",
+    description: "Tra cứu tỷ giá ngoại tệ ngân hàng Vietcombank (USD, EUR, JPY, GBP, CNY, SGD...).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        currency: {
+          type: "string",
+          description: "Mã ngoại tệ cần tra, ví dụ: 'USD', 'EUR', 'JPY', 'CNY'",
+          default: "USD",
+        },
+      },
+    },
+  },
+  {
+    name: "get_crypto_price",
+    description: "Tra cứu giá tiền mã hóa, tiền ảo, Bitcoin, Crypto theo thời gian thực từ sàn Binance.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        symbol: {
+          type: "string",
+          description: "Ký hiệu đồng tiền ảo, ví dụ: 'BTC', 'ETH', 'SOL', 'BNB', 'DOGE'",
+          default: "BTC",
+        },
+      },
+      required: ["symbol"],
+    },
+  },
+  {
+    name: "get_lottery_result",
+    description: "Tra cứu kết quả xổ số kiến thiết Miền Bắc (XSMB) mới nhất hôm nay.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        date: {
+          type: "string",
+          description: "Ngày quay thưởng DD-MM-YYYY (để trống nếu muốn xem kết quả mới nhất)",
+        },
+      },
+    },
+  },
+  {
+    name: "listen_radio",
+    description: "Nghe đài phát thanh Radio trực tuyến các đài quốc gia Việt Nam (VOV1, VOV3, VOV Giao thông).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        channel: {
+          type: "string",
+          description: "Tên kênh radio muốn nghe: 'vov1', 'vov3', 'vov_gt' hoặc 'VOV Giao thông'",
+          default: "vov1",
+        },
+      },
+    },
+  },
 ];
 
 // ─── Xử lý các lệnh gọi MCP Tool ─────────────────────────────────────────
@@ -299,6 +377,30 @@ async function handleToolCall(name, args = {}) {
   if (name === "web_search") {
     const q = args.query || args.q || "";
     return await extraTools.searchWeb(q);
+  }
+
+  if (name === "get_gold_price") {
+    return await extraTools.getGoldPrice(args.type);
+  }
+
+  if (name === "get_gasoline_price") {
+    return await extraTools.getGasolinePrice();
+  }
+
+  if (name === "get_exchange_rate") {
+    return await extraTools.getExchangeRate(args.currency);
+  }
+
+  if (name === "get_crypto_price") {
+    return await extraTools.getCryptoPrice(args.symbol);
+  }
+
+  if (name === "get_lottery_result") {
+    return await extraTools.getLotteryResult(args.date);
+  }
+
+  if (name === "listen_radio") {
+    return extraTools.getRadioStations(args.channel);
   }
 
   throw new Error(`Tool không hỗ trợ: ${name}`);
