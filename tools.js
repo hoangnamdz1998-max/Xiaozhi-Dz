@@ -523,11 +523,6 @@ function getRadioStations(channelName = "") {
     loiNhan: `Đang phát đài phát thanh ${found.ten}.`,
   };
 }
-    kenh: found.ten,
-    url: found.streamUrl,
-    loiNhan: `Đang phát kênh radio ${found.ten}.`,
-  };
-}
 
 module.exports = {
   getWeather,
