@@ -414,11 +414,12 @@ async function getLotteryResult(region = "mb") {
   const reg = (region || "mb").toLowerCase();
 
   // Miền Nam hoặc Miền Trung
-  if (reg.includes("nam") || reg.includes("mn")) {
+  if (reg.includes("nam") || reg.includes("mn") || reg.includes("hcm") || reg.includes("sai gon")) {
     try {
+      // 1. Thử cào RSS XSMN Đại Phát
       const res = await fetch("https://xosodaiphat.com/rss/ket-qua-xo-so-mien-nam.rss", {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-        timeout: 7000,
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0" },
+        timeout: 6000,
       });
       const xml = await res.text();
       const itemMatch = /<item>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/i.exec(xml);
@@ -428,16 +429,37 @@ async function getLotteryResult(region = "mb") {
         return {
           daiXoSo: "Xổ số kiến thiết Miền Nam (XSMN)",
           tieuDe: title,
-          chiTiet: desc.substring(0, 350),
-          nguon: "Xổ số Đại Phát (xosodaiphat.com)",
+          ketQuaChiTiet: desc.substring(0, 400),
+          nguon: "Xổ số Đại Phát",
         };
       }
     } catch (err) {
-      console.warn("[Lottery MN] RSS error:", err.message);
+      console.warn("[Lottery MN] RSS 1 fallback:", err.message);
     }
+
+    try {
+      // 2. Thử RSS đài TP.HCM
+      const resHcm = await fetch("https://xosodaiphat.com/rss/ket-qua-xo-so-tphcm-xshcm.rss", {
+        headers: { "User-Agent": "Mozilla/5.0" },
+        timeout: 5000,
+      });
+      const xmlHcm = await resHcm.text();
+      const m = /<item>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/i.exec(xmlHcm);
+      if (m) {
+        return {
+          daiXoSo: "Xổ số kiến thiết TP.HCM (Đài chính Miền Nam)",
+          tieuDe: m[1].replace(/<[^>]+>/g, "").trim(),
+          ketQuaChiTiet: m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().substring(0, 400),
+          nguon: "Xổ số Đại Phát",
+        };
+      }
+    } catch (err2) {
+      console.warn("[Lottery HCM] RSS 2 fallback:", err2.message);
+    }
+
     return {
       daiXoSo: "Xổ số kiến thiết Miền Nam (XSMN)",
-      thongBao: "Xổ số Miền Nam mở thưởng lúc 16h15 hàng ngày với các đài TP.HCM, Đồng Nai, Cần Thơ, Tiền Giang...",
+      thongBao: "Kết quả Xổ số Miền Nam mở thưởng lúc 16h15 hàng ngày. Bạn có thể hỏi theo tên đài như: 'xổ số TP.HCM', 'xổ số Đồng Nai', 'xổ số Cần Thơ'...",
     };
   }
 
