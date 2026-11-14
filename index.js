@@ -320,13 +320,13 @@ const MCP_TOOLS = [
   },
   {
     name: "play_youtube_music",
-    description: "Tìm kiếm bài hát, video nhạc trên YouTube và lấy đường dẫn âm thanh phát ra loa thiết bị Xiaozhi. BẮT BUỘC gọi công cụ này khi người dùng yêu cầu: 'phát nhạc youtube', 'mở bài hát trên youtube', 'bật nhạc trên youtube', 'nghe youtube'.",
+    description: "Phát bài hát từ YouTube hoặc tự động tìm kiếm khi Zing MP3 không có hoặc người dùng yêu cầu: 'phát nhạc', 'mở bài hát', 'nghe nhạc youtube'. Công cụ này trích xuất luồng âm thanh trực tiếp từ YouTube để phát ra loa thiết bị.",
     inputSchema: {
       type: "object",
       properties: {
         query: {
           type: "string",
-          description: "Tên bài hát, ca sĩ hoặc từ khóa nhạc YouTube cần phát (ví dụ: 'sơn tùng remix', 'nhạc trẻ hot tiktok', 'nhạc không lời')",
+          description: "Tên bài hát, ca sĩ hoặc từ khóa nhạc (ví dụ: 'sơn tùng', 'lạc trôi remix', 'nhạc tiktok')",
         },
       },
       required: ["query"],
@@ -342,9 +342,27 @@ async function handleToolCall(name, args = {}) {
     const q = args.query || args.q || args.song || "";
     const limit = args.limit || 5;
     const songs = await zing.searchSongs(q, limit);
+    if (songs && songs.length > 0) {
+      return {
+        nguon: "Zing MP3",
+        message: `Tìm thấy ${songs.length} bài hát trên Zing MP3 cho "${q}"`,
+        songs,
+      };
+    }
+    // Fallback sang YouTube nếu Zing MP3 không thấy
+    console.log(`[Music] Zing MP3 không có "${q}", tự động fallback sang YouTube...`);
+    const ytSongs = await youtube.searchYouTube(q, limit);
     return {
-      message: songs.length ? `Tìm thấy ${songs.length} bài hát cho "${q}"` : `Không tìm thấy bài hát cho "${q}"`,
-      songs,
+      nguon: "YouTube",
+      message: ytSongs.length
+        ? `Zing MP3 không có bài này, đã tìm thấy ${ytSongs.length} kết quả trên YouTube cho "${q}"`
+        : `Không tìm thấy bài hát cho "${q}"`,
+      songs: ytSongs.map((v) => ({
+        encodeId: v.videoId,
+        title: v.title,
+        artist: v.author,
+        duration: v.lengthSeconds,
+      })),
     };
   }
 
@@ -423,15 +441,44 @@ async function handleToolCall(name, args = {}) {
 
   if (name === "play_youtube_music") {
     const q = args.query || args.q || args.song || "";
-    console.log(`[YouTube] 🔍 Đang tìm nhạc YouTube: "${q}"`);
+    console.log(`[Music] 🎵 Đang xử lý phát nhạc: "${q}"`);
+
+    // 1. Nếu không chỉ định từ khóa "youtube", thử tìm Zing MP3 trước
+    const qLower = q.toLowerCase();
+    const isExplicitYouTube = qLower.includes("youtube") || qLower.includes("remix") || qLower.includes("live") || qLower.includes("cover");
+
+    if (!isExplicitYouTube) {
+      try {
+        const zingSongs = await zing.searchSongs(q, 1);
+        if (zingSongs && zingSongs.length > 0) {
+          const streamUrl = await zing.getStreamUrl(zingSongs[0].encodeId);
+          if (streamUrl) {
+            console.log(`[Music] ✅ Phát từ Zing MP3: "${zingSongs[0].title}"`);
+            return {
+              nguon: "Zing MP3",
+              message: `Đang phát "${zingSongs[0].title}" - ${zingSongs[0].artist} từ Zing MP3 ra loa thiết bị.`,
+              title: zingSongs[0].title,
+              artist: zingSongs[0].artist,
+              streamUrl,
+            };
+          }
+        }
+      } catch (zingErr) {
+        console.warn("[Music] Zing MP3 fallback sang YouTube:", zingErr.message);
+      }
+    }
+
+    // 2. Tự động fallback sang YouTube nếu Zing MP3 không có hoặc người dùng yêu cầu YouTube
+    console.log(`[YouTube] 🔍 Tìm kiếm và phát từ YouTube: "${q}"`);
     const results = await youtube.searchYouTube(q, 3);
     if (!results || results.length === 0) {
-      return { message: `Không tìm thấy bài hát "${q}" trên YouTube.` };
+      return { message: `Không tìm thấy bài hát "${q}" trên cả Zing MP3 lẫn YouTube.` };
     }
     const topVideo = results[0];
     const audioData = await youtube.getYouTubeAudioUrl(topVideo.videoId);
     if (audioData && audioData.streamUrl) {
       return {
+        nguon: "YouTube",
         message: `Đang phát bài hát "${audioData.title}" của ${audioData.author} từ YouTube ra loa thiết bị.`,
         title: audioData.title,
         author: audioData.author,
