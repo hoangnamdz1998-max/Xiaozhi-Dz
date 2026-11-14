@@ -168,6 +168,12 @@
       <label for="inp-wss">WebSocket URL</label>
       <input id="inp-wss" type="text" placeholder="wss://api.xiaozhi.me/mcp/?token=..." autocomplete="off" />
     </div>
+    <div class="form-row" style="display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem;background:rgba(255,255,255,0.03);padding:0.75rem 1rem;border-radius:10px;border:1px solid rgba(255,255,255,0.08)">
+      <input type="checkbox" id="chk-pro" style="width:1.2rem;height:1.2rem;accent-color:#a78bfa;cursor:pointer" />
+      <label for="chk-pro" style="margin:0;cursor:pointer;font-size:0.85rem">
+        <strong style="color:#a78bfa">👑 Đăng ký gói PRO</strong> (Bật toàn bộ tính năng Nhạc Zing/YouTube, Radio, Lô đề, Ngoại tệ... - <em>Cần Admin duyệt</em>)
+      </label>
+    </div>
     <button class="btn-connect" id="btn-connect" onclick="doConnect()">
       <span id="conn-spinner" class="spin hidden"></span>
       <span id="conn-label">🔌 KẾT NỐI MCP</span>
@@ -201,38 +207,38 @@
     </div>
   </div>
 
-  <!-- Music Tools -->
-  <div class="devices-card">
+  <!-- 1. Danh sách tính năng Miễn Phí (Ai cũng dùng được) -->
+  <div class="devices-card" style="border-left:4px solid #10b981">
     <div class="devices-header">
-      <div class="device-count">🎶 CÔNG CỤ ÂM NHẠC & GIẢI TRÍ <span>8</span></div>
+      <div class="device-count" style="color:#10b981">🟢 GÓI MIỄN PHÍ (FREE) <span>2 CÔNG CỤ</span></div>
+      <span style="font-size:0.75rem;color:var(--muted)">Ai đăng ký cũng dùng được ngay</span>
     </div>
-    <div class="tools-row">
-      <div class="tool-card"><div class="tool-icon">🔍</div><div class="tool-name">search_music</div><div class="tool-desc">Tìm bài hát, ca sĩ nhạc Việt</div></div>
-      <div class="tool-card"><div class="tool-icon">▶️</div><div class="tool-name">play_music</div><div class="tool-desc">Phát nhạc qua loa trực tiếp</div></div>
-      <div class="tool-card"><div class="tool-icon">📺</div><div class="tool-name">play_youtube_music</div><div class="tool-desc">Phát nhạc từ YouTube ra loa</div></div>
-      <div class="tool-card"><div class="tool-icon">🔗</div><div class="tool-name">get_stream_url</div><div class="tool-desc">Lấy link stream MP3 trực tiếp</div></div>
-      <div class="tool-card"><div class="tool-icon">ℹ️</div><div class="tool-name">get_song_info</div><div class="tool-desc">Thông tin chi tiết bài hát</div></div>
-      <div class="tool-card"><div class="tool-icon">📝</div><div class="tool-name">get_lyrics</div><div class="tool-desc">Lời bài hát đồng bộ thời gian</div></div>
-      <div class="tool-card"><div class="tool-icon">🔥</div><div class="tool-name">get_top_charts</div><div class="tool-desc">Bài hát hot trending</div></div>
-      <div class="tool-card"><div class="tool-icon">📻</div><div class="tool-name">listen_radio</div><div class="tool-desc">Nghe VOV1, VOV3, VOV Giao thông</div></div>
+    <div class="tools-row" style="grid-template-columns:repeat(2, 1fr)">
+      <div class="tool-card"><div class="tool-icon">🥇</div><div class="tool-name">get_gold_price</div><div class="tool-desc">Tra cứu giá vàng SJC, DOJI, PNJ mới nhất</div></div>
+      <div class="tool-card"><div class="tool-icon">🌤️</div><div class="tool-name">get_weather</div><div class="tool-desc">Dự báo thời tiết thông minh theo vị trí</div></div>
     </div>
   </div>
 
-  <!-- Life Utilities Tools -->
-  <div class="devices-card">
+  <!-- 2. Danh sách tính năng PRO (Cần duyệt) -->
+  <div class="devices-card" style="border-left:4px solid #a78bfa">
     <div class="devices-header">
-      <div class="device-count">💰 TIỆN ÍCH ĐỜI SỐNG & TRA CỨU <span>9</span></div>
+      <div class="device-count" style="color:#a78bfa">👑 GÓI PRO (NÂNG CAO) <span>13 CÔNG CỤ</span></div>
+      <span style="font-size:0.75rem;color:#f59e0b">Yêu cầu duyệt từ Quản trị viên</span>
     </div>
     <div class="tools-row">
-      <div class="tool-card"><div class="tool-icon">🥇</div><div class="tool-name">get_gold_price</div><div class="tool-desc">Giá vàng SJC, DOJI, PNJ hôm nay</div></div>
-      <div class="tool-card"><div class="tool-icon">⛽</div><div class="tool-name">get_gasoline_price</div><div class="tool-desc">Giá xăng RON 95, E5, Dầu Diesel</div></div>
-      <div class="tool-card"><div class="tool-icon">💵</div><div class="tool-name">get_exchange_rate</div><div class="tool-desc">Tỷ giá USD, EUR, JPY Vietcombank</div></div>
+      <div class="tool-card"><div class="tool-icon">▶️</div><div class="tool-name">play_music</div><div class="tool-desc">Phát nhạc chất lượng cao ra loa</div></div>
+      <div class="tool-card"><div class="tool-icon">📺</div><div class="tool-name">play_youtube_music</div><div class="tool-desc">Phát nhạc trực tiếp từ YouTube ra loa</div></div>
+      <div class="tool-card"><div class="tool-icon">🔍</div><div class="tool-name">search_music</div><div class="tool-desc">Tìm kiếm kho nhạc Zing MP3</div></div>
+      <div class="tool-card"><div class="tool-icon">🔥</div><div class="tool-name">get_top_charts</div><div class="tool-desc">Bảng xếp hạng nhạc hot Zing MP3</div></div>
+      <div class="tool-card"><div class="tool-icon">📻</div><div class="tool-name">listen_radio</div><div class="tool-desc">Đài FM: VOV1, VOV3, VOH 99.9MHz</div></div>
+      <div class="tool-card"><div class="tool-icon">⛽</div><div class="tool-name">get_gasoline_price</div><div class="tool-desc">Giá xăng RON 95, E5, Dầu Petrolimex</div></div>
+      <div class="tool-card"><div class="tool-icon">💵</div><div class="tool-name">get_exchange_rate</div><div class="tool-desc">Tỷ giá USD, EUR, Ngoại tệ Vietcombank</div></div>
       <div class="tool-card"><div class="tool-icon">🪙</div><div class="tool-name">get_crypto_price</div><div class="tool-desc">Giá Bitcoin, Crypto sàn Binance</div></div>
-      <div class="tool-card"><div class="tool-icon">🎰</div><div class="tool-name">get_lottery_result</div><div class="tool-desc">Kết quả xổ số miền Bắc (XSMB)</div></div>
-      <div class="tool-card"><div class="tool-icon">🌤️</div><div class="tool-name">get_weather</div><div class="tool-desc">Dự báo thời tiết theo vị trí</div></div>
-      <div class="tool-card"><div class="tool-icon">📅</div><div class="tool-name">get_lunar_calendar</div><div class="tool-desc">Xem ngày âm lịch, hoàng đạo</div></div>
+      <div class="tool-card"><div class="tool-icon">🎰</div><div class="tool-name">get_lottery_result</div><div class="tool-desc">Xổ số 3 miền: Miền Bắc, Miền Nam</div></div>
+      <div class="tool-card"><div class="tool-icon">📅</div><div class="tool-name">get_lunar_calendar</div><div class="tool-desc">Lịch vạn niên, ngày hoàng đạo</div></div>
       <div class="tool-card"><div class="tool-icon">📰</div><div class="tool-name">get_latest_news</div><div class="tool-desc">Tin tức thời sự VnExpress</div></div>
       <div class="tool-card"><div class="tool-icon">🌐</div><div class="tool-name">web_search</div><div class="tool-desc">Tra cứu Internet & Wikipedia</div></div>
+      <div class="tool-card"><div class="tool-icon">📝</div><div class="tool-name">get_lyrics</div><div class="tool-desc">Lời bài hát đồng bộ thời gian</div></div>
     </div>
   </div>
 
@@ -264,6 +270,7 @@
   async function doConnect() {
     const name = document.getElementById('inp-name').value.trim();
     const wss  = document.getElementById('inp-wss').value.trim();
+    const requestedPro = document.getElementById('chk-pro').checked;
     const msg  = document.getElementById('conn-msg');
 
     if (!name) { showMsg('⚠️ Vui lòng nhập tên thiết bị!', 'err'); return; }
@@ -277,7 +284,7 @@
       const r = await fetch(`${API}/api/connect`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deviceName: name, wssUrl: wss })
+        body: JSON.stringify({ deviceName: name, wssUrl: wss, requestedPro })
       });
       const d = await r.json();
 
@@ -286,6 +293,7 @@
         toast('✅ ' + d.message, 'ok');
         document.getElementById('inp-name').value = '';
         document.getElementById('inp-wss').value = '';
+        document.getElementById('chk-pro').checked = false;
         loadDevices();
         loadSavedDevices();
       } else {
@@ -378,20 +386,31 @@
       const autoClass = d.autoConnect !== false ? 'auto-on' : 'auto-off';
       const autoText  = d.autoConnect !== false ? '🟢 Auto' : '⏸️ Manual';
       const onlineBadge = d.isConnected ? '<span class="saved-badge online">⚡ Online</span>' : '';
+      const planBadge = d.isPro
+        ? '<span class="saved-badge" style="background:rgba(167,139,250,0.2);color:#a78bfa;border:1px solid rgba(167,139,250,0.4)">👑 PRO</span>'
+        : (d.requestedPro && !d.isApproved
+            ? '<span class="saved-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.4)">⏳ Chờ duyệt PRO</span>'
+            : '<span class="saved-badge" style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)">Miễn Phí</span>');
+
+      const adminApproveBtn = !d.isPro
+        ? `<button class="btn-sm" style="background:#7c3aed;color:#fff;font-weight:700" onclick="approveDevicePro('${esc(d.deviceName)}', true)" title="Duyệt cấp quyền PRO">👑 Duyệt PRO</button>`
+        : `<button class="btn-sm" style="background:rgba(255,255,255,0.08);color:var(--muted)" onclick="approveDevicePro('${esc(d.deviceName)}', false)" title="Hạ xuống gói Free">Hạ Free</button>`;
 
       return `
         <div class="saved-device-item">
-          <div class="device-icon">💾</div>
+          <div class="device-icon">${d.isPro ? '👑' : '💾'}</div>
           <div class="device-info" style="flex:1;min-width:0">
             <div class="device-name">${esc(d.deviceName)}</div>
             <div class="device-url">${esc(shortUrl)}</div>
             <div class="saved-device-meta">
+              ${planBadge}
               <span class="saved-badge ${autoClass}">${autoText}</span>
               ${onlineBadge}
             </div>
             <div class="saved-time">Lưu lúc: ${savedTime}</div>
           </div>
           <div class="saved-actions">
+            ${adminApproveBtn}
             ${!d.isConnected ? `<button class="btn-sm btn-reconnect" onclick="reconnectSaved('${esc(d.deviceName)}')">🔌 Kết nối</button>` : ''}
             <button class="btn-sm btn-auto ${d.autoConnect !== false ? '' : 'off'}" onclick="toggleAutoConnect('${esc(d.deviceName)}', ${d.autoConnect === false})">
               ${d.autoConnect !== false ? '⏸️' : '▶️'}
@@ -445,6 +464,23 @@
       });
       const d = await r.json();
       toast(d.message, d.success ? 'ok' : 'err');
+      loadSavedDevices();
+    } catch(e) {
+      toast('Lỗi: ' + e.message, 'err');
+    }
+  }
+
+  async function approveDevicePro(name, approve) {
+    const actionText = approve ? 'DUYỆT cấp quyền PRO' : 'HẠ xuống gói Miễn Phí';
+    if (!confirm(`Bạn có chắc muốn ${actionText} cho thiết bị "${name}"?`)) return;
+    try {
+      const r = await fetch(`${API}/api/devices/approve-pro`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceName: name, approve })
+      });
+      const d = await r.json();
+      toast(d.message || 'Thành công', d.success ? 'ok' : 'err');
       loadSavedDevices();
     } catch(e) {
       toast('Lỗi: ' + e.message, 'err');

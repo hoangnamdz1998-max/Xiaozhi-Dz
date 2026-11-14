@@ -58,13 +58,25 @@ const PORT = process.env.PORT || 5005;
 const DEVICES_FILE = path.join(__dirname, "devices.json");
 const connectedDevices = new Map();
 
+// ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
+const FREE_TOOL_NAMES = ["get_gold_price", "get_weather"];
+
+const FREE_MCP_TOOLS = MCP_TOOLS.filter((t) => FREE_TOOL_NAMES.includes(t.name));
+const PRO_MCP_TOOLS = MCP_TOOLS;
+
 // ─── Quản lý lưu trữ thiết bị (devices.json) ──────────────────────────────
 function loadSavedDevices() {
   try {
     if (fs.existsSync(DEVICES_FILE)) {
       const data = fs.readFileSync(DEVICES_FILE, "utf-8");
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((d) => ({
+          ...d,
+          isPro: d.isPro !== undefined ? d.isPro : (d.deviceName === "NAM01"), // NAM01 mặc định là Pro
+          isApproved: d.isApproved !== undefined ? d.isApproved : true,
+        }));
+      }
     }
   } catch (e) {
     console.error(`[storage] ❌ Lỗi đọc devices.json: ${e.message}`);
@@ -75,6 +87,8 @@ function loadSavedDevices() {
       wssUrl: "wss://api.xiaozhi.me/mcp/?token=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEwMzA0NDIsImFnZW50SWQiOjI1Nzk2OTgsImVuZHBvaW50SWQiOiJhZ2VudF8yNTc5Njk4IiwicHVycG9zZSI6Im1jcC1lbmRwb2ludCIsImlhdCI6MTc5MzU2MzY1NiwiZXhwIjoxODI1MTIxMjU2fQ.WtcTayrm3vvlM0C9KxOc_nU1fgh6tI-1kW7p5wdTEhlcz3X2mtdQ93EE4Flfrss7lJ49lNKUVR7krcPSdWQh1Q",
       savedAt: new Date().toISOString(),
       autoConnect: true,
+      isPro: true,
+      isApproved: true,
     },
   ];
 }
@@ -87,21 +101,46 @@ function saveDevicesToFile(devices) {
   }
 }
 
-function addSavedDevice(deviceName, wssUrl) {
+function addSavedDevice(deviceName, wssUrl, requestedPro = false) {
   const devices = loadSavedDevices();
   const idx = devices.findIndex((d) => d.deviceName === deviceName);
+  
+  // Thiết bị đăng ký Pro sẽ vào hàng chờ (isApproved: false, isPro: false) cho đến khi admin duyệt
   const entry = {
     deviceName,
     wssUrl,
     savedAt: new Date().toISOString(),
     autoConnect: true,
+    isPro: requestedPro ? false : false,
+    requestedPro: requestedPro,
+    isApproved: !requestedPro, // Nếu là Free thì duyệt luôn, Pro thì chờ duyệt
   };
+
   if (idx >= 0) {
-    devices[idx] = { ...devices[idx], ...entry };
+    devices[idx] = { ...devices[idx], ...entry, isPro: devices[idx].isPro };
   } else {
     devices.push(entry);
   }
   saveDevicesToFile(devices);
+}
+
+function approveProDevice(deviceName, approve = true) {
+  const devices = loadSavedDevices();
+  const dev = devices.find((d) => d.deviceName === deviceName);
+  if (dev) {
+    dev.isPro = approve;
+    dev.isApproved = true;
+    dev.requestedPro = false;
+    saveDevicesToFile(devices);
+    return true;
+  }
+  return false;
+}
+
+function isDevicePro(deviceName) {
+  const devices = loadSavedDevices();
+  const dev = devices.find((d) => d.deviceName === deviceName);
+  return dev ? !!dev.isPro : false;
 }
 
 function removeSavedDevice(deviceName) {
@@ -523,19 +562,45 @@ function handleXiaozhiMessage(ws, raw, deviceName) {
   }
 
   if (method === "tools/list") {
+    const isPro = isDevicePro(deviceName);
+    const availableTools = isPro ? PRO_MCP_TOOLS : FREE_MCP_TOOLS;
     const response = {
       jsonrpc: "2.0",
       id,
-      result: { tools: MCP_TOOLS },
+      result: { tools: availableTools },
     };
     ws.send(JSON.stringify(response));
-    console.log(`[${deviceName}] → tools/list OK (${MCP_TOOLS.length} tools)`);
+    console.log(`[${deviceName}] → tools/list OK (${isPro ? "PRO" : "FREE"}: ${availableTools.length} tools)`);
     return;
   }
 
   if (method === "tools/call") {
     const { name, arguments: args } = params || {};
-    handleToolCall(name, args)
+    const isPro = isDevicePro(deviceName);
+
+    // Kiểm tra quyền gọi tool Pro
+    if (!isPro && !FREE_TOOL_NAMES.includes(name)) {
+      console.log(`[${deviceName}] ⛔ Từ chối gọi tool Pro "${name}" (Tài khoản Free)`);
+      const response = {
+        jsonrpc: "2.0",
+        id,
+        result: {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                error: "TÍNH NĂNG PRO",
+                message: `Tính năng "${name}" là đặc quyền của gói PRO. Tài khoản của bạn hiện là gói Miễn Phí (hỗ trợ Tra cứu giá vàng và Thời tiết). Hãy liên hệ quản trị viên để nâng cấp lên PRO!`,
+              }),
+            },
+          ],
+        },
+      };
+      ws.send(JSON.stringify(response));
+      return;
+    }
+
+    handleToolCall(name, args, deviceName)
       .then((toolResult) => {
         const response = {
           jsonrpc: "2.0",
@@ -793,14 +858,37 @@ app.post("/api/location", (req, res) => {
 });
 
 app.post("/api/connect", (req, res) => {
-  const { deviceName, wssUrl } = req.body;
+  const { deviceName, wssUrl, requestedPro } = req.body;
   if (!deviceName || !wssUrl) {
     return res.status(400).json({ error: "Thiếu deviceName hoặc wssUrl" });
   }
 
-  addSavedDevice(deviceName, wssUrl);
+  const isProReq = !!requestedPro;
+  addSavedDevice(deviceName, wssUrl, isProReq);
   connectToXiaozhi(deviceName, wssUrl);
-  res.json({ success: true, message: `Đang kết nối tới ${deviceName}` });
+
+  const msg = isProReq
+    ? `Thiết bị ${deviceName} đã đăng ký gói PRO (đang vào danh sách chờ admin duyệt, tạm thời dùng các tính năng Free).`
+    : `Thiết bị ${deviceName} đã kết nối thành công với gói Miễn Phí!`;
+
+  res.json({ success: true, message: msg, requestedPro: isProReq });
+});
+
+app.post("/api/devices/approve-pro", (req, res) => {
+  const { deviceName, approve } = req.body;
+  if (!deviceName) {
+    return res.status(400).json({ error: "Thiếu deviceName" });
+  }
+  const ok = approveProDevice(deviceName, approve !== false);
+  if (ok) {
+    // Nếu thiết bị đang kết nối, gửi lại thông báo tools
+    const dev = connectedDevices.get(deviceName);
+    if (dev && dev.ws) {
+      console.log(`[Admin] 👑 Đã duyệt gói PRO cho ${deviceName}, cập nhật quyền...`);
+    }
+    return res.json({ success: true, message: `Đã ${approve !== false ? 'DUYỆT gói PRO' : 'HỦY gói PRO'} cho ${deviceName}` });
+  }
+  res.status(404).json({ error: "Không tìm thấy thiết bị" });
 });
 
 app.post("/api/disconnect", (req, res) => {
