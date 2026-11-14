@@ -157,29 +157,56 @@
     <div style="margin-top:0.6rem;font-size:0.8rem;color:var(--muted)">📍 Vị trí dự báo thời tiết: <span id="auto-location-badge" style="color:#38bdf8;font-weight:600">Đang nhận diện...</span></div>
   </header>
 
-  <!-- Connect form -->
-  <div class="main-card">
-    <div class="card-label">🤖 Kết nối thiết bị Xiaozhi</div>
-    <div class="form-row">
-      <label for="inp-name">Tên Thiết Bị</label>
-      <input id="inp-name" type="text" placeholder="Nhập tên thiết bị của bạn" autocomplete="off" />
-    </div>
-    <div class="form-row">
-      <label for="inp-wss">WebSocket URL</label>
-      <input id="inp-wss" type="text" placeholder="wss://api.xiaozhi.me/mcp/?token=..." autocomplete="off" />
-    </div>
-    <div class="form-row" style="display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem;background:rgba(255,255,255,0.03);padding:0.75rem 1rem;border-radius:10px;border:1px solid rgba(255,255,255,0.08)">
-      <input type="checkbox" id="chk-pro" style="width:1.2rem;height:1.2rem;accent-color:#a78bfa;cursor:pointer" />
-      <label for="chk-pro" style="margin:0;cursor:pointer;font-size:0.85rem">
-        <strong style="color:#a78bfa">👑 Đăng ký gói PRO</strong> (Bật toàn bộ tính năng Nhạc Zing/YouTube, Radio, Lô đề, Ngoại tệ... - <em>Cần Admin duyệt</em>)
-      </label>
-    </div>
-    <button class="btn-connect" id="btn-connect" onclick="doConnect()">
-      <span id="conn-spinner" class="spin hidden"></span>
-      <span id="conn-label">🔌 KẾT NỐI MCP</span>
-      <span style="background:rgba(255,255,255,.15);padding:.1rem .5rem;border-radius:5px;font-size:.7rem">MIỄN PHÍ</span>
+  <!-- Connect Tabs -->
+  <div style="display:flex;gap:0.6rem;margin-bottom:1rem">
+    <button id="tab-free" onclick="switchTab('free')" style="flex:1;padding:0.75rem;border-radius:12px;border:1px solid #10b981;background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all .2s">
+      🟢 GÓI MIỄN PHÍ (Duyệt ngay)
     </button>
-    <div class="msg" id="conn-msg"></div>
+    <button id="tab-pro" onclick="switchTab('pro')" style="flex:1;padding:0.75rem;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:var(--muted);font-weight:700;font-size:0.9rem;cursor:pointer;transition:all .2s">
+      👑 GÓI PRO (Chờ duyệt)
+    </button>
+  </div>
+
+  <!-- Form 1: Gói Miễn Phí -->
+  <div class="main-card" id="card-free" style="border-color:rgba(16,185,129,0.3)">
+    <div class="card-label" style="color:#10b981">🟢 ĐĂNG KÝ GÓI MIỄN PHÍ (Duyệt tự động tức thì)</div>
+    <div style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem">
+      Bao gồm: 🥇 <strong>Tra cứu giá vàng SJC/DOJI</strong> & 🌤️ <strong>Dự báo thời tiết thông minh</strong>.
+    </div>
+    <div class="form-row">
+      <label for="inp-name-free">Tên Thiết Bị</label>
+      <input id="inp-name-free" type="text" placeholder="Ví dụ: PhongKhach_Free, RobotNam..." autocomplete="off" />
+    </div>
+    <div class="form-row">
+      <label for="inp-wss-free">WebSocket URL (MCP Link Miễn Phí)</label>
+      <input id="inp-wss-free" type="text" placeholder="wss://api.xiaozhi.me/mcp/?token=..." autocomplete="off" />
+    </div>
+    <button class="btn-connect" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 20px rgba(16,185,129,0.35)" onclick="doConnect('free')">
+      <span id="conn-spinner-free" class="spin hidden"></span>
+      <span>🔌 KẾT NỐI MIỄN PHÍ NGAY</span>
+    </button>
+    <div class="msg" id="conn-msg-free"></div>
+  </div>
+
+  <!-- Form 2: Gói PRO -->
+  <div class="main-card" id="card-pro" style="display:none;border-color:rgba(167,139,250,0.4)">
+    <div class="card-label" style="color:#a78bfa">👑 ĐĂNG KÝ GÓI PRO (Vào danh sách chờ duyệt)</div>
+    <div style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem">
+      Mở khóa: 🎵 <strong>Zing MP3</strong> + 📺 <strong>YouTube ra loa</strong>, 📻 <strong>Đài FM/VOV</strong>, 🎰 <strong>Xổ số 3 miền</strong>, ⛽ <strong>Giá xăng</strong>, 💵 <strong>Tỷ giá</strong>, 🪙 <strong>Crypto</strong>...
+    </div>
+    <div class="form-row">
+      <label for="inp-name-pro">Tên Thiết Bị</label>
+      <input id="inp-name-pro" type="text" placeholder="Ví dụ: PhongNgu_Pro, NamVIP..." autocomplete="off" />
+    </div>
+    <div class="form-row">
+      <label for="inp-wss-pro">WebSocket URL (MCP Link Gói PRO)</label>
+      <input id="inp-wss-pro" type="text" placeholder="wss://api.xiaozhi.me/mcp/?token=..." autocomplete="off" />
+    </div>
+    <button class="btn-connect" style="background:linear-gradient(135deg,#7c3aed,#9333ea);box-shadow:0 4px 20px rgba(124,58,237,0.45)" onclick="doConnect('pro')">
+      <span id="conn-spinner-pro" class="spin hidden"></span>
+      <span>👑 GỬI YÊU CẦU ĐĂNG KÝ PRO</span>
+    </button>
+    <div class="msg" id="conn-msg-pro"></div>
   </div>
 
   <!-- Connected devices -->
@@ -267,43 +294,69 @@
   setInterval(loadDevices, 8000);
   setInterval(loadSavedDevices, 15000);
 
-  async function doConnect() {
-    const name = document.getElementById('inp-name').value.trim();
-    const wss  = document.getElementById('inp-wss').value.trim();
-    const requestedPro = document.getElementById('chk-pro').checked;
-    const msg  = document.getElementById('conn-msg');
+  function switchTab(type) {
+    const isFree = type === 'free';
+    document.getElementById('card-free').style.display = isFree ? 'block' : 'none';
+    document.getElementById('card-pro').style.display = isFree ? 'none' : 'block';
 
-    if (!name) { showMsg('⚠️ Vui lòng nhập tên thiết bị!', 'err'); return; }
-    if (!wss)  { showMsg('⚠️ Vui lòng nhập WSS URL!', 'err'); return; }
-    if (!wss.startsWith('wss://')) { showMsg('⚠️ WSS URL phải bắt đầu bằng wss://', 'err'); return; }
+    const tabFree = document.getElementById('tab-free');
+    const tabPro = document.getElementById('tab-pro');
 
-    setLoading(true);
-    showMsg('', '');
+    if (isFree) {
+      tabFree.style.border = '1px solid #10b981';
+      tabFree.style.background = 'rgba(16,185,129,0.15)';
+      tabFree.style.color = '#10b981';
+
+      tabPro.style.border = '1px solid rgba(255,255,255,0.1)';
+      tabPro.style.background = 'rgba(255,255,255,0.03)';
+      tabPro.style.color = 'var(--muted)';
+    } else {
+      tabPro.style.border = '1px solid #a78bfa';
+      tabPro.style.background = 'rgba(124,58,237,0.2)';
+      tabPro.style.color = '#a78bfa';
+
+      tabFree.style.border = '1px solid rgba(255,255,255,0.1)';
+      tabFree.style.background = 'rgba(255,255,255,0.03)';
+      tabFree.style.color = 'var(--muted)';
+    }
+  }
+
+  async function doConnect(type = 'free') {
+    const isPro = type === 'pro';
+    const nameId = isPro ? 'inp-name-pro' : 'inp-name-free';
+    const wssId  = isPro ? 'inp-wss-pro' : 'inp-wss-free';
+    const msgId  = isPro ? 'conn-msg-pro' : 'conn-msg-free';
+
+    const name = document.getElementById(nameId).value.trim();
+    const wss  = document.getElementById(wssId).value.trim();
+
+    if (!name) { showMsg('⚠️ Vui lòng nhập tên thiết bị!', 'err', msgId); return; }
+    if (!wss)  { showMsg('⚠️ Vui lòng nhập WSS URL!', 'err', msgId); return; }
+    if (!wss.startsWith('wss://')) { showMsg('⚠️ WSS URL phải bắt đầu bằng wss://', 'err', msgId); return; }
+
+    showMsg('', '', msgId);
 
     try {
       const r = await fetch(`${API}/api/connect`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deviceName: name, wssUrl: wss, requestedPro })
+        body: JSON.stringify({ deviceName: name, wssUrl: wss, requestedPro: isPro })
       });
       const d = await r.json();
 
       if (d.success) {
-        showMsg(d.message + (d.saved ? ' 💾 Đã lưu' : ''), 'ok');
+        showMsg(d.message, 'ok', msgId);
         toast('✅ ' + d.message, 'ok');
-        document.getElementById('inp-name').value = '';
-        document.getElementById('inp-wss').value = '';
-        document.getElementById('chk-pro').checked = false;
+        document.getElementById(nameId).value = '';
+        document.getElementById(wssId).value = '';
         loadDevices();
         loadSavedDevices();
       } else {
-        showMsg('❌ ' + (d.error || 'Kết nối thất bại'), 'err');
+        showMsg('❌ ' + (d.error || 'Kết nối thất bại'), 'err', msgId);
         toast('❌ ' + (d.error || 'Thất bại'), 'err');
       }
     } catch (e) {
-      showMsg('❌ Lỗi server: ' + e.message, 'err');
-    } finally {
-      setLoading(false);
+      showMsg('❌ Lỗi server: ' + e.message, 'err', msgId);
     }
   }
 
@@ -509,8 +562,9 @@
     document.getElementById('conn-label').textContent = on ? 'Đang kết nối...' : '🔌 KẾT NỐI MCP';
   }
 
-  function showMsg(txt, type) {
-    const el = document.getElementById('conn-msg');
+  function showMsg(txt, type, targetId = 'conn-msg-free') {
+    const el = document.getElementById(targetId);
+    if (!el) return;
     el.textContent = txt;
     el.className = 'msg' + (txt ? ' show ' + type : '');
   }
