@@ -559,22 +559,22 @@ const MCP_TOOLS = [
 ];
 
 // ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
-// Gói Tiêu Chuẩn (Free): 10 tính năng thiết thực đời sống (Ai cũng dùng được ngay)
+// Gói Tiêu Chuẩn (Free): Đúng 10 tính năng gồm 2 tính năng ban đầu (Vàng, Thời tiết) + các tính năng phụ giải trí, bói toán, kể chuyện
 const FREE_TOOL_NAMES = [
-  "get_gold_price",       // 1. Giá vàng SJC/DOJI
-  "get_weather",          // 2. Dự báo thời tiết
-  "get_gasoline_price",   // 3. Giá xăng dầu Petrolimex
-  "get_exchange_rate",    // 4. Tỷ giá ngoại tệ Vietcombank
-  "get_lottery_result",   // 5. Kết quả xổ số 3 miền
-  "get_lunar_calendar",   // 6. Lịch âm vạn niên
-  "get_latest_news",      // 7. Tin tức VnExpress
-  "tell_joke",            // 8. Chuyện cười thư giãn
-  "brain_riddle",         // 9. Đố vui trí tuệ
-  "daily_motivation",     // 10. Tiếp lửa động lực
+  "get_gold_price",       // 1. Giá vàng SJC/DOJI (Tính năng ban đầu)
+  "get_weather",          // 2. Dự báo thời tiết thông minh (Tính năng ban đầu)
+  "tell_joke",            // 3. Kể chuyện cười tiếu lâm
+  "brain_riddle",         // 4. Đố vui trí tuệ dân gian
+  "bedtime_storyteller",  // 5. Kể chuyện đêm muộn ru ngủ
+  "daily_motivation",     // 6. Tiếp lửa động lực mỗi ngày
+  "numerology_reading",   // 7. Thần số học Pitago
+  "tarot_divination",     // 8. Bói bài Tarot thông điệp
+  "horoscope_zodiac",     // 9. Tử vi 12 Cung Hoàng Đạo
+  "iching_hexagram",      // 10. Gieo quẻ Kinh Dịch
 ];
 
 const FREE_MCP_TOOLS = MCP_TOOLS.filter((t) => FREE_TOOL_NAMES.includes(t.name));
-// Gói PRO bao gồm TẤT CẢ các tính năng của gói Tiêu Chuẩn + Các tính năng Pro cao cấp (Zing MP3, YouTube, 10 Gia sư, Thần số học, Coding...)
+// Gói PRO bao gồm TẤT CẢ các tính năng của gói Tiêu Chuẩn + Các tính năng Pro đặc biệt (Giá ngoại tệ, Giá xăng, Xổ số, Tin tức, Zing MP3, YouTube, Đài FM, Crypto, 10 Gia sư, AI Coding, Luật, Bài tập...)
 const PRO_MCP_TOOLS = MCP_TOOLS;
 
 // ─── Xử lý các lệnh gọi MCP Tool ─────────────────────────────────────────
