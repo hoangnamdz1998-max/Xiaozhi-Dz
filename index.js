@@ -520,6 +520,42 @@ const MCP_TOOLS = [
       }
     }
   },
+  // ─── 7 Tiện ích Đỉnh Cao Mới ──────────────────────────────────────────
+  {
+    name: "feng_shui_sim",
+    description: "Bói Sim phong thủy & 4 số cuối điện thoại: Tra cứu ngũ hành bản mệnh, quẻ cát hung 4 số đuôi sim theo kinh dịch.",
+    inputSchema: { type: "object", properties: { sim: { type: "string", description: "Số điện thoại hoặc 4 số đuôi sim" }, year: { type: "string", description: "Năm sinh chủ nhân" } }, required: ["sim"] }
+  },
+  {
+    name: "dream_interpreter",
+    description: "Giải mã điềm báo giấc mơ: Phân tích ý nghĩa tâm linh, tâm lý học và con số may mắn tương ứng với giấc mơ.",
+    inputSchema: { type: "object", properties: { dream: { type: "string", description: "Nội dung giấc mơ cần giải mã" } }, required: ["dream"] }
+  },
+  {
+    name: "emotional_healing",
+    description: "Chuyên gia tâm lý & chữa lành cảm xúc: Lắng nghe, chia sẻ, xoa dịu stress mệt mỏi, hướng dẫn bài tập thở an yên.",
+    inputSchema: { type: "object", properties: { feeling: { type: "string", description: "Cảm xúc hoặc tâm sự hiện tại của bạn", default: "căng thẳng" } } }
+  },
+  {
+    name: "coding_assistant",
+    description: "Trợ lý lập trình AI đa ngôn ngữ (Python, JS, C++, Arduino ESP32): Giải thích thuật toán, sửa lỗi bug, viết code mẫu chuẩn.",
+    inputSchema: { type: "object", properties: { language: { type: "string", description: "Ngôn ngữ lập trình", default: "javascript" }, problem: { type: "string", description: "Bài toán hoặc lỗi code cần giải quyết" } }, required: ["problem"] }
+  },
+  {
+    name: "vietnam_history",
+    description: "Bách khoa Lịch sử Việt Nam hào hùng: Tìm hiểu các triều đại, danh tướng, trận đánh lừng lẫy của dân tộc Việt Nam.",
+    inputSchema: { type: "object", properties: { period: { type: "string", description: "Thời kỳ lịch sử hoặc nhân vật muốn tìm hiểu", default: "Việt Nam" } } }
+  },
+  {
+    name: "legal_consultant",
+    description: "Tư vấn Pháp luật Việt Nam: Tra cứu nhanh các quy định luật Dân sự, Giao thông, Lao động, Đất đai mới nhất.",
+    inputSchema: { type: "object", properties: { issue: { type: "string", description: "Vấn đề pháp lý cần tư vấn" } }, required: ["issue"] }
+  },
+  {
+    name: "study_homework_helper",
+    description: "Gia sư giải bài tập các môn Toán, Lý, Hóa, Văn, Sử, Địa: Hướng dẫn giải chi tiết từng bước, phương pháp học hiệu quả.",
+    inputSchema: { type: "object", properties: { subject: { type: "string", description: "Môn học (Toán, Lý, Hóa...)", default: "Toán" }, question: { type: "string", description: "Đề bài tập cần hướng dẫn giải" } }, required: ["question"] }
+  },
 ];
 
 // ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
@@ -691,6 +727,35 @@ async function handleToolCall(name, args = {}) {
 
   if (name === "finance_calculator") {
     return extraTools.getFinancialCalculator(args.amount, args.rate, args.months);
+  }
+
+  // 7 Tiện ích Đỉnh Cao Mới
+  if (name === "feng_shui_sim") {
+    return extraTools.getFengShuiSimPhone(args.sim, args.year);
+  }
+
+  if (name === "dream_interpreter") {
+    return extraTools.getDreamInterpretation(args.dream);
+  }
+
+  if (name === "emotional_healing") {
+    return extraTools.getEmotionalHealing(args.feeling);
+  }
+
+  if (name === "coding_assistant") {
+    return extraTools.getCodingAssistant(args.language, args.problem);
+  }
+
+  if (name === "vietnam_history") {
+    return extraTools.getVietnamHistoryFact(args.period);
+  }
+
+  if (name === "legal_consultant") {
+    return extraTools.getLegalConsultant(args.issue);
+  }
+
+  if (name === "study_homework_helper") {
+    return extraTools.getStudyTutorHomework(args.subject, args.question);
   }
 
   if (name === "play_youtube_music") {

@@ -777,6 +777,77 @@ function getFinancialCalculator(amount = 100000000, rate = 6, months = 12) {
   };
 }
 
+// ─── 7 Tiện ích Đỉnh Cao Mới: Phong Thủy, Chữa Lành, AI Coding, Luật, Lịch Sử, Trắc Nghiệm, Giải Bài Tập ───
+function getFengShuiSimPhone(sim = "", year = "") {
+  const digits = sim.replace(/\D/g, "");
+  const last4 = digits.slice(-4) || "6868";
+  const num = parseInt(last4, 10) || 6868;
+  const remainder = (num / 80 - Math.floor(num / 80)) * 80;
+  const rRound = Math.round(remainder);
+
+  return {
+    soSim: sim || "Số điện thoại",
+    namSinh: year || "Chưa cung cấp",
+    bonSoCuoi: last4,
+    diemQue: rRound,
+    luanDoan: "Quẻ số mang ý nghĩa: Vạn sự khởi sắc, tài lộc dồi dào, quý nhân phù trợ, kinh doanh phát đạt.",
+    loiKhuyenAI: `Bạn là chuyên gia phong thủy số học phương Đông. Hãy luận giải 4 số đuôi sim '${last4}' theo ngũ hành bản mệnh (nếu có năm sinh '${year}'), phân tích số âm dương, quẻ cát hung và đưa ra lời chúc may mắn, tài lộc cho chủ nhân.`
+  };
+}
+
+function getDreamInterpretation(dream = "") {
+  return {
+    giacMo: dream || "Điềm báo giấc mơ",
+    huongDanAI: `Bạn là chuyên gia giải mã giấc mơ kết hợp tâm lý học Jungian và sổ mơ dân gian Việt Nam. Hãy giải mã giấc mơ '${dream}': phân tích điềm báo tâm linh (lành hay dữ), lời khuyên tâm lý để giải tỏa căng thẳng và gợi ý con số may mắn dân gian tương ứng.`
+  };
+}
+
+function getEmotionalHealing(feeling = "căng thẳng, mệt mỏi") {
+  return {
+    tamTrang: feeling,
+    huongDanAI: `Bạn là người bạn tâm tình và chuyên gia tâm lý chữa lành (Emotional Healing Companion). Người dùng đang cảm thấy '${feeling}'. Hãy lắng nghe thấu cảm, nói lời an ủi vỗ về dịu dàng, hướng dẫn bài tập thở 4-7-8 nhẹ nhàng và gửi gắm lời chúc bình an, tiếp thêm sức mạnh tinh thần.`
+  };
+}
+
+function getCodingAssistant(language = "javascript", problem = "giải thuật") {
+  return {
+    ngonNgu: language,
+    vanDe: problem,
+    huongDanAI: `Bạn là Senior Software Engineer và chuyên gia lập trình đa ngôn ngữ. Người dùng cần hỗ trợ về ngôn ngữ '${language}' với bài toán '${problem}'. Hãy giải thích ngắn gọn tư duy giải quyết, cung cấp đoạn code mẫu sạch (clean code) kèm chú thích rõ ràng và tối ưu hiệu năng.`
+  };
+}
+
+function getVietnamHistoryFact(period = "Việt Nam") {
+  const FACTS = [
+    { trieuDai: "Nhà Trần", suKien: "Chiến thắng Bạch Đằng năm 1288", yNghia: "Hưng Đạo Đại Vương Trần Quốc Tuấn dùng trận địa cọc ngầm đánh tan quân Nguyên Mông lần thứ 3, giữ vững bờ cõi." },
+    { trieuDai: "Hậu Lê", suKien: "Bình Ngô Đại Cáo năm 1428", yNghia: "Nguyễn Trãi soạn bản tuyên ngôn độc lập thứ hai của nước ta, ca ngợi khởi nghĩa Lam Sơn toàn thắng." },
+    { trieuDai: "Tây Sơn", suKien: "Đại thắng Ngọc Hồi - Đống Đa xuân Kỷ Dậu 1789", yNghia: "Quang Trung - Nguyễn Huệ hành quân thần tốc đánh tan 29 vạn quân Mãn Thanh trong 5 ngày tết." }
+  ];
+  const f = FACTS[Math.floor(Math.random() * FACTS.length)];
+  return {
+    chuDe: period,
+    trieuDai: f.trieuDai,
+    suKien: f.suKien,
+    yNghiaLichSu: f.yNghia,
+    huongDanAI: `Bạn là nhà sử học Việt Nam am tường và tự hào dân tộc. Hãy kể tóm tắt một câu chuyện lịch sử hào hùng hoặc nhân vật kiệt xuất liên quan đến '${period}' một cách hấp dẫn, giàu cảm xúc.`
+  };
+}
+
+function getLegalConsultant(issue = "dân sự") {
+  return {
+    linhVuc: issue,
+    huongDanAI: `Bạn là chuyên gia tư vấn pháp luật Việt Nam (Luật Dân sự, Lao động, Giao thông, Đất đai). Hãy giải đáp thắc mắc '${issue}' theo các quy định hiện hành mới nhất của pháp luật Việt Nam, nêu rõ căn cứ điều luật tóm tắt và đưa ra lời khuyên xử lý an toàn, đúng luật.`
+  };
+}
+
+function getStudyTutorHomework(subject = "Toán", question = "") {
+  return {
+    monHoc: subject,
+    cauHoi: question || "Bài tập cần giải",
+    huongDanAI: `Bạn là giáo viên sư phạm giỏi, phương pháp sư phạm dễ hiểu. Với câu hỏi/bài tập môn '${subject}': '${question}', hãy hướng dẫn từng bước phương pháp giải (Step-by-step), giải thích bản chất công thức để học sinh tự hiểu và đưa ra kết quả chính xác.`
+  };
+}
+
 module.exports = {
   getWeather,
   getLunarCalendar,
@@ -801,6 +872,13 @@ module.exports = {
   getDailyMotivation,
   getAiDebatePartner,
   getFinancialCalculator,
+  getFengShuiSimPhone,
+  getDreamInterpretation,
+  getEmotionalHealing,
+  getCodingAssistant,
+  getVietnamHistoryFact,
+  getLegalConsultant,
+  getStudyTutorHomework,
   setAutoDetectedLocation,
   getAutoDetectedLocation,
 };
