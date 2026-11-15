@@ -559,8 +559,22 @@ const MCP_TOOLS = [
 ];
 
 // ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
-const FREE_TOOL_NAMES = ["get_gold_price", "get_weather"];
+// Gói Tiêu Chuẩn (Free): 10 tính năng thiết thực đời sống (Ai cũng dùng được ngay)
+const FREE_TOOL_NAMES = [
+  "get_gold_price",       // 1. Giá vàng SJC/DOJI
+  "get_weather",          // 2. Dự báo thời tiết
+  "get_gasoline_price",   // 3. Giá xăng dầu Petrolimex
+  "get_exchange_rate",    // 4. Tỷ giá ngoại tệ Vietcombank
+  "get_lottery_result",   // 5. Kết quả xổ số 3 miền
+  "get_lunar_calendar",   // 6. Lịch âm vạn niên
+  "get_latest_news",      // 7. Tin tức VnExpress
+  "tell_joke",            // 8. Chuyện cười thư giãn
+  "brain_riddle",         // 9. Đố vui trí tuệ
+  "daily_motivation",     // 10. Tiếp lửa động lực
+];
+
 const FREE_MCP_TOOLS = MCP_TOOLS.filter((t) => FREE_TOOL_NAMES.includes(t.name));
+// Gói PRO bao gồm TẤT CẢ các tính năng của gói Tiêu Chuẩn + Các tính năng Pro cao cấp (Zing MP3, YouTube, 10 Gia sư, Thần số học, Coding...)
 const PRO_MCP_TOOLS = MCP_TOOLS;
 
 // ─── Xử lý các lệnh gọi MCP Tool ─────────────────────────────────────────
