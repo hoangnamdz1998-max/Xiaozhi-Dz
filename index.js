@@ -20,13 +20,18 @@ app.use(cors());
 app.use(express.json());
 
 // ─── Tự động phát hiện vị trí từ IP Client (GeoIP) ───────────────────────
-let lastResolvedIp = "";
-let lastIpCheckTime = 0;
+const ipCache = new Map(); // Cache IP đã nhận diện để không spam request
 
 async function detectCityFromIp(ip) {
   if (!ip) return;
   if (ip.includes("127.0.0.1") || ip === "::1" || ip.startsWith("10.") || ip.startsWith("192.168.")) return;
-  if (ip === lastResolvedIp && Date.now() - lastIpCheckTime < 3600000) return;
+
+  const now = Date.now();
+  const cachedTime = ipCache.get(ip);
+  // Nếu IP này đã được nhận diện trong 24h qua, bỏ qua không gọi lại
+  if (cachedTime && (now - cachedTime < 86400000)) return;
+
+  ipCache.set(ip, now);
 
   try {
     const res = await fetch(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,regionName,city`, {
@@ -34,8 +39,6 @@ async function detectCityFromIp(ip) {
     });
     const data = await res.json();
     if (data && data.status === "success" && data.city) {
-      lastResolvedIp = ip;
-      lastIpCheckTime = Date.now();
       extraTools.setAutoDetectedLocation(data.city);
       console.log(`[GeoIP] 📍 Đã nhận diện vị trí từ IP ${ip}: ${data.city}, ${data.regionName || ""}, ${data.country || ""}`);
     }

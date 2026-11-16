@@ -1,10 +1,10 @@
 const fetch = require("node-fetch");
 const lunar = require("./lunar");
 
-let autoDetectedLocation = "Ho Chi Minh City";
+let autoDetectedLocation = "Hanoi";
 
 function setAutoDetectedLocation(city) {
-  if (city) {
+  if (city && city !== autoDetectedLocation) {
     autoDetectedLocation = city;
     console.log(`[Location] 📍 Tự động cập nhật vị trí thiết bị: ${autoDetectedLocation}`);
   }
