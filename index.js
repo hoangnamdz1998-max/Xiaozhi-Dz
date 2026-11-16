@@ -10,6 +10,7 @@ const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 const WebSocket = require("ws");
+const { MongoClient } = require("mongodb");
 const zing = require("./zingmp3");
 const extraTools = require("./tools");
 const youtube = require("./youtube");
@@ -59,8 +60,11 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "123456";
 const DEVICES_FILE = path.join(__dirname, "devices.json");
 const connectedDevices = new Map();
 
-// ─── Quản lý lưu trữ thiết bị (devices.json) ──────────────────────────────
-function loadSavedDevices() {
+// ─── Quản lý lưu trữ thiết bị (Hỗ trợ MongoDB Atlas & Fallback devices.json) ───
+let cachedDevices = null;
+let mongoDbCollection = null;
+
+function loadDevicesFromFile() {
   try {
     if (fs.existsSync(DEVICES_FILE)) {
       const data = fs.readFileSync(DEVICES_FILE, "utf-8");
@@ -68,7 +72,7 @@ function loadSavedDevices() {
       if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed.map((d) => ({
           ...d,
-          isPro: d.isPro !== undefined ? d.isPro : (d.deviceName === "NAM01"), // NAM01 mặc định là Pro
+          isPro: d.isPro !== undefined ? d.isPro : (d.deviceName === "NAM01"),
           isApproved: d.isApproved !== undefined ? d.isApproved : true,
         }));
       }
@@ -88,11 +92,86 @@ function loadSavedDevices() {
   ];
 }
 
+function loadSavedDevices() {
+  if (cachedDevices && Array.isArray(cachedDevices)) {
+    return cachedDevices;
+  }
+  cachedDevices = loadDevicesFromFile();
+  return cachedDevices;
+}
+
 function saveDevicesToFile(devices) {
+  cachedDevices = devices;
   try {
     fs.writeFileSync(DEVICES_FILE, JSON.stringify(devices, null, 2), "utf-8");
   } catch (e) {
     console.error(`[storage] ❌ Lỗi ghi devices.json: ${e.message}`);
+  }
+}
+
+async function syncDeviceToMongo(dev) {
+  if (!mongoDbCollection || !dev || !dev.deviceName) return;
+  try {
+    await mongoDbCollection.updateOne(
+      { deviceName: dev.deviceName },
+      { $set: dev },
+      { upsert: true }
+    );
+  } catch (e) {
+    console.warn(`[DB] Lỗi đồng bộ thiết bị ${dev.deviceName} lên MongoDB:`, e.message);
+  }
+}
+
+async function deleteDeviceFromMongo(deviceName) {
+  if (!mongoDbCollection || !deviceName) return;
+  try {
+    await mongoDbCollection.deleteOne({ deviceName });
+  } catch (e) {
+    console.warn(`[DB] Lỗi xóa thiết bị ${deviceName} trên MongoDB:`, e.message);
+  }
+}
+
+async function initMongoDatabase() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.log("[DB] ℹ️ Đang chạy chế độ lưu trữ file cục bộ (devices.json).");
+    console.log("[DB] 💡 Mẹo: Thiết lập biến MONGODB_URI trên Render để lưu trữ đám mây vĩnh viễn!");
+    cachedDevices = loadDevicesFromFile();
+    return;
+  }
+
+  try {
+    console.log("[DB] ⏳ Đang kết nối tới Cloud Database (MongoDB Atlas)...");
+    const client = new MongoClient(uri, { serverSelectionTimeoutMS: 6000 });
+    await client.connect();
+    const db = client.db(process.env.MONGODB_DB || "xiaozhi");
+    mongoDbCollection = db.collection("devices");
+    console.log("[DB] ✅ Kết nối MongoDB Atlas thành công!");
+
+    const docs = await mongoDbCollection.find({}).toArray();
+    if (docs && docs.length > 0) {
+      cachedDevices = docs.map((d) => ({
+        deviceName: d.deviceName,
+        wssUrl: d.wssUrl,
+        deviceSecret: d.deviceSecret || "",
+        savedAt: d.savedAt || new Date().toISOString(),
+        autoConnect: d.autoConnect !== false,
+        isPro: !!d.isPro,
+        isApproved: d.isApproved !== undefined ? d.isApproved : true,
+        requestedPro: !!d.requestedPro,
+      }));
+      console.log(`[DB] 📦 Đã nạp ${cachedDevices.length} thiết bị từ Cloud MongoDB!`);
+      saveDevicesToFile(cachedDevices);
+    } else {
+      cachedDevices = loadDevicesFromFile();
+      for (const d of cachedDevices) {
+        await syncDeviceToMongo(d);
+      }
+      console.log(`[DB] 🚀 Đã đồng bộ ${cachedDevices.length} thiết bị ban đầu lên MongoDB!`);
+    }
+  } catch (err) {
+    console.error(`[DB] ❌ Lỗi kết nối MongoDB (${err.message}). Tự động fallback sang devices.json`);
+    cachedDevices = loadDevicesFromFile();
   }
 }
 
@@ -101,17 +180,17 @@ function addSavedDevice(deviceName, wssUrl, requestedPro = false, deviceSecret =
   const idx = devices.findIndex((d) => d.deviceName === deviceName);
   
   const generatedSecret = deviceSecret || (idx >= 0 && devices[idx].deviceSecret ? devices[idx].deviceSecret : Math.random().toString(36).substring(2, 12));
+  const finalWssUrl = (wssUrl && wssUrl !== "reconnect") ? wssUrl : (idx >= 0 ? devices[idx].wssUrl : "");
 
-  // Thiết bị đăng ký Pro sẽ vào hàng chờ (isApproved: false, isPro: false) cho đến khi admin duyệt
   const entry = {
     deviceName,
-    wssUrl,
+    wssUrl: finalWssUrl,
     deviceSecret: generatedSecret,
     savedAt: new Date().toISOString(),
     autoConnect: true,
-    isPro: requestedPro ? false : false,
+    isPro: requestedPro ? false : (idx >= 0 ? devices[idx].isPro : false),
     requestedPro: requestedPro,
-    isApproved: !requestedPro, // Nếu là Free thì duyệt luôn, Pro thì chờ duyệt
+    isApproved: !requestedPro,
   };
 
   if (idx >= 0) {
@@ -120,6 +199,8 @@ function addSavedDevice(deviceName, wssUrl, requestedPro = false, deviceSecret =
     devices.push(entry);
   }
   saveDevicesToFile(devices);
+  const updatedDev = idx >= 0 ? devices[idx] : devices[devices.length - 1];
+  syncDeviceToMongo(updatedDev).catch(() => {});
   return generatedSecret;
 }
 
@@ -131,6 +212,7 @@ function approveProDevice(deviceName, approve = true) {
     dev.isApproved = true;
     dev.requestedPro = false;
     saveDevicesToFile(devices);
+    syncDeviceToMongo(dev).catch(() => {});
     return true;
   }
   return false;
@@ -147,10 +229,10 @@ function removeSavedDevice(deviceName, secret = "", isAdmin = false) {
   const target = devices.find((d) => d.deviceName === deviceName);
   if (!target) return false;
 
-  // Nếu là admin hoặc cung cấp đúng secret của máy mình thì cho phép xóa
   if (isAdmin || (secret && target.deviceSecret === secret) || !target.deviceSecret) {
     const filtered = devices.filter((d) => d.deviceName !== deviceName);
     saveDevicesToFile(filtered);
+    deleteDeviceFromMongo(deviceName).catch(() => {});
     return true;
   }
   return false;
@@ -162,6 +244,7 @@ function updateAutoConnect(deviceName, autoConnect) {
   if (dev) {
     dev.autoConnect = autoConnect;
     saveDevicesToFile(devices);
+    syncDeviceToMongo(dev).catch(() => {});
     return true;
   }
   return false;
@@ -1280,20 +1363,82 @@ app.post("/api/location", (req, res) => {
 });
 
 app.post("/api/connect", (req, res) => {
-  const { deviceName, wssUrl, requestedPro } = req.body;
-  if (!deviceName || !wssUrl) {
-    return res.status(400).json({ error: "Thiếu deviceName hoặc wssUrl" });
+  const { deviceName, wssUrl, requestedPro, reconnect } = req.body;
+  if (!deviceName) {
+    return res.status(400).json({ error: "Thiếu tên thiết bị" });
   }
 
-  const isProReq = !!requestedPro;
-  const secret = addSavedDevice(deviceName, wssUrl, isProReq);
-  connectToXiaozhi(deviceName, wssUrl);
+  const devices = loadSavedDevices();
+  const existing = devices.find((d) => d.deviceName === deviceName);
+
+  let targetUrl = wssUrl;
+  if (reconnect || wssUrl === "reconnect") {
+    if (!existing || !existing.wssUrl || existing.wssUrl === "reconnect") {
+      return res.status(400).json({ error: `Không tìm thấy URL cấu hình của thiết bị "${deviceName}"` });
+    }
+    targetUrl = existing.wssUrl;
+  } else {
+    if (!wssUrl || !wssUrl.startsWith("wss://")) {
+      return res.status(400).json({ error: "Link kết nối phải bắt đầu bằng wss://" });
+    }
+  }
+
+  const isProReq = requestedPro !== undefined ? !!requestedPro : (existing ? !!existing.isPro : false);
+  const secret = addSavedDevice(deviceName, targetUrl, isProReq);
+  connectToXiaozhi(deviceName, targetUrl);
 
   const msg = isProReq
-    ? `Thiết bị ${deviceName} đã đăng ký gói PRO (đang vào danh sách chờ admin duyệt, tạm thời dùng các tính năng Free).`
+    ? `Thiết bị ${deviceName} đã kết nối gói PRO!`
     : `Thiết bị ${deviceName} đã kết nối thành công với gói Miễn Phí!`;
 
   res.json({ success: true, message: msg, requestedPro: isProReq, deviceSecret: secret });
+});
+
+// Kết nối lại tất cả thiết bị trong danh sách
+app.post("/api/reconnect-all", (req, res) => {
+  const devices = loadSavedDevices();
+  let count = 0;
+  for (const dev of devices) {
+    if (dev.wssUrl && dev.wssUrl.startsWith("wss://") && dev.autoConnect !== false) {
+      connectToXiaozhi(dev.deviceName, dev.wssUrl);
+      count++;
+    }
+  }
+  console.log(`[reconnect-all] ⚡ Đang kết nối lại ${count} thiết bị...`);
+  res.json({ success: true, message: `Đang kết nối lại ${count} thiết bị trong danh sách!`, count });
+});
+
+// Xuất bản sao lưu danh sách thiết bị (Admin)
+app.get("/api/admin/export-devices", (req, res) => {
+  const isAdmin = req.headers["x-admin-password"] === ADMIN_PASSWORD || req.query.password === ADMIN_PASSWORD;
+  if (!isAdmin) {
+    return res.status(403).json({ error: "Chỉ Admin mới có quyền tải bản sao lưu!" });
+  }
+  const devices = loadSavedDevices();
+  res.setHeader("Content-Disposition", `attachment; filename=xiaozhi-devices-backup-${Date.now()}.json`);
+  res.setHeader("Content-Type", "application/json");
+  res.send(JSON.stringify(devices, null, 2));
+});
+
+// Nhập khôi phục danh sách thiết bị (Admin)
+app.post("/api/admin/import-devices", (req, res) => {
+  const isAdmin = req.headers["x-admin-password"] === ADMIN_PASSWORD || req.body.password === ADMIN_PASSWORD;
+  if (!isAdmin) {
+    return res.status(403).json({ error: "Chỉ Admin mới có quyền khôi phục dữ liệu!" });
+  }
+  const { devices } = req.body;
+  if (!Array.isArray(devices) || devices.length === 0) {
+    return res.status(400).json({ error: "Dữ liệu thiết bị không hợp lệ!" });
+  }
+
+  saveDevicesToFile(devices);
+  for (const d of devices) {
+    syncDeviceToMongo(d).catch(() => {});
+    if (d.autoConnect !== false && d.wssUrl && d.wssUrl.startsWith("wss://")) {
+      connectToXiaozhi(d.deviceName, d.wssUrl);
+    }
+  }
+  res.json({ success: true, message: `Đã khôi phục và tự động kết nối ${devices.length} thiết bị thành công!` });
 });
 
 app.post("/api/devices/approve-pro", (req, res) => {
@@ -1352,17 +1497,20 @@ app.patch("/api/devices/:name/auto-connect", (req, res) => {
 });
 
 // ─── Khởi động Server ────────────────────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`===============================================`);
   console.log(`🎵 Xiaozhi Zing MP3 MCP Server đang chạy tại port ${PORT}`);
   console.log(`🌐 Web UI: http://localhost:${PORT}`);
   console.log(`===============================================`);
 
-  // Tự động kết nối lại các thiết bị đã lưu
+  // 1. Khởi tạo Database đám mây (nếu có MONGODB_URI)
+  await initMongoDatabase();
+
+  // 2. Tự động kết nối lại tất cả các thiết bị đã lưu
   const saved = loadSavedDevices();
   console.log(`[storage] 🔄 Tự động kết nối ${saved.length} thiết bị...`);
   for (const dev of saved) {
-    if (dev.autoConnect !== false && dev.wssUrl) {
+    if (dev.autoConnect !== false && dev.wssUrl && dev.wssUrl.startsWith("wss://")) {
       connectToXiaozhi(dev.deviceName, dev.wssUrl);
     }
   }
