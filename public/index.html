@@ -473,11 +473,11 @@
   // Khởi động kiểm tra quyền
   checkAdminState();
   setInterval(() => {
+    loadSavedDevices();
     if (isAdminAuthenticated) {
       loadDevices();
-      loadSavedDevices();
     }
-  }, 10000);
+  }, 5000);
 
   function switchTab(type) {
     const isFree = type === 'free';
@@ -573,6 +573,7 @@
   function renderDevices(devices) {
     const cnt = document.getElementById('device-count');
     const list = document.getElementById('devices-list');
+    if (!cnt || !list) return;
     cnt.textContent = devices.length;
 
     if (devices.length === 0) {
