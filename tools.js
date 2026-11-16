@@ -996,6 +996,33 @@ Hãy trả lời người dùng:
   };
 }
 
+// ─── 5. Thông dịch viên AI Song ngữ Trực tiếp (Live Interpreter & Translator) ───
+function getRealtimeTranslator(text = "", targetLang = "tiếng Anh", mode = "giao_tiep") {
+  const modeDescriptions = {
+    giao_tiep: "Giao tiếp tự nhiên, đời thường, kèm phiên âm để người dùng dễ đọc theo",
+    cabin_hai_chieu: "Chế độ cabin hai chiều (Bilingual Interpreter): Tự nhận diện ngôn ngữ và dịch qua lại giữa 2 bên đối thoại",
+    trang_trong: "Văn phong trang trọng, chuẩn mực ngoại giao hoặc đàm phán thương mại"
+  };
+
+  const modeDesc = modeDescriptions[mode] || modeDescriptions.giao_tiep;
+
+  return {
+    vanBanGoc: text || "Chưa có nội dung cần dịch",
+    ngonNguDich: targetLang || "tiếng Anh",
+    cheDo: modeDesc,
+    huongDanAI: `Bạn là Thông Dịch Viên Chuyên Nghiệp Đa Ngôn Ngữ (Professional Live Interpreter) của loa Xiaozhi AI. 
+Nội dung cần dịch: "${text}"
+Ngôn ngữ đích: ${targetLang}
+Chế độ: ${modeDesc}
+
+Nhiệm vụ của bạn:
+1. Đọc to bản dịch chính xác, tự nhiên, chuẩn văn phong người bản xứ bằng giọng điệu truyền cảm của ngôn ngữ đích.
+2. Cung cấp phiên âm phát âm dễ hiểu (Pinyin cho tiếng Trung, Romaji cho tiếng Nhật, Hangul cho tiếng Hàn, hoặc hướng dẫn đọc tiếng Việt) để người nghe có thể nhại lại giao tiếp ngay.
+3. Nếu ở chế độ cabin hai chiều: Đóng vai thông dịch viên trực tiếp, người Việt nói thì dịch sang tiếng nước ngoài, người nước ngoài nói thì dịch sang tiếng Việt.
+4. Ưu tiên đọc to bản dịch rõ ràng ngay lập tức để phục vụ hội thoại tức thì.`
+  };
+}
+
 module.exports = {
   getWeather,
   getLunarCalendar,
@@ -1031,6 +1058,7 @@ module.exports = {
   getGrammarChecker,
   getVocabQuizFlashcard,
   getTrafficFineLookup,
+  getRealtimeTranslator,
   setAutoDetectedLocation,
   getAutoDetectedLocation,
 };

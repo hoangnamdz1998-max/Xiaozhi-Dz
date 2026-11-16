@@ -604,6 +604,19 @@ const MCP_TOOLS = [
       required: ["plateNumber"]
     }
   },
+  {
+    name: "realtime_translator",
+    description: "Thông dịch viên AI Song ngữ Trực tiếp đa ngôn ngữ (Việt, Anh, Trung, Nhật, Hàn, Pháp, Đức, Nga, Thái, Tây Ban Nha...): Dịch câu nói tức thì, kèm phiên âm chuẩn (Pinyin, Romaji, IPA) và hỗ trợ chế độ cabin hai chiều trò chuyện trực tiếp với người nước ngoài.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        text: { type: "string", description: "Câu nói, từ ngữ hoặc đoạn hội thoại cần dịch" },
+        targetLang: { type: "string", description: "Ngôn ngữ đích cần dịch sang (ví dụ: 'tiếng Anh', 'tiếng Trung', 'tiếng Nhật', 'tiếng Hàn', 'tiếng Việt')", default: "tiếng Anh" },
+        mode: { type: "string", description: "Chế độ dịch ('giao_tiep': đời thường có phiên âm, 'cabin_hai_chieu': thông dịch cabin 2 bên đối thoại, 'trang_trong': thương mại lịch sự)", default: "giao_tiep" }
+      },
+      required: ["text"]
+    }
+  },
 ];
 
 // ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
@@ -834,6 +847,10 @@ async function handleToolCall(name, args = {}) {
 
   if (name === "traffic_fine_lookup") {
     return extraTools.getTrafficFineLookup(args.plateNumber || args.plate || args.bienSo, args.vehicleType || args.loaiXe);
+  }
+
+  if (name === "realtime_translator") {
+    return extraTools.getRealtimeTranslator(args.text || args.cau || args.noiDung, args.targetLang || args.to || args.lang, args.mode);
   }
 
   if (name === "play_youtube_music") {
