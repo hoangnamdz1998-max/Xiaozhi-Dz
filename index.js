@@ -1006,12 +1006,22 @@ function handleXiaozhiMessage(ws, raw, deviceName) {
 }
 
 function connectToXiaozhi(deviceName, wssUrl) {
-  const device = connectedDevices.get(deviceName);
-  if (device?.ws && device.ws.readyState === WebSocket.OPEN) {
-    device.ws.close();
-  }
-  if (device?.reconnectTimer) {
-    clearTimeout(device.reconnectTimer);
+  const existingDev = connectedDevices.get(deviceName);
+  if (existingDev) {
+    if (existingDev.reconnectTimer) {
+      clearTimeout(existingDev.reconnectTimer);
+      existingDev.reconnectTimer = null;
+    }
+    if (existingDev.pingTimer) {
+      clearInterval(existingDev.pingTimer);
+      existingDev.pingTimer = null;
+    }
+    if (existingDev.ws) {
+      existingDev.ws.removeAllListeners();
+      try {
+        existingDev.ws.close();
+      } catch (e) {}
+    }
   }
 
   console.log(`[WSS] Đang kết nối tới Xiaozhi: ${deviceName}`);
@@ -1023,28 +1033,47 @@ function connectToXiaozhi(deviceName, wssUrl) {
     },
   });
 
-  connectedDevices.set(deviceName, {
+  const devEntry = {
     ws,
     url: wssUrl,
     connectedAt: null,
     status: "connecting",
     reconnectTimer: null,
-  });
+    pingTimer: null,
+  };
+  connectedDevices.set(deviceName, devEntry);
 
   ws.on("open", () => {
-    const dev = connectedDevices.get(deviceName);
-    if (dev) {
-      dev.status = "connected";
-      dev.connectedAt = new Date().toISOString();
+    const current = connectedDevices.get(deviceName);
+    if (current && current.ws === ws) {
+      current.status = "connected";
+      current.connectedAt = new Date().toISOString();
+      console.log(`[WSS] ✅ Đã kết nối: ${deviceName}`);
+
+      // Gửi ping định kỳ 30s để giữ kết nối ổn định với Xiaozhi Cloud
+      current.pingTimer = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          try { ws.ping(); } catch (e) {}
+        }
+      }, 30000);
     }
-    console.log(`[WSS] ✅ Đã kết nối: ${deviceName}`);
   });
 
   ws.on("message", (data) => handleXiaozhiMessage(ws, data, deviceName));
 
   ws.on("close", (code) => {
-    const dev = connectedDevices.get(deviceName);
-    if (dev) dev.status = "disconnected";
+    const current = connectedDevices.get(deviceName);
+    // Nếu đây không phải là socket hiện tại (đã bị thay thế), bỏ qua
+    if (!current || current.ws !== ws) {
+      return;
+    }
+
+    if (current.pingTimer) {
+      clearInterval(current.pingTimer);
+      current.pingTimer = null;
+    }
+
+    current.status = "disconnected";
     console.log(`[WSS] ❌ Ngắt kết nối: ${deviceName} (code ${code})`);
 
     if (code === 4004) {
@@ -1052,20 +1081,25 @@ function connectToXiaozhi(deviceName, wssUrl) {
       return;
     }
 
-    const timer = setTimeout(() => {
-      if (connectedDevices.has(deviceName)) {
+    // Chỉ tự động reconnect nếu không phải do cố ý ngắt
+    if (current.reconnectTimer) {
+      clearTimeout(current.reconnectTimer);
+    }
+
+    current.reconnectTimer = setTimeout(() => {
+      const live = connectedDevices.get(deviceName);
+      if (live && live.status === "disconnected") {
         console.log(`[WSS] 🔄 Reconnecting: ${deviceName}`);
         connectToXiaozhi(deviceName, wssUrl);
       }
     }, 10000);
-
-    if (connectedDevices.has(deviceName)) {
-      connectedDevices.get(deviceName).reconnectTimer = timer;
-    }
   });
 
   ws.on("error", (err) => {
-    console.error(`[WSS] ⚠️ Lỗi socket ${deviceName}: ${err.message}`);
+    const current = connectedDevices.get(deviceName);
+    if (current && current.ws === ws) {
+      console.error(`[WSS] ⚠️ Lỗi socket ${deviceName}: ${err.message}`);
+    }
   });
 }
 
