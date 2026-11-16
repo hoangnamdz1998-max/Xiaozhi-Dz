@@ -758,6 +758,7 @@
               ${planBadge}
               <span class="saved-badge ${autoClass}">${autoText}</span>
               ${onlineBadge}
+              <span class="saved-badge" style="background:rgba(56,189,248,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);cursor:pointer" onclick="editDeviceLocation('${esc(d.deviceName)}', '${esc(d.location || '')}')" title="Bấm để xem/đổi vị trí cho loa này">📍 ${esc(d.location || 'Tự động nhận diện')} ✏️</span>
             </div>
             <div class="saved-time">Đăng ký: ${savedTime}</div>
           </div>
@@ -856,6 +857,29 @@
     };
     reader.readAsText(file);
     input.value = '';
+  }
+
+  async function editDeviceLocation(deviceName, currentLoc) {
+    const newLoc = prompt(`Nhập tỉnh/thành phố cho loa [${deviceName}] (ví dụ: Hà Nội, Hồ Chí Minh, Hải Phòng, Đà Nẵng, Cần Thơ...):\n(Mẹo: Bạn cũng có thể nói thẳng vào loa: 'Thời tiết ở [Tỉnh thành]' để loa tự học vị trí)`, currentLoc || '');
+    if (newLoc === null) return;
+    const clean = newLoc.trim();
+    if (!clean) return;
+    try {
+      const res = await fetch(`${API}/api/devices/set-location`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceName, location: clean })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast(`📍 Đã lưu vị trí [${clean}] cho loa [${deviceName}]`, 'ok');
+        loadSavedDevices();
+      } else {
+        toast(`❌ ${data.error || 'Lỗi đặt vị trí'}`, 'err');
+      }
+    } catch (e) {
+      toast('Lỗi kết nối server', 'err');
+    }
   }
 
   async function toggleAutoConnect(name, newValue) {

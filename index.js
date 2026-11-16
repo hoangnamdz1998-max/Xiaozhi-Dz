@@ -34,13 +34,19 @@ async function detectCityFromIp(ip) {
   ipCache.set(ip, now);
 
   try {
-    const res = await fetch(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,regionName,city`, {
+    const res = await fetch(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,countryCode,regionName,city`, {
       timeout: 5000,
     });
     const data = await res.json();
     if (data && data.status === "success" && data.city) {
-      extraTools.setAutoDetectedLocation(data.city);
-      console.log(`[GeoIP] 📍 Đã nhận diện vị trí từ IP ${ip}: ${data.city}, ${data.regionName || ""}, ${data.country || ""}`);
+      // Chỉ nhận diện các IP thuộc lãnh thổ Việt Nam để tránh bot nước ngoài ghi đè vị trí của loa
+      const isVietnam = data.countryCode === "VN" || data.country === "Vietnam" || (data.country && data.country.toLowerCase().includes("vietnam"));
+      if (isVietnam) {
+        extraTools.setAutoDetectedLocation(data.city);
+        console.log(`[GeoIP] 📍 Đã nhận diện vị trí từ IP ${ip}: ${data.city}, ${data.regionName || ""}, ${data.country || ""}`);
+      } else {
+        console.log(`[GeoIP] 🛡️ Bỏ qua IP ngoài lãnh thổ Việt Nam (${data.country || ""}, ${data.city || ""}) để tránh làm sai lệch vị trí loa`);
+      }
     }
   } catch (err) {
     // ignore
@@ -162,6 +168,7 @@ async function initMongoDatabase() {
         isPro: !!d.isPro,
         isApproved: d.isApproved !== undefined ? d.isApproved : true,
         requestedPro: !!d.requestedPro,
+        location: d.location || "",
       }));
       console.log(`[DB] 📦 Đã nạp ${cachedDevices.length} thiết bị từ Cloud MongoDB!`);
       saveDevicesToFile(cachedDevices);
@@ -178,12 +185,14 @@ async function initMongoDatabase() {
   }
 }
 
-function addSavedDevice(deviceName, wssUrl, requestedPro = false, deviceSecret = "") {
+function addSavedDevice(deviceName, wssUrl, requestedPro = false, deviceSecret = "", location = "") {
   const devices = loadSavedDevices();
   const idx = devices.findIndex((d) => d.deviceName === deviceName);
   
   const generatedSecret = deviceSecret || (idx >= 0 && devices[idx].deviceSecret ? devices[idx].deviceSecret : Math.random().toString(36).substring(2, 12));
   const finalWssUrl = (wssUrl && wssUrl !== "reconnect") ? wssUrl : (idx >= 0 ? devices[idx].wssUrl : "");
+  const existingLoc = idx >= 0 ? devices[idx].location : "";
+  const finalLoc = location || existingLoc || "";
 
   const entry = {
     deviceName,
@@ -194,6 +203,7 @@ function addSavedDevice(deviceName, wssUrl, requestedPro = false, deviceSecret =
     isPro: requestedPro ? false : (idx >= 0 ? devices[idx].isPro : false),
     requestedPro: requestedPro,
     isApproved: !requestedPro,
+    location: finalLoc,
   };
 
   if (idx >= 0) {
@@ -248,6 +258,63 @@ function updateAutoConnect(deviceName, autoConnect) {
     dev.autoConnect = autoConnect;
     saveDevicesToFile(devices);
     syncDeviceToMongo(dev).catch(() => {});
+    return true;
+  }
+  return false;
+}
+
+// ─── Quản lý & Tự động ghi nhớ vị trí riêng của từng thiết bị Loa ────────
+function getDeviceLocation(deviceName) {
+  if (!deviceName) return extraTools.getAutoDetectedLocation() || "Hà Nội";
+  const devices = loadSavedDevices();
+  const dev = devices.find((d) => d.deviceName === deviceName);
+  if (dev && dev.location && dev.location.trim()) {
+    return dev.location.trim();
+  }
+
+  // Tự động nhận diện nếu tên thiết bị có chứa tên tỉnh/thành
+  const nameLower = (deviceName || "").toLowerCase();
+  const provinceAliases = {
+    "hanoi": "Hà Nội", "ha noi": "Hà Nội", "hn": "Hà Nội",
+    "saigon": "Hồ Chí Minh", "sai gon": "Hồ Chí Minh", "hcm": "Hồ Chí Minh", "hcmc": "Hồ Chí Minh", "tphcm": "Hồ Chí Minh",
+    "danang": "Đà Nẵng", "da nang": "Đà Nẵng", "dng": "Đà Nẵng",
+    "haiphong": "Hải Phòng", "hai phong": "Hải Phòng", "hp": "Hải Phòng",
+    "cantho": "Cần Thơ", "can tho": "Cần Thơ",
+    "nhatrang": "Nha Trang", "nha trang": "Nha Trang",
+    "dalat": "Đà Lạt", "da lat": "Đà Lạt",
+    "vungtau": "Vũng Tàu", "vung tau": "Vũng Tàu",
+    "hue": "Huế",
+    "quangninh": "Quảng Ninh", "quang ninh": "Quảng Ninh", "halong": "Hạ Long",
+    "bacninh": "Bắc Ninh", "bac ninh": "Bắc Ninh",
+    "binhduong": "Bình Dương", "binh duong": "Bình Dương",
+    "dongnai": "Đồng Nai", "dong nai": "Đồng Nai",
+    "nghean": "Nghệ An", "nghe an": "Nghệ An", "vinh": "Vinh",
+    "thanhhoa": "Thanh Hóa", "thanh hoa": "Thanh Hóa"
+  };
+
+  for (const [k, v] of Object.entries(provinceAliases)) {
+    const regex = new RegExp(`(^|[_\\-\\s])${k}([_\\-\\s]|$)`, "i");
+    if (regex.test(nameLower) || nameLower.includes(k)) {
+      return v;
+    }
+  }
+
+  return extraTools.getAutoDetectedLocation() || "Hà Nội";
+}
+
+function setDeviceLocation(deviceName, location) {
+  if (!deviceName || !location) return false;
+  const cleanLoc = location.trim();
+  if (!cleanLoc) return false;
+  const devices = loadSavedDevices();
+  const dev = devices.find((d) => d.deviceName === deviceName);
+  if (dev) {
+    if (dev.location !== cleanLoc) {
+      dev.location = cleanLoc;
+      saveDevicesToFile(devices);
+      syncDeviceToMongo(dev).catch(() => {});
+      console.log(`[${deviceName}] 📍 Đã tự động cập nhật & ghi nhớ vị trí riêng của loa: "${cleanLoc}"`);
+    }
     return true;
   }
   return false;
@@ -738,8 +805,8 @@ const FREE_MCP_TOOLS = MCP_TOOLS.filter((t) => FREE_TOOL_NAMES.includes(t.name))
 const PRO_MCP_TOOLS = MCP_TOOLS;
 
 // ─── Xử lý các lệnh gọi MCP Tool ─────────────────────────────────────────
-async function handleToolCall(name, args = {}) {
-  console.log(`[tool_call] 🛠️ Thực thi: ${name} với args:`, JSON.stringify(args));
+async function handleToolCall(name, args = {}, deviceName = "") {
+  console.log(`[tool_call] 🛠️ [${deviceName || "General"}] Thực thi: ${name} với args:`, JSON.stringify(args));
 
   if (name === "search_music") {
     const q = args.query || args.q || args.song || "";
@@ -798,8 +865,40 @@ async function handleToolCall(name, args = {}) {
   }
 
   if (name === "get_weather") {
-    const loc = args.location || args.city || "";
-    return await extraTools.getWeather(loc);
+    const rawLoc = (args.location || args.city || "").trim();
+    const genericWords = [
+      "",
+      "hôm nay",
+      "hien tai",
+      "hiện tại",
+      "o day",
+      "ở đây",
+      "noi toi o",
+      "nơi tôi ở",
+      "cho toi",
+      "chỗ tôi",
+      "today",
+      "here",
+      "now",
+    ];
+
+    let targetLoc = rawLoc;
+    const isGeneric = genericWords.includes(rawLoc.toLowerCase());
+
+    if (isGeneric) {
+      // Người dùng không nói rõ địa điểm: Lấy vị trí đã ghi nhớ của loa này
+      targetLoc = getDeviceLocation(deviceName);
+    } else {
+      // Người dùng nói rõ địa điểm: Tự động ghi nhớ vị trí này cho riêng chiếc loa này
+      setDeviceLocation(deviceName, rawLoc);
+    }
+
+    const weatherResult = await extraTools.getWeather(targetLoc);
+    if (isGeneric && targetLoc) {
+      weatherResult.thietBi = deviceName || "Xiaozhi";
+      weatherResult.ghiChu = `Vị trí tự động nhận diện theo thiết bị [${deviceName || "Loa"}]: ${targetLoc}`;
+    }
+    return weatherResult;
   }
 
   if (name === "get_lunar_calendar") {
@@ -953,10 +1052,11 @@ async function handleToolCall(name, args = {}) {
   }
 
   if (name === "expert_search") {
+    const loc = (args.location || args.diaDiem || args.khuVuc || "").trim() || getDeviceLocation(deviceName);
     return extraTools.getExpertSearch(
       args.field || args.linhVuc || args.chuyenNganh || args.category || "",
       args.query || args.cauHoi || args.issue || args.problem || "",
-      args.location || args.diaDiem || args.khuVuc || ""
+      loc
     );
   }
 
@@ -1349,6 +1449,7 @@ app.get("/api/saved-devices", (req, res) => {
     isPro: d.isPro,
     isApproved: d.isApproved,
     requestedPro: d.requestedPro,
+    location: d.location || "",
     isConnected: connectedDevices.has(d.deviceName) && connectedDevices.get(d.deviceName).status === "connected",
   }));
   res.json({ savedDevices });
@@ -1397,7 +1498,7 @@ app.post("/api/location", (req, res) => {
 });
 
 app.post("/api/connect", (req, res) => {
-  const { deviceName, wssUrl, requestedPro, reconnect } = req.body;
+  const { deviceName, wssUrl, requestedPro, reconnect, location } = req.body;
   if (!deviceName) {
     return res.status(400).json({ error: "Thiếu tên thiết bị" });
   }
@@ -1418,7 +1519,7 @@ app.post("/api/connect", (req, res) => {
   }
 
   const isProReq = requestedPro !== undefined ? !!requestedPro : (existing ? !!existing.isPro : false);
-  const secret = addSavedDevice(deviceName, targetUrl, isProReq);
+  const secret = addSavedDevice(deviceName, targetUrl, isProReq, "", location || "");
   connectToXiaozhi(deviceName, targetUrl);
 
   const msg = isProReq
@@ -1426,6 +1527,20 @@ app.post("/api/connect", (req, res) => {
     : `Thiết bị ${deviceName} đã kết nối thành công với gói Miễn Phí!`;
 
   res.json({ success: true, message: msg, requestedPro: isProReq, deviceSecret: secret });
+});
+
+// Cập nhật vị trí thủ công cho thiết bị
+app.post("/api/devices/set-location", (req, res) => {
+  const { deviceName, location } = req.body;
+  if (!deviceName || !location) {
+    return res.status(400).json({ error: "Thiếu deviceName hoặc location" });
+  }
+  const ok = setDeviceLocation(deviceName, location);
+  if (ok) {
+    res.json({ success: true, message: `Đã lưu vị trí "${location}" cho thiết bị [${deviceName}]` });
+  } else {
+    res.status(404).json({ error: "Không tìm thấy thiết bị" });
+  }
 });
 
 // Kết nối lại tất cả thiết bị trong danh sách

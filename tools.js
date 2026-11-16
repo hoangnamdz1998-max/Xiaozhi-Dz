@@ -37,7 +37,7 @@ async function getWeather(location) {
     ];
 
     if (genericWords.includes(loc.toLowerCase())) {
-      loc = autoDetectedLocation || "Ho Chi Minh City";
+      loc = autoDetectedLocation || "Hà Nội";
     }
 
     console.log(`[Weather] 🌤️ Tra cứu thời tiết tại: "${loc}"`);
