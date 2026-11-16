@@ -106,10 +106,36 @@
     .tools-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:1rem}
     @media(max-width:768px){.tools-grid-3{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:480px){.tools-grid-3{grid-template-columns:1fr}}
-    .tool-chip{display:flex;align-items:center;gap:.5rem;padding:.55rem .75rem;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.07);border-radius:10px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .2s}
-    .tool-chip:hover{border-color:rgba(249,115,22,.45);background:rgba(249,115,22,.08);color:#fed7aa;transform:translateY(-1px)}
+    .tool-chip{display:flex;align-items:center;gap:.5rem;padding:.55rem .75rem;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.07);border-radius:10px;font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .2s;cursor:pointer;user-select:none;position:relative}
+    .tool-chip:hover{border-color:rgba(249,115,22,.6);background:rgba(249,115,22,.12);color:#fff;transform:translateY(-2px);box-shadow:0 4px 15px rgba(249,115,22,0.25)}
+    .tool-chip::after{content:"ⓘ";font-size:.7rem;color:rgba(255,255,255,.3);margin-left:auto;opacity:.5;transition:all .2s}
+    .tool-chip:hover::after{color:#fb923c;opacity:1}
     .tool-chip span.chip-icon{font-size:1.15rem;flex-shrink:0}
     .tool-chip span.chip-text{overflow:hidden;text-overflow:ellipsis}
+
+    /* Tool Detail Modal */
+    .tool-modal-backdrop{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;align-items:center;justify-content:center;padding:1rem;opacity:0;transition:opacity .2s ease-out}
+    .tool-modal-backdrop.show{display:flex;opacity:1}
+    .tool-modal-box{background:linear-gradient(135deg,#121522 0%,#171b2d 100%);border:1.5px solid rgba(249,115,22,0.45);box-shadow:0 25px 60px rgba(0,0,0,0.85),0 0 35px rgba(249,115,22,0.25);border-radius:20px;max-width:540px;width:100%;max-height:88vh;overflow-y:auto;padding:1.4rem;position:relative;transform:scale(0.92);transition:transform .25s cubic-bezier(0.16,1,0.3,1)}
+    .tool-modal-backdrop.show .tool-modal-box{transform:scale(1)}
+    .tool-modal-close{position:absolute;top:1rem;right:1.1rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--muted);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.25rem;cursor:pointer;transition:all .2s}
+    .tool-modal-close:hover{background:rgba(239,68,68,0.25);color:#ef4444;border-color:rgba(239,68,68,0.4)}
+    .tool-modal-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.1rem;padding-bottom:1rem;border-bottom:1px solid rgba(255,255,255,0.08)}
+    .tool-modal-icon{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,rgba(249,115,22,0.2),rgba(2,132,199,0.2));border:1.5px solid rgba(249,115,22,0.4);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;box-shadow:0 6px 20px rgba(0,0,0,0.4)}
+    .tool-modal-tier{font-size:0.68rem;font-weight:800;padding:0.18rem 0.6rem;border-radius:99px;letter-spacing:0.05em;text-transform:uppercase}
+    .tool-modal-tier.pro{background:rgba(249,115,22,0.2);color:#fb923c;border:1px solid rgba(249,115,22,0.4)}
+    .tool-modal-tier.free{background:rgba(16,185,129,0.2);color:#10b981;border:1px solid rgba(16,185,129,0.4)}
+    .tool-modal-id{font-size:0.7rem;color:#94a3b8;font-family:monospace;background:rgba(0,0,0,0.35);padding:0.15rem 0.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06)}
+    .tool-modal-title{font-size:1.15rem;font-weight:800;color:#fff;margin-top:0.35rem;line-height:1.3}
+    .tool-modal-section{margin-bottom:1.1rem}
+    .tool-modal-label{font-size:0.72rem;font-weight:800;color:#fb923c;letter-spacing:0.05em;margin-bottom:0.45rem;text-transform:uppercase;display:flex;align-items:center;gap:0.3rem}
+    .tool-modal-desc{font-size:0.85rem;color:#cbd5e1;line-height:1.6;background:rgba(0,0,0,0.25);padding:0.8rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,0.06)}
+    .tool-modal-samples{display:flex;flex-direction:column;gap:0.45rem}
+    .sample-bubble{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);border-radius:10px;padding:0.6rem 0.9rem;font-size:0.82rem;color:#e2e8f0;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;transition:all .2s;cursor:pointer}
+    .sample-bubble:hover{background:rgba(56,189,248,0.18);border-color:rgba(56,189,248,0.45);color:#38bdf8;transform:translateX(3px)}
+    .sample-copy-hint{font-size:0.7rem;color:#38bdf8;opacity:0.85;flex-shrink:0}
+    .tool-modal-btn{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;font-weight:700;font-size:0.85rem;padding:0.65rem 1.4rem;border-radius:10px;cursor:pointer;transition:all .2s;box-shadow:0 4px 15px rgba(249,115,22,0.35)}
+    .tool-modal-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(249,115,22,0.5)}
 
     @media(max-width:580px){
       .wrap{padding:0 0.8rem 3rem}
@@ -267,6 +293,12 @@
     </div>
   </div>
 
+  <!-- Hướng dẫn tương tác tính năng -->
+  <div style="background:linear-gradient(135deg, rgba(249,115,22,0.1), rgba(2,132,199,0.1));border:1px dashed rgba(249,115,22,0.4);border-radius:12px;padding:0.75rem 1rem;margin-bottom:1.3rem;display:flex;align-items:center;gap:0.6rem;font-size:0.83rem;color:#fed7aa">
+    <span style="font-size:1.25rem">💡</span>
+    <span><strong>Mẹo khám phá:</strong> Bấm vào bất kỳ ô tính năng nào bên dưới để xem <strong>mô tả chi tiết</strong> và <strong>câu lệnh giọng nói mẫu</strong> cho loa Xiaozhi!</span>
+  </div>
+
   <!-- 1. Danh sách tính năng Miễn Phí (Ai cũng dùng được) -->
   <div class="devices-card" style="border-left:4px solid #10b981;margin-bottom:1.2rem">
     <div class="devices-header">
@@ -393,6 +425,37 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Modal Chi Tiết Tính Năng -->
+<div id="tool-detail-modal" class="tool-modal-backdrop" onclick="closeToolModal(event)">
+  <div class="tool-modal-box" onclick="event.stopPropagation()">
+    <button class="tool-modal-close" onclick="closeToolModal()" title="Đóng">&times;</button>
+    <div class="tool-modal-header">
+      <div class="tool-modal-icon" id="modal-tool-icon">✨</div>
+      <div class="tool-modal-info">
+        <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap">
+          <span class="tool-modal-tier" id="modal-tool-tier">👑 GÓI PRO</span>
+          <span class="tool-modal-id" id="modal-tool-id">Tool ID: ...</span>
+        </div>
+        <h3 class="tool-modal-title" id="modal-tool-title">Tên tính năng</h3>
+      </div>
+    </div>
+
+    <div class="tool-modal-section">
+      <div class="tool-modal-label">📋 MÔ TẢ CHI TIẾT TÍNH NĂNG</div>
+      <div class="tool-modal-desc" id="modal-tool-desc"></div>
+    </div>
+
+    <div class="tool-modal-section" id="modal-samples-section">
+      <div class="tool-modal-label">🗣️ CÂU LỆNH NÓI MẪU CHO LOA XIAOZHI (BẤM ĐỂ SAO CHÉP)</div>
+      <div class="tool-modal-samples" id="modal-tool-samples"></div>
+    </div>
+
+    <div style="margin-top:1.3rem;display:flex;justify-content:flex-end">
+      <button class="tool-modal-btn" onclick="closeToolModal()">Đã hiểu & Đóng</button>
+    </div>
+  </div>
+</div>
 
 <script>
   const API = window.location.origin;
@@ -879,6 +942,643 @@
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  // ─── Danh mục chi tiết 50+ Tính năng Xiaozhi ───
+  const TOOL_CATALOG = {
+    "Giá vàng SJC / DOJI / PNJ": {
+      toolId: "get_gold_price",
+      tier: "free",
+      desc: "Tra cứu giá vàng miếng SJC, DOJI, vàng nhẫn tròn trơn 9999, vàng PNJ cập nhật trực tiếp theo thời gian thực tại các thành phố lớn (Hà Nội, TP.HCM, Đà Nẵng). Đầy đủ giá mua vào và giá bán ra theo từng chỉ/lượng.",
+      samples: [
+        "Giá vàng hôm nay thế nào?",
+        "Giá vàng miếng SJC mua vào bán ra bao nhiêu?",
+        "Hôm nay giá vàng nhẫn 9999 tăng hay giảm?"
+      ]
+    },
+    "Dự báo thời tiết thông minh": {
+      toolId: "get_weather",
+      tier: "free",
+      desc: "Tự động nhận diện tỉnh/thành phố nơi bạn đang ở qua địa chỉ IP. Cung cấp nhiệt độ hiện tại, cảm giác thực tế ngoài trời, độ ẩm, sức gió và dự báo nắng mưa chi tiết trong ngày.",
+      samples: [
+        "Thời tiết hôm nay thế nào?",
+        "Hôm nay có mưa không?",
+        "Dự báo thời tiết Đà Lạt cuối tuần này"
+      ]
+    },
+    "Kể chuyện cười tiếu lâm": {
+      toolId: "tell_joke",
+      tier: "free",
+      desc: "Kho tàng truyện cười dân gian Trạng Quỳnh, Ba Phi, tiếu lâm học đường, công sở và đời sống gia đình hóm hỉnh giúp bạn và người thân xả stress cực sảng khoái.",
+      samples: [
+        "Kể một câu chuyện cười đi",
+        "Kể chuyện cười Trạng Quỳnh",
+        "Kể một mẩu chuyện tiếu lâm vui nhộn"
+      ]
+    },
+    "Đố vui trí tuệ dân gian": {
+      toolId: "brain_riddle",
+      tier: "free",
+      desc: "Tuyển tập hàng trăm câu đố mẹo, đố chữ, đố tục giảng thanh dân gian Việt Nam kèm gợi ý thông minh, thử thách tài phán đoán và tư duy logic của cả gia đình.",
+      samples: [
+        "Đố vui một câu đi",
+        "Cho một câu đố mẹo dân gian",
+        "Đố chữ hóc búa xem nào"
+      ]
+    },
+    "Kể chuyện đêm muộn ru ngủ": {
+      toolId: "bedtime_storyteller",
+      tier: "free",
+      desc: "Giọng đọc ru ngủ êm ái, truyền cảm với các câu chuyện cổ tích Việt Nam (Tấm Cám, Thạch Sanh), Thần thoại Hy Lạp, ngụ ngôn thế giới giúp bé và bạn dễ dàng chìm vào giấc ngủ an lành.",
+      samples: [
+        "Kể chuyện ru ngủ cho bé",
+        "Kể chuyện cổ tích Cây tre trăm đốt",
+        "Kể một câu chuyện đêm muộn nhẹ nhàng"
+      ]
+    },
+    "Kể chuyện đêm muộn & ru ngủ": {
+      toolId: "bedtime_storyteller",
+      tier: "pro",
+      desc: "Giọng đọc ru ngủ êm ái, truyền cảm với các câu chuyện cổ tích Việt Nam, Thần thoại Hy Lạp, ngụ ngôn thế giới giúp bé và bạn dễ dàng chìm vào giấc ngủ an lành.",
+      samples: [
+        "Kể chuyện ru ngủ cho bé",
+        "Kể chuyện cổ tích Cây tre trăm đốt",
+        "Kể một câu chuyện đêm muộn nhẹ nhàng"
+      ]
+    },
+    "Tiếp lửa động lực mỗi ngày": {
+      toolId: "daily_motivation",
+      tier: "free",
+      desc: "Tổng hợp danh ngôn tinh hoa từ các bậc vĩ nhân, danh nhân thế giới cùng lời chia sẻ truyền cảm hứng, thổi bùng năng lượng tích cực cho ngày mới của bạn.",
+      samples: [
+        "Tiếp lửa động lực cho tôi",
+        "Cho tôi một câu nói truyền cảm hứng hôm nay",
+        "Tôi cần thêm năng lượng tích cực để làm việc"
+      ]
+    },
+    "Thần số học Pitago": {
+      toolId: "numerology_reading",
+      tier: "free",
+      desc: "Khám phá bản đồ số học cuộc đời theo trường phái Pitago chuẩn xác: Tính con số chủ đạo, con số linh hồn, sứ mệnh dựa vào họ tên và ngày sinh để định hướng công việc và thấu hiểu bản thân.",
+      samples: [
+        "Tính thần số học cho người sinh ngày 15/08/1995",
+        "Con số chủ đạo 7 có ý nghĩa và bài học gì?",
+        "Xem thần số học tên Nguyễn Văn Nam sinh ngày 20/11/1998"
+      ]
+    },
+    "Bói bài Tarot thông điệp": {
+      toolId: "tarot_divination",
+      tier: "free",
+      desc: "Rút ngẫu nhiên các lá bài Tarot (Major & Minor Arcana) huyền bí, giải mã thông điệp chiêm nghiệm sâu sắc về tình cảm, sự nghiệp, tài chính và phương hướng hành động trong tương lai.",
+      samples: [
+        "Rút cho tôi một lá bài Tarot hôm nay",
+        "Bói bài Tarot về công việc và sự nghiệp sắp tới",
+        "Thông điệp Tarot về chuyện tình cảm của tôi"
+      ]
+    },
+    "Tử vi 12 Cung Hoàng Đạo": {
+      toolId: "horoscope_zodiac",
+      tier: "free",
+      desc: "Chiêm tinh học phương Tây: Luận giải vận trình tình duyên, công danh sự nghiệp, tài chính và sức khỏe hàng ngày cho 12 chòm sao (Bạch Dương, Kim Ngưu, Song Tử, Cự Giải, Sư Tử, Xử Nữ...).",
+      samples: [
+        "Tử vi hôm nay của cung Bọ Cạp thế nào?",
+        "Xem tử vi tuần này của cung Sư Tử",
+        "Mức độ hợp nhau giữa Kim Ngưu và Ma Kết"
+      ]
+    },
+    "Gieo quẻ Kinh Dịch": {
+      toolId: "iching_hexagram",
+      tier: "free",
+      desc: "Gieo quẻ 64 quẻ Kinh Dịch cổ truyền phương Đông, phân tích thoán từ, hào từ và lời khuyên ứng xử hanh thông trước các quyết định quan trọng trong kinh doanh, cuộc sống.",
+      samples: [
+        "Gieo một quẻ Kinh Dịch về công việc",
+        "Xin quẻ Dịch hôm nay xem cát hung thế nào",
+        "Ý nghĩa và hào từ của quẻ Thuần Càn"
+      ]
+    },
+    "Giá xăng dầu Petrolimex": {
+      toolId: "get_gasoline_price",
+      tier: "pro",
+      desc: "Cập nhật trực tiếp bảng giá bán lẻ xăng dầu niêm yết mới nhất của Tập đoàn Xăng dầu Việt Nam (Petrolimex): Xăng RON 95-III, E5 RON 92-II, Dầu Diesel 0.05S, Dầu hỏa theo Vùng 1 & Vùng 2.",
+      samples: [
+        "Giá xăng hôm nay bao nhiêu một lít?",
+        "Giá xăng RON 95 hiện tại là bao nhiêu?",
+        "Dầu diesel giá bao nhiêu một lít?"
+      ]
+    },
+    "Tỷ giá ngoại tệ Vietcombank": {
+      toolId: "get_exchange_rate",
+      tier: "pro",
+      desc: "Tra cứu tỷ giá hối đoái mua tiền mặt, mua chuyển khoản và bán ra chính thức từ Ngân hàng Ngoại thương Việt Nam (Vietcombank): USD, EUR, JPY, GBP, CNY, KRW, AUD, SGD, THB...",
+      samples: [
+        "Tỷ giá USD Vietcombank hôm nay bao nhiêu?",
+        "Đổi 1000 đô la Mỹ sang tiền Việt là bao nhiêu?",
+        "Xem tỷ giá Yên Nhật JPY hôm nay"
+      ]
+    },
+    "Tra cứu phạt nguội & Biển số xe": {
+      toolId: "traffic_fine_lookup",
+      tier: "pro",
+      desc: "Nhận diện tỉnh thành đăng ký từ đầu biển số xe, tra cứu bảng mức phạt tiền & tước GPLX theo Nghị định 100/123 (vượt đèn đỏ, quá tốc độ, sai làn...) và hướng dẫn quy trình kiểm tra phạt nguội chuẩn từ Cục Cảnh sát Giao thông csgt.vn.",
+      samples: [
+        "Biển số xe 30A là ở tỉnh nào?",
+        "Tra cứu phạt nguội biển số xe 30A-123.45",
+        "Vượt đèn đỏ ô tô bị phạt bao nhiêu tiền và tước bằng mấy tháng?"
+      ]
+    },
+    "Kết quả Xổ số 3 miền": {
+      toolId: "get_lottery_result",
+      tier: "pro",
+      desc: "Cập nhật bảng kết quả Xổ số Kiến thiết Miền Bắc (XSMB), Miền Trung (XSMT) và Miền Nam (XSMN) mở thưởng hàng ngày với đầy đủ các giải thưởng từ Giải Tám/Bảy đến Giải Đặc Biệt.",
+      samples: [
+        "Xổ số miền Bắc hôm nay về số mấy?",
+        "Xem kết quả xổ số miền Nam hôm nay",
+        "Kết quả xổ số miền Trung hôm nay đài nào mở thưởng?"
+      ]
+    },
+    "Điểm tin nóng VnExpress": {
+      toolId: "get_latest_news",
+      tier: "pro",
+      desc: "Tổng hợp nhanh 5 bản tin thời sự, chính trị, kinh tế, thể thao, giải trí và đời sống nóng hổi nhất trong ngày từ Báo Điện tử VnExpress.",
+      samples: [
+        "Điểm tin tức thời sự nóng hôm nay",
+        "Tin tức kinh tế mới nhất có gì?",
+        "Hôm nay có sự kiện gì nổi bật?"
+      ]
+    },
+    "Lịch vạn niên & ngày hoàng đạo": {
+      toolId: "get_lunar_calendar",
+      tier: "pro",
+      desc: "Chuyển đổi ngày dương lịch sang âm lịch, tra cứu Can Chi ngày/tháng/năm, tiết khí, khung giờ hoàng đạo và ngày lành tháng tốt phục vụ xuất hành, động thổ, cưới hỏi.",
+      samples: [
+        "Hôm nay là ngày bao nhiêu âm lịch?",
+        "Hôm nay có phải ngày hoàng đạo không?",
+        "Giờ hoàng đạo xuất hành hôm nay là mấy giờ?"
+      ]
+    },
+    "Giá Bitcoin / Crypto Binance": {
+      toolId: "get_crypto_price",
+      tier: "pro",
+      desc: "Cập nhật dữ liệu giá thời gian thực từ sàn Binance quốc tế cho các đồng tiền mã hóa hàng đầu thế giới: BTC (Bitcoin), ETH (Ethereum), BNB, SOL, XRP, DOGE kèm biến động 24h.",
+      samples: [
+        "Giá Bitcoin hiện tại bao nhiêu đô la?",
+        "Giá Ethereum hôm nay tăng hay giảm?",
+        "Xem giá đồng Solana và BNB"
+      ]
+    },
+    "Phát nhạc Zing MP3 chất lượng": {
+      toolId: "play_music",
+      tier: "pro",
+      desc: "Tìm kiếm hàng triệu bài hát bản quyền chất lượng cao từ kho nhạc Zing MP3, tự động giải mã và stream âm thanh mượt mà trực tiếp ra loa ESP32 không bị chèn quảng cáo.",
+      samples: [
+        "Mở bài hát Chúng ta của hiện tại",
+        "Bật nhạc Đen Vâu trên Zing MP3",
+        "Phát một bài hát acoustic nhẹ nhàng thư giãn"
+      ]
+    },
+    "Phát nhạc YouTube trực tiếp ra loa": {
+      toolId: "play_youtube_music",
+      tier: "pro",
+      desc: "Trích xuất và phát luồng âm thanh audio chất lượng cao từ mọi video trên YouTube: Nhạc remix sôi động, nhạc Lofi học bài, nhạc bolero, nhạc chế, podcast talkshow phát trực tiếp ra loa.",
+      samples: [
+        "Bật nhạc remix hay nhất trên YouTube",
+        "Phát nhạc Lofi chill không lời trên YouTube",
+        "Mở nhạc bolero YouTube ra loa"
+      ]
+    },
+    "Đài FM: VOV1, VOV3, VOH 99.9": {
+      toolId: "listen_radio",
+      tier: "pro",
+      desc: "Phát thanh trực tuyến các kênh sóng radio quốc gia: VOV1 (Thời sự chính luận), VOV2 (Văn hóa), VOV3 (Âm nhạc giải trí), VOV Giao thông 91MHz và VOH 99.9MHz đài TP.HCM.",
+      samples: [
+        "Bật kênh VOV Giao thông",
+        "Nghe đài VOV1 thời sự trực tiếp",
+        "Mở đài VOV3 âm nhạc"
+      ]
+    },
+    "Tìm kiếm kho nhạc thông minh": {
+      toolId: "search_music",
+      tier: "pro",
+      desc: "Tra cứu bài hát theo tên ca sĩ thể hiện, tên nhạc sĩ sáng tác, giai điệu hoặc trích dẫn một câu trong lời bài hát khi bạn không nhớ chính xác tựa đề.",
+      samples: [
+        "Tìm các bài hát của ca sĩ Hà Anh Tuấn",
+        "Tìm bài hát có câu: Gió cuốn đi bao nhiêu kỷ niệm",
+        "Tìm bài hát mới nhất của Sơn Tùng M-TP"
+      ]
+    },
+    "Bảng xếp hạng nhạc thịnh hành": {
+      toolId: "get_top_charts",
+      tier: "pro",
+      desc: "Cập nhật danh sách Top 10, Top 20 bài hát đang dẫn đầu bảng xếp hạng âm nhạc #zingchart và thịnh hành nhất Việt Nam thời điểm hiện tại.",
+      samples: [
+        "Bảng xếp hạng âm nhạc hiện tại có bài gì hot?",
+        "Top 5 bài hát hot nhất Việt Nam hôm nay",
+        "Bài nào đang đứng đầu bảng xếp hạng Zing?"
+      ]
+    },
+    "Lời bài hát đồng bộ thời gian": {
+      toolId: "get_lyrics",
+      tier: "pro",
+      desc: "Hiển thị và đọc lời bài hát (lyrics) đồng bộ chuẩn xác từng câu, giúp bạn dễ dàng theo dõi, hiểu ý nghĩa bài hát và hát karaoke theo giai điệu.",
+      samples: [
+        "Lời bài hát Cắt đôi nỗi sầu là gì?",
+        "Cho tôi xem lời bài hát Nơi này có anh",
+        "Đọc lời bài hát Đi về nhà của Đen Vâu"
+      ]
+    },
+    "Tra cứu Internet & Wikipedia": {
+      toolId: "web_search",
+      tier: "pro",
+      desc: "Trợ lý tra cứu tri thức bách khoa toàn thư Wikipedia Tiếng Việt và Internet: Tìm kiếm tiểu sử danh nhân, sự kiện lịch sử, định nghĩa khoa học và dữ liệu đời sống.",
+      samples: [
+        "Ai là người sáng lập ra tập đoàn Vingroup?",
+        "Tháp Eiffel được xây dựng vào năm nào?",
+        "Tra cứu Wikipedia về hang Sơn Đoòng"
+      ]
+    },
+    "Gia sư Tiếng Anh": {
+      toolId: "tutor_english",
+      tier: "pro",
+      desc: "Gia sư AI luyện giao tiếp Tiếng Anh bản xứ chuẩn ngữ âm: Hỗ trợ luyện đàm thoại mọi chủ đề, sửa lỗi cấu trúc câu, mở rộng vốn từ vựng và giải thích ngữ pháp tận tình.",
+      samples: [
+        "Gia sư tiếng Anh, chỉ tôi cách hỏi đường ở sân bay",
+        "Luyện giao tiếp tiếng Anh chủ đề du lịch",
+        "Phân biệt Present Perfect và Past Simple"
+      ]
+    },
+    "Gia sư Tiếng Trung": {
+      toolId: "tutor_chinese",
+      tier: "pro",
+      desc: "Gia sư Tiếng Trung Bắc Kinh: Kèm phiên âm Pinyin chuẩn và thanh điệu, dạy từ vựng HSK, đàm thoại mua sắm, du lịch và giao tiếp thương mại.",
+      samples: [
+        "Từ 'Cảm ơn' và 'Xin lỗi' trong tiếng Trung nói thế nào?",
+        "Dạy tôi 3 câu đàm thoại tiếng Trung khi đi ăn nhà hàng",
+        "Cách chào hỏi và giới thiệu bản thân bằng tiếng Trung"
+      ]
+    },
+    "Gia sư Tiếng Nhật": {
+      toolId: "tutor_japanese",
+      tier: "pro",
+      desc: "Gia sư Tiếng Nhật chuẩn Tokyo: Kèm phiên âm Romaji dễ đọc, luyện giao tiếp đời thường, kính ngữ Keigo và từ vựng chuẩn kỳ thi JLPT N5 - N1.",
+      samples: [
+        "Dạy tôi cách nói cảm ơn lịch sự trong tiếng Nhật",
+        "Từ 'Chúc ngủ ngon' tiếng Nhật phát âm thế nào?",
+        "Các mẫu câu chào hỏi thông dụng tiếng Nhật"
+      ]
+    },
+    "Gia sư Tiếng Hàn": {
+      toolId: "tutor_korean",
+      tier: "pro",
+      desc: "Gia sư Tiếng Hàn chuẩn Seoul: Dạy phát âm Hangul, kính ngữ tôn trọng, các mẫu câu đàm thoại đời thường và từ vựng phim ảnh Hàn Quốc.",
+      samples: [
+        "Cách nói 'Tôi yêu bạn' bằng tiếng Hàn",
+        "Dạy tôi các câu giao tiếp cơ bản khi đi Hàn Quốc",
+        "Cách gọi món ăn trong quán ăn Hàn Quốc"
+      ]
+    },
+    "Gia sư Tiếng Pháp": {
+      toolId: "tutor_french",
+      tier: "pro",
+      desc: "Gia sư Tiếng Pháp lãng mạn và quý phái: Chuẩn ngữ âm Paris, kèm hướng dẫn phát âm tiếng Việt dễ đọc, luyện chia động từ và đàm thoại đời sống.",
+      samples: [
+        "Chào buổi sáng trong tiếng Pháp nói thế nào?",
+        "Dạy tôi một số câu giao tiếp tiếng Pháp cơ bản",
+        "Cách đếm số từ 1 đến 10 bằng tiếng Pháp"
+      ]
+    },
+    "Gia sư Tiếng Đức": {
+      toolId: "tutor_german",
+      tier: "pro",
+      desc: "Gia sư Tiếng Đức chuẩn Đức: Hướng dẫn ngữ pháp, mạo từ der/die/das, từ vựng du học nghề và các tình huống giao tiếp sinh hoạt thực tế.",
+      samples: [
+        "Từ 'Xin chào' và 'Hẹn gặp lại' tiếng Đức là gì?",
+        "Dạy tôi các câu tiếng Đức khi đi siêu thị mua đồ",
+        "Quy tắc mạo từ der die das trong tiếng Đức"
+      ]
+    },
+    "Gia sư Tiếng Nga": {
+      toolId: "tutor_russian",
+      tier: "pro",
+      desc: "Gia sư Tiếng Nga chuẩn ngữ âm: Phiên âm Latinh dễ đọc, hỗ trợ từ vựng giao tiếp du lịch, công tác và tìm hiểu văn hóa xứ sở Bạch Dương.",
+      samples: [
+        "Cách chào hỏi bằng tiếng Nga là gì?",
+        "Dạy tôi nói 'Cảm ơn rất nhiều' trong tiếng Nga",
+        "Các câu đàm thoại tiếng Nga khi đi du lịch Moscow"
+      ]
+    },
+    "Gia sư Tiếng Tây Ban Nha": {
+      toolId: "tutor_spanish",
+      tier: "pro",
+      desc: "Gia sư Tiếng Tây Ban Nha phổ biến toàn cầu: Hướng dẫn giao tiếp năng động, ngữ điệu chuẩn bản ngữ và từ vựng du lịch châu Âu / Mỹ Latinh.",
+      samples: [
+        "Chào bạn trong tiếng Tây Ban Nha nói như thế nào?",
+        "Dạy tôi cách hỏi giá tiền bằng tiếng Tây Ban Nha",
+        "Mẫu câu giới thiệu tên và quốc tịch tiếng Tây Ban Nha"
+      ]
+    },
+    "Gia sư Tiếng Thái": {
+      toolId: "tutor_thai",
+      tier: "pro",
+      desc: "Gia sư Tiếng Thái Lan: Kèm phiên âm tiếng Việt cực dễ nhại theo, hỗ trợ giao tiếp đi chợ đêm, hỏi đường, trả giá mua sắm khi du lịch Bangkok.",
+      samples: [
+        "Cách chào hỏi 'Sawasdee' và cảm ơn bằng tiếng Thái",
+        "Dạy tôi cách trả giá khi đi mua sắm ở Thái Lan",
+        "Cách hỏi 'Cái này bao nhiêu tiền?' trong tiếng Thái"
+      ]
+    },
+    "Gia sư Tiếng Ý": {
+      toolId: "tutor_italian",
+      tier: "pro",
+      desc: "Gia sư Tiếng Ý duyên dáng: Hướng dẫn ngữ âm chuẩn Italia, từ vựng ẩm thực (Pizza, Pasta, Espresso) và đàm thoại du lịch khám phá Rome, Venice.",
+      samples: [
+        "Cách nói 'Xin chào' và 'Tạm biệt' trong tiếng Ý",
+        "Dạy tôi cách gọi cà phê bằng tiếng Ý",
+        "Những câu giao tiếp lãng mạn tiếng Ý"
+      ]
+    },
+    "Bói Sim số phong thủy 4 đuôi": {
+      toolId: "feng_shui_sim",
+      tier: "pro",
+      desc: "Giải mã ý nghĩa 4 số cuối sim điện thoại hoặc biển số xe theo thuật phong thủy số học Bát quái phương Đông, luận cát hung và độ tương hợp với chủ nhân.",
+      samples: [
+        "Bói sim 4 số cuối 6868 có ý nghĩa gì?",
+        "Xem phong thủy 4 số đuôi điện thoại 9999",
+        "Đuôi sim 1368 là cát hay hung?"
+      ]
+    },
+    "Giải mã điềm báo giấc mơ": {
+      toolId: "dream_interpreter",
+      tier: "pro",
+      desc: "Phân tích điềm báo tâm linh dân gian kết hợp góc nhìn tâm lý học giải mã vô thức của Freud & Jung về các giấc mơ (thấy rắn, bay lượn, rơi tự do, người thân...).",
+      samples: [
+        "Đêm qua tôi mơ thấy rắn cắn có điềm gì không?",
+        "Giải mã giấc mơ bay trên trời",
+        "Nằm mơ thấy người thân đã lâu không gặp có ý nghĩa gì?"
+      ]
+    },
+    "Vua đầu bếp MasterChef": {
+      toolId: "chef_recipe",
+      tier: "pro",
+      desc: "Chuyên gia ẩm thực MasterChef: Hướng dẫn công thức chế biến các món ăn gia đình, món tiệc, món ăn vặt, món chay chi tiết từ khâu chuẩn bị nguyên liệu đến kỹ thuật nấu ngon chuẩn vị.",
+      samples: [
+        "Chỉ tôi cách nấu món Bò kho chuẩn vị Nam Bộ",
+        "Tủ lạnh có thịt bò và trứng thì nấu món gì ngon?",
+        "Công thức làm món nem rán giòn rụm đãi tiệc"
+      ]
+    },
+    "HLV Sức khỏe & Dinh dưỡng": {
+      toolId: "health_fitness_coach",
+      tier: "pro",
+      desc: "Huấn luyện viên thể hình & dinh dưỡng cá nhân: Tư vấn thực đơn khoa học (Eat Clean, Keto, tăng cơ giảm mỡ) và lộ trình tập luyện Gym, Calisthenics, Yoga, chạy bộ phù hợp thể trạng.",
+      samples: [
+        "Lên thực đơn giảm mỡ bụng trong 1 tuần",
+        "Cách hít thở đúng kỹ thuật khi chạy bộ đường dài",
+        "Ăn gì trước và sau khi tập gym để tăng cơ hiệu quả?"
+      ]
+    },
+    "Đối thủ tranh biện AI sắc sảo": {
+      toolId: "ai_debate_partner",
+      tier: "pro",
+      desc: "Đối thủ tranh biện đa chiều sắc bén: Phản biện lập luận về các chủ đề nóng trong xã hội, công nghệ, kinh tế, giáo dục giúp bạn rèn luyện tư duy phản biện và khả năng thuyết phục.",
+      samples: [
+        "Hãy tranh biện với tôi về chủ đề: Trí tuệ nhân tạo có thể thay thế hoàn toàn con người không?",
+        "Tranh biện: Có nên cho học sinh sử dụng điện thoại thông minh ở trường học?",
+        "Phản biện luận điểm: Tiền bạc có mua được hạnh phúc không?"
+      ]
+    },
+    "Tính lãi suất & Lãi kép ngân hàng": {
+      toolId: "finance_calculator",
+      tier: "pro",
+      desc: "Công cụ tính toán tài chính chuyên nghiệp: Tính số tiền tích lũy lãi kép định kỳ, tính lịch trả nợ vay mua nhà/mua xe theo dư nợ giảm dần hoặc dư nợ gốc ban đầu.",
+      samples: [
+        "Gửi tiết kiệm 100 triệu lãi suất 6% một năm sau 3 năm nhận được bao nhiêu tiền?",
+        "Tính tiền trả góp mỗi tháng khi vay mua nhà 1 tỷ trong 10 năm",
+        "Mỗi tháng tiết kiệm 5 triệu lãi suất 8% sau 10 năm được bao nhiêu tiền?"
+      ]
+    },
+    "Tâm sự & Chữa lành cảm xúc": {
+      toolId: "emotional_healing",
+      tier: "pro",
+      desc: "Người bạn tri kỷ lắng nghe thấu cảm, không phán xét: Giúp bạn trút bỏ căng thẳng, xoa dịu những tổn thương tinh thần và hướng dẫn bài tập thở chánh niệm phục hồi năng lượng.",
+      samples: [
+        "Hôm nay tôi thấy mệt mỏi và áp lực công việc quá",
+        "Tâm sự với tôi một chút được không, tôi đang buồn",
+        "Hướng dẫn tôi bài tập thở 4-7-8 giúp giảm lo âu"
+      ]
+    },
+    "Tìm kiếm Chuyên gia & Cố vấn": {
+      toolId: "expert_search",
+      tier: "pro",
+      desc: "Mạng lưới tìm kiếm & cố vấn chuyên gia đầu ngành đa lĩnh vực: Bác sĩ chuyên khoa, Luật sư, Bất động sản, Tài chính đầu tư, Tâm lý học, Kỹ thuật sửa chữa ô tô/điện máy... Gợi ý bệnh viện/viện nghiên cứu uy tín tại Hà Nội, TP.HCM, tiêu chí tránh lừa đảo và phân vai chuyên gia cấp cao giải đáp chuyên sâu.",
+      samples: [
+        "Tìm cho tôi bác sĩ da liễu trị mụn giỏi ở Hà Nội",
+        "Tìm chuyên gia luật sư tư vấn thừa kế đất đai",
+        "Tìm thợ sửa chữa điều hòa uy tín tại nhà"
+      ]
+    },
+    "Thông dịch viên Song ngữ AI": {
+      toolId: "realtime_translator",
+      tier: "pro",
+      desc: "Thông dịch viên trực tiếp đa ngôn ngữ: Dịch tức thì giữa tiếng Việt và tiếng Anh, Trung, Nhật, Hàn, Pháp, Đức... kèm phiên âm đọc theo và chế độ cabin hai chiều phục vụ đối thoại trực tiếp với người nước ngoài.",
+      samples: [
+        "Dịch câu: 'Xin chào, phòng này giá bao nhiêu một đêm?' sang tiếng Trung kèm pinyin",
+        "Bật chế độ thông dịch viên cabin Việt - Anh để tôi nói chuyện",
+        "Dịch sang tiếng Hàn câu: Chúc bạn một ngày làm việc tràn đầy năng lượng"
+      ]
+    },
+    "Luyện thi IELTS, TOEIC, HSK": {
+      toolId: "exam_prep_coach",
+      tier: "pro",
+      desc: "Huấn luyện viên luyện thi chứng chỉ quốc tế: Ra đề thi Speaking mẫu sát đề thi thật, phân tích cấu trúc trả lời ăn điểm (P.E.E.R / A.R.E.A), cung cấp từ vựng đắt giá và chỉnh sửa ngữ âm trực tiếp.",
+      samples: [
+        "Luyện cho tôi một câu hỏi IELTS Speaking Part 1 chủ đề Hobbies",
+        "Cho bài tập luyện nghe và phản xạ TOEIC Part 2",
+        "Dạy 5 từ vựng đắt giá cho bài thi HSK 4"
+      ]
+    },
+    "Sửa lỗi ngữ pháp & Tối ưu câu": {
+      toolId: "grammar_checker_coach",
+      tier: "pro",
+      desc: "Chuyên gia kiểm tra và tinh chỉnh văn phong ngoại ngữ: Chỉ rõ lỗi sai ngữ pháp, giới từ, thì động từ và viết lại câu chuẩn văn phong người bản xứ một cách tự nhiên, chuyên nghiệp.",
+      samples: [
+        "Sửa giúp tôi câu này xem sai ngữ pháp ở đâu: 'He go to school yesterday'",
+        "Viết lại câu email xin nghỉ phép bằng tiếng Anh cho lịch sự và trang trọng",
+        "Kiểm tra ngữ pháp câu tiếng Anh này giúp tôi"
+      ]
+    },
+    "Flashcard đố vui từ vựng": {
+      toolId: "vocab_quiz_flashcard",
+      tier: "pro",
+      desc: "Trò chơi Flashcard thẻ nhớ từ vựng thông minh qua giọng nói: Đưa ra ngữ cảnh và nghĩa tiếng Việt, người học đoán từ vựng ngoại ngữ kèm câu ví dụ sinh động tăng khả năng nhớ dai.",
+      samples: [
+        "Chơi trò đố vui từ vựng tiếng Anh chủ đề Công sở",
+        "Đố từ vựng tiếng Trung chủ đề Ăn uống",
+        "Kiểm tra từ vựng tiếng Hàn mức độ cơ bản"
+      ]
+    },
+    "Trợ lý Lập trình AI Coding": {
+      toolId: "coding_assistant",
+      tier: "pro",
+      desc: "Cố vấn kỹ thuật lập trình cấp cao: Hỗ trợ tìm và sửa lỗi mã nguồn (debug), giải thích thuật toán, tư vấn kiến trúc hệ thống và viết code mẫu bằng JavaScript, Python, C++, ESP32 C++, Go...",
+      samples: [
+        "Giải thích cách hoạt động của WebSocket trong Node.js",
+        "Cách khắc phục lỗi CORS policy trong Express.js",
+        "Viết code mẫu đọc dữ liệu cảm biến nhiệt độ DHT11 trên ESP32"
+      ]
+    },
+    "Gia sư Giải bài tập các môn": {
+      toolId: "study_homework_helper",
+      tier: "pro",
+      desc: "Gia sư sư phạm kiên nhẫn: Hướng dẫn phương pháp giải bài tập từng bước (Step-by-step) các môn Toán, Lý, Hóa, Ngữ Văn, Tiếng Anh từ lớp 1 đến lớp 12, giải thích rõ bản chất công thức.",
+      samples: [
+        "Hướng dẫn giải phương trình bậc hai: x^2 - 5x + 6 = 0",
+        "Giải thích bản chất định luật vạn vật hấp dẫn của Newton",
+        "Lập dàn ý phân tích bài thơ Tây Tiến của Quang Dũng"
+      ]
+    },
+    "Lịch sử Việt Nam hào hùng": {
+      toolId: "vietnam_history",
+      tier: "pro",
+      desc: "Kể những trang sử vàng chói lọi của dân tộc Việt Nam: Các trận đánh lẫy lừng, chiến công của Ngô Quyền trên sông Bạch Đằng, Hưng Đạo Đại Vương Trần Quốc Tuấn, Vua Quang Trung, Đại thắng mùa Xuân 1975...",
+      samples: [
+        "Kể về chiến thắng Bạch Đằng của Ngô Quyền năm 938",
+        "Trận Ngọc Hồi - Đống Đa của Vua Quang Trung diễn ra hào hùng thế nào?",
+        "Ý nghĩa lịch sử của Chiến dịch Điện Biên Phủ năm 1954"
+      ]
+    },
+    "Tư vấn Pháp luật Việt Nam": {
+      toolId: "legal_consultant",
+      tier: "pro",
+      desc: "Trợ lý giải đáp quy định pháp luật Việt Nam: Tra cứu các quy định hiện hành về Luật Đất đai, Luật Dân sự, Luật Lao động, Hôn nhân gia đình, Giao thông đường bộ kèm các điều luật căn cứ chuẩn xác.",
+      samples: [
+        "Quy định về thời gian thử việc theo Luật Lao động mới nhất",
+        "Thủ tục sang tên sổ đỏ đất đai cần những giấy tờ gì?",
+        "Quy định của pháp luật về việc chia tài sản khi ly hôn"
+      ]
+    }
+  };
+
+  function openToolModal(data) {
+    const modal = document.getElementById('tool-detail-modal');
+    if (!modal) return;
+    document.getElementById('modal-tool-icon').textContent = data.icon || '✨';
+    document.getElementById('modal-tool-title').textContent = data.title;
+    
+    const tierEl = document.getElementById('modal-tool-tier');
+    if (data.tier === 'free') {
+      tierEl.textContent = '🟢 GÓI TIÊU CHUẨN (MIỄN PHÍ)';
+      tierEl.className = 'tool-modal-tier free';
+    } else {
+      tierEl.textContent = '👑 GÓI PRO (NÂNG CAO)';
+      tierEl.className = 'tool-modal-tier pro';
+    }
+
+    document.getElementById('modal-tool-id').textContent = 'Tool ID: ' + (data.toolId || 'mcp_tool');
+    document.getElementById('modal-tool-desc').textContent = data.desc;
+
+    const samplesBox = document.getElementById('modal-tool-samples');
+    if (data.samples && data.samples.length > 0) {
+      document.getElementById('modal-samples-section').style.display = 'block';
+      samplesBox.innerHTML = data.samples.map(s => `
+        <div class="sample-bubble" onclick="copySample('${esc(s)}')" title="Bấm để sao chép câu lệnh này">
+          <span>🗣️ "${esc(s)}"</span>
+          <span class="sample-copy-hint">📋 Sao chép</span>
+        </div>
+      `).join('');
+    } else {
+      document.getElementById('modal-samples-section').style.display = 'none';
+    }
+
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('show'), 10);
+  }
+
+  function closeToolModal(e) {
+    if (e && e.target && e.target !== e.currentTarget && !e.target.classList.contains('tool-modal-close') && !e.target.classList.contains('tool-modal-btn')) {
+      return;
+    }
+    const modal = document.getElementById('tool-detail-modal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 200);
+  }
+
+  function copySample(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        toast(`Đã sao chép câu lệnh: "${text}"`, 'ok');
+      }).catch(() => {
+        toast(`Câu lệnh: "${text}"`, 'ok');
+      });
+    } else {
+      toast(`Câu lệnh: "${text}"`, 'ok');
+    }
+  }
+
+  function openToolDetailByText(text, icon) {
+    const cleanText = (text || '').trim();
+    // 1. Exact match
+    if (TOOL_CATALOG[cleanText]) {
+      const item = TOOL_CATALOG[cleanText];
+      openToolModal({
+        title: cleanText,
+        icon: icon || '✨',
+        tier: item.tier,
+        toolId: item.toolId,
+        desc: item.desc,
+        samples: item.samples
+      });
+      return;
+    }
+
+    // 2. Partial match
+    for (const [key, item] of Object.entries(TOOL_CATALOG)) {
+      if (cleanText.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(cleanText.toLowerCase())) {
+        openToolModal({
+          title: cleanText,
+          icon: icon || '✨',
+          tier: item.tier,
+          toolId: item.toolId,
+          desc: item.desc,
+          samples: item.samples
+        });
+        return;
+      }
+    }
+
+    // 3. Fallback
+    openToolModal({
+      title: cleanText,
+      icon: icon || '🧠',
+      tier: 'pro',
+      toolId: 'mcp_tool',
+      desc: `Tính năng '${cleanText}' tích hợp sẵn trên loa Xiaozhi AI, phản hồi tức thì bằng giọng nói tiếng Việt tự nhiên và chuẩn xác.`,
+      samples: [
+        `Xiaozhi ơi, ${cleanText}`,
+        `Hãy giúp tôi về ${cleanText}`,
+        `Cho tôi thông tin về ${cleanText}`
+      ]
+    });
+  }
+
+  // Gắn sự kiện click cho toàn bộ thẻ tool-chip
+  function initToolChipClicks() {
+    document.querySelectorAll('.tool-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const textEl = chip.querySelector('.chip-text');
+        const iconEl = chip.querySelector('.chip-icon');
+        const text = textEl ? textEl.textContent.trim() : chip.textContent.trim();
+        const icon = iconEl ? iconEl.textContent.trim() : '✨';
+        openToolDetailByText(text, icon);
+      });
+    });
+  }
+
+  // Phím tắt ESC để đóng modal
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeToolModal();
+  });
+
   // Enter key
   ['inp-name','inp-wss'].forEach(id =>
     document.getElementById(id).addEventListener('keydown', e => e.key === 'Enter' && doConnect())
@@ -907,7 +1607,7 @@
         '<div class="tools-row" style="grid-template-columns:repeat(3,1fr)">' +
         tools.map(t => {
           const shortName = t.name.split('-')[0] || t.name;
-          return `<div class="tool-card" title="${esc(t.description)}">
+          return `<div class="tool-card" title="${esc(t.description)}" style="cursor:pointer" onclick="openToolDetailByText('${esc(shortName)}', '${getIcon(shortName)}')">
             <div class="tool-icon">${getIcon(shortName)}</div>
             <div class="tool-name" style="font-size:.72rem">${esc(shortName)}</div>
             <div class="tool-desc" style="font-size:.68rem">${esc(t.description).substring(0,60)}...</div>
@@ -947,7 +1647,8 @@
     } catch (e) {}
   }
 
-  // Pre-load count & location
+  // Khởi tạo sự kiện click xem chi tiết tính năng
+  initToolChipClicks();
   loadBonionTools();
   syncLocation();
 </script>
