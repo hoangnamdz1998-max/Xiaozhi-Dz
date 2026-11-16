@@ -329,23 +329,78 @@ async function getGoldPrice(type = "all") {
 /**
  * 6. Tra cứu giá xăng dầu (Petrolimex Việt Nam)
  */
+let cachedGasPrice = null;
+let lastGasCheck = 0;
+
 async function getGasolinePrice() {
+  if (cachedGasPrice && (Date.now() - lastGasCheck < 1800000)) {
+    return cachedGasPrice;
+  }
+
   try {
-    const res = await fetch("https://vietfuel-api.tranqui.workers.dev/api/fuel-prices", { timeout: 6000 });
-    const json = await res.json();
-    if (json && json.data) {
-      return {
-        thongBao: "Bảng giá bán lẻ xăng dầu Petrolimex Việt Nam hiện hành:",
-        nguon: "Petrolimex / VietFuel",
-        chiTiet: json.data,
-      };
+    const res = await fetch("https://webtygia.com/api/xang-dau", {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      },
+      timeout: 6000
+    });
+
+    if (res.ok) {
+      const html = await res.text();
+      const tbodyMatch = html.match(/<tbody[\s\S]*?<\/tbody>/i);
+      if (tbodyMatch) {
+        const trMatches = [...tbodyMatch[0].matchAll(/<tr>\s*<td>([\s\S]*?)<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<\/tr>/gi)];
+        if (trMatches.length > 0) {
+          const bangGia = trMatches.map((m) => {
+            let ten = m[1].replace(/<[^>]+>/g, "").trim();
+            if (ten === "hỏa 2-K") ten = "Dầu hỏa 2-K";
+            const gia1 = m[2].replace(/<[^>]+>/g, "").trim();
+            const gia2 = m[3].replace(/<[^>]+>/g, "").trim();
+            return {
+              sanPham: ten,
+              vung1: gia1 + " đ/lít",
+              vung2: gia2 + " đ/lít"
+            };
+          });
+
+          const ron95 = bangGia.find((b) => b.sanPham.includes("RON 95-III")) || bangGia.find((b) => b.sanPham.includes("RON 95"));
+          const e5 = bangGia.find((b) => b.sanPham.includes("E5 RON 92")) || bangGia.find((b) => b.sanPham.includes("E5"));
+          const doOil = bangGia.find((b) => b.sanPham.includes("DO 0,05S")) || bangGia.find((b) => b.sanPham.includes("DO"));
+
+          const result = {
+            tieuDe: "Bảng giá xăng dầu bán lẻ Petrolimex Việt Nam cập nhật mới nhất",
+            nguon: "Petrolimex (theo kỳ điều hành mới nhất của Bộ Công Thương - Tài Chính)",
+            thoiGianCapNhat: new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
+            giaThamKhaoChinh: {
+              xangRON95_III: ron95 ? `${ron95.vung1} (Vùng 1) / ${ron95.vung2} (Vùng 2)` : "19.720 đ/lít",
+              xangE5_RON92: e5 ? `${e5.vung1} (Vùng 1) / ${e5.vung2} (Vùng 2)` : "19.130 đ/lít",
+              dauDiesel_DO: doOil ? `${doOil.vung1} (Vùng 1) / ${doOil.vung2} (Vùng 2)` : "18.600 đ/lít"
+            },
+            chiTietCacMatHang: bangGia,
+            huongDanAI: `Bạn là trợ lý thông tin giá cả năng lượng Việt Nam. Khi người dùng hỏi giá xăng dầu hôm nay, hãy thông báo ngắn gọn mức giá hiện hành của 2 loại phổ biến nhất: Xăng RON 95 (khoảng ${ron95 ? ron95.vung1 : "19.720 đ/lít"}) và Xăng E5 RON 92 (khoảng ${e5 ? e5.vung1 : "19.130 đ/lít"}), cùng Dầu Diesel nếu được hỏi. Giải thích giá Vùng 1 áp dụng cho đô thị đồng bằng, Vùng 2 áp dụng cho vùng sâu xa. Trả lời súc tích, tự nhiên qua loa.`
+          };
+
+          cachedGasPrice = result;
+          lastGasCheck = Date.now();
+          return result;
+        }
+      }
     }
   } catch (err) {
-    console.warn("[GasPrice] Fallback error:", err.message);
+    console.warn("[GasPrice] Lỗi fetch giá xăng dầu trực tiếp:", err.message);
   }
+
+  // Dự phòng số liệu kỳ điều hành mới nhất nếu mạng lỗi
   return {
-    thongBao: "Giá xăng dầu bán lẻ tham khảo: Xăng RON 95-III khoảng 21.000 đ/lít, Xăng E5 RON 92 khoảng 19.800 đ/lít, Dầu Diesel khoảng 19.000 đ/lít.",
-    nguon: "Petrolimex Việt Nam",
+    tieuDe: "Bảng giá xăng dầu bán lẻ Petrolimex Việt Nam",
+    nguon: "Petrolimex Việt Nam (Kỳ điều hành hiện hành)",
+    giaThamKhaoChinh: {
+      xangRON95_III: "19.720 đ/lít (Vùng 1) / 20.110 đ/lít (Vùng 2)",
+      xangE5_RON92: "19.130 đ/lít (Vùng 1) / 19.510 đ/lít (Vùng 2)",
+      dauDiesel_DO: "18.600 đ/lít (Vùng 1) / 18.970 đ/lít (Vùng 2)"
+    },
+    huongDanAI: "Báo giá xăng RON 95 hiện tại khoảng 19.720 đ/lít (Vùng 1), xăng E5 RON 92 khoảng 19.130 đ/lít và dầu Diesel khoảng 18.600 đ/lít."
   };
 }
 
