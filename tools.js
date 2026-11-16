@@ -848,6 +848,99 @@ function getStudyTutorHomework(subject = "Toán", question = "") {
   };
 }
 
+// ─── 1. Huấn luyện viên Luyện thi Chứng chỉ Quốc tế (IELTS, TOEIC, HSK...) ──
+function getExamPrepCoach(exam = "IELTS", skill = "Speaking", targetBand = "6.5") {
+  const examNorm = (exam || "IELTS").toUpperCase();
+  return {
+    kyThi: examNorm,
+    kyNang: skill,
+    mucTieu: targetBand,
+    huongDanAI: `Bạn là Chuyên gia luyện thi chứng chỉ quốc tế hàng đầu (${examNorm}). Mục tiêu của học viên là kỹ năng '${skill}', target '${targetBand}'. Hãy:
+1. Đưa ra 1 câu hỏi mẫu sát với đề thi thật gần đây (ví dụ IELTS Speaking Part 1/2/3, TOEIC, HSK hoặc JLPT).
+2. Hướng dẫn cấu trúc trả lời ăn điểm (P.E.E.R hoặc A.R.E.A).
+3. Cung cấp 3 cụm từ vựng/idiom đắt giá thuộc band '${targetBand}' kèm câu trả lời mẫu ngắn gọn.
+4. Mời người học trả lời thử để bạn chấm điểm và sửa lỗi trực tiếp qua giọng nói.`
+  };
+}
+
+// ─── 2. Gia sư Sửa lỗi Ngữ pháp & Tối ưu Câu văn Đa ngôn ngữ ───────────────
+function getGrammarChecker(language = "english", sentence = "") {
+  return {
+    ngonNgu: language,
+    cauGoc: sentence || "Chưa nhập câu cần kiểm tra",
+    huongDanAI: `Bạn là Chuyên gia ngôn ngữ học và biên tập viên bản xứ ngôn ngữ '${language}'. Với câu của người dùng: '${sentence}':
+1. Phát hiện chính xác lỗi sai (ngữ pháp, thì động từ, mạo từ, giới từ hoặc lỗi dùng từ gượng gạo).
+2. Cung cấp câu đã được sửa hoàn chỉnh, chuẩn xác 100%.
+3. Đề xuất phiên bản diễn đạt tự nhiên, chuyên nghiệp hơn như người bản xứ (Native expression).
+4. Giải thích ngắn gọn dễ nhớ bằng tiếng Việt để người học không lặp lại lỗi.`
+  };
+}
+
+// ─── 3. Flashcard Đố vui Từ vựng & Phản xạ Giọng nói ───────────────────────
+function getVocabQuizFlashcard(language = "english", topic = "giao tiếp", level = "trung cấp") {
+  return {
+    ngonNgu: language,
+    chuDe: topic,
+    capDo: level,
+    huongDanAI: `Bạn là Quản trò Đố vui Từ vựng tương tác siêu cuốn hút bằng '${language}', chủ đề '${topic}', trình độ '${level}'. Hãy:
+1. Giới thiệu 1 từ vựng hoặc cụm collocations cực hay: phát âm chậm rõ ràng, phiên âm quốc tế, nghĩa tiếng Việt và 1 câu ví dụ thực tế.
+2. Đặt ngay 1 câu đố ngắn dạng trắc nghiệm phản xạ 2 phương án (A hoặc B) hoặc điền từ vào chỗ trống.
+3. Hào hứng mời người nghe chọn đáp án hoặc nói to từ đó vào micro để bạn chấm điểm ngay lập tức!`
+  };
+}
+
+// ─── 4. Tra cứu Vi phạm Giao thông & Phạt nguội Toàn quốc ─────────────────
+const PROVINCE_PLATE_CODES = {
+  "11": "Cao Bằng", "12": "Lạng Sơn", "14": "Quảng Ninh", "15": "Hải Phòng", "16": "Hải Phòng",
+  "17": "Thái Bình", "18": "Nam Định", "19": "Phú Thọ", "20": "Thái Nguyên", "21": "Yên Bái",
+  "22": "Tuyên Quang", "23": "Hà Giang", "24": "Lào Cai", "25": "Lai Châu", "26": "Sơn La",
+  "27": "Điện Biên", "28": "Hòa Bình", "29": "Hà Nội", "30": "Hà Nội", "31": "Hà Nội",
+  "32": "Hà Nội", "33": "Hà Nội", "40": "Hà Nội", "34": "Hải Dương", "35": "Ninh Bình",
+  "36": "Thanh Hóa", "37": "Nghệ An", "38": "Hà Tĩnh", "43": "Đà Nẵng", "47": "Đắk Lắk",
+  "48": "Đắk Nông", "49": "Lâm Đồng", "50": "TP. Hồ Chí Minh", "51": "TP. Hồ Chí Minh",
+  "52": "TP. Hồ Chí Minh", "53": "TP. Hồ Chí Minh", "54": "TP. Hồ Chí Minh", "55": "TP. Hồ Chí Minh",
+  "56": "TP. Hồ Chí Minh", "57": "TP. Hồ Chí Minh", "58": "TP. Hồ Chí Minh", "59": "TP. Hồ Chí Minh",
+  "41": "TP. Hồ Chí Minh", "60": "Đồng Nai", "61": "Bình Dương", "62": "Long An", "63": "Tiền Giang",
+  "64": "Vĩnh Long", "65": "Cần Thơ", "66": "Đồng Tháp", "67": "An Giang", "68": "Kiên Giang",
+  "69": "Cà Mau", "70": "Tây Ninh", "71": "Bến Tre", "72": "Bà Rịa - Vũng Tàu", "73": "Quảng Bình",
+  "74": "Quảng Trị", "75": "Thừa Thiên Huế", "76": "Quảng Ngãi", "77": "Bình Định", "78": "Phú Yên",
+  "79": "Khánh Hòa", "81": "Gia Lai", "82": "Kon Tum", "83": "Sóc Trăng", "84": "Trà Vinh",
+  "85": "Ninh Thuận", "86": "Bình Thuận", "88": "Vĩnh Phúc", "89": "Hưng Yên", "90": "Hà Nam",
+  "92": "Quảng Nam", "93": "Bình Phước", "94": "Bạc Liêu", "95": "Hậu Giang", "97": "Bắc Kạn",
+  "98": "Bắc Giang", "99": "Bắc Ninh"
+};
+
+function getTrafficFineLookup(plateNumber = "", vehicleType = "oto") {
+  const cleanPlate = (plateNumber || "").trim().toUpperCase().replace(/[\s\.\-]/g, "");
+  const prefix = cleanPlate.substring(0, 2);
+  const tinhThanh = PROVINCE_PLATE_CODES[prefix] || "Biển số xe Việt Nam";
+  const loaiXeStr = vehicleType === "xemay" ? "Xe máy / Mô tô" : vehicleType === "xedien" ? "Xe máy điện" : "Ô tô";
+
+  return {
+    bienSo: plateNumber || "Chưa cung cấp",
+    tinhThanhDangKy: tinhThanh,
+    loaiPhuongTien: loaiXeStr,
+    mucPhatDienHinhNghiDinh100: {
+      vuotDenDo: vehicleType === "xemay" ? "800.000đ - 1.000.000đ (Tước GPLX 1 - 3 tháng)" : "4.000.000đ - 6.000.000đ (Tước GPLX 1 - 3 tháng)",
+      chayQuaTocDo: vehicleType === "xemay" ? "300.000đ - 5.000.000đ tùy mức quá tốc độ" : "800.000đ - 12.000.000đ tùy mức vượt quá tốc độ",
+      diSaiLanDuong: vehicleType === "xemay" ? "400.000đ - 600.000đ" : "4.000.000đ - 6.000.000đ (Tước GPLX 1 - 3 tháng)",
+      diVaoDuongCam: vehicleType === "xemay" ? "400.000đ - 600.000đ" : "2.000.000đ - 3.000.000đ"
+    },
+    kenhTraCuuChinhThuc: [
+      "Trang thông tin điện tử Cục Cảnh sát Giao thông: csgt.vn (Mục Tra cứu phương tiện vi phạm giao thông qua hình ảnh)",
+      "Cổng Dịch vụ công Quốc gia: dichvucong.gov.vn (Nộp phạt vi phạm giao thông trực tuyến)",
+      "Ứng dụng VNeTraffic hoặc VNeID của Bộ Công An"
+    ],
+    huongDanAI: `Bạn là trợ lý thông tin an toàn giao thông và quy định pháp luật giao thông đường bộ Việt Nam. 
+Người dùng đang tra cứu thông tin phạt nguội cho biển số '${plateNumber}' (loại xe: ${loaiXeStr}, xuất xứ đăng ký: ${tinhThanh}).
+Hãy trả lời người dùng:
+1. Xác nhận biển số '${plateNumber}' thuộc tỉnh/thành phố '${tinhThanh}'.
+2. Giải thích rõ: Hệ thống cơ sở dữ liệu xử phạt hình ảnh thuộc thẩm quyền bảo mật của Cục CSGT (yêu cầu xác thực bảo mật trực tiếp trên csgt.vn hoặc VNeID).
+3. Hướng dẫn các bước tra cứu phạt nguội chuẩn và nhanh nhất: Truy cập csgt.vn -> Nhập biển số (ví dụ: ${plateNumber}) -> Chọn loại phương tiện -> Xem chi tiết địa điểm, hành vi vi phạm (nếu có).
+4. Nêu tóm tắt mức phạt các lỗi camera giám sát thường ghi nhận nhất của ${loaiXeStr} (vượt đèn đỏ, quá tốc độ, sai làn) và nhắc nhở lái xe an toàn, chấp hành luật giao thông.`
+  };
+}
+
 module.exports = {
   getWeather,
   getLunarCalendar,
@@ -879,6 +972,10 @@ module.exports = {
   getVietnamHistoryFact,
   getLegalConsultant,
   getStudyTutorHomework,
+  getExamPrepCoach,
+  getGrammarChecker,
+  getVocabQuizFlashcard,
+  getTrafficFineLookup,
   setAutoDetectedLocation,
   getAutoDetectedLocation,
 };

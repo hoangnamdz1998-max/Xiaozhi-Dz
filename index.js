@@ -556,6 +556,54 @@ const MCP_TOOLS = [
     description: "Gia sư giải bài tập các môn Toán, Lý, Hóa, Văn, Sử, Địa: Hướng dẫn giải chi tiết từng bước, phương pháp học hiệu quả.",
     inputSchema: { type: "object", properties: { subject: { type: "string", description: "Môn học (Toán, Lý, Hóa...)", default: "Toán" }, question: { type: "string", description: "Đề bài tập cần hướng dẫn giải" } }, required: ["question"] }
   },
+  {
+    name: "exam_prep_coach",
+    description: "Huấn luyện viên luyện thi chứng chỉ quốc tế (IELTS, TOEIC, HSK, JLPT, TOPIK, VSTEP): Đề mẫu sát đề thi thật, hướng dẫn cấu trúc trả lời ăn điểm, gợi ý từ vựng band cao và chấm chữa trực tiếp.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        exam: { type: "string", description: "Kỳ thi (IELTS, TOEIC, HSK, JLPT, TOPIK, VSTEP)", default: "IELTS" },
+        skill: { type: "string", description: "Kỹ năng (Speaking, Writing, Reading, Listening)", default: "Speaking" },
+        targetBand: { type: "string", description: "Mục tiêu điểm (ví dụ: '6.5', '7.5', '800+', 'N2', 'HSK 5')", default: "6.5" }
+      }
+    }
+  },
+  {
+    name: "grammar_checker_coach",
+    description: "Gia sư sửa lỗi ngữ pháp & tối ưu câu văn đa ngôn ngữ (Tiếng Anh, Nhật, Trung, Hàn, Việt...): Phát hiện lỗi ngữ pháp, chia thì, dùng từ sai ngữ cảnh và viết lại câu tự nhiên như người bản xứ.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        language: { type: "string", description: "Ngôn ngữ cần kiểm tra (tiếng Anh, tiếng Nhật, tiếng Trung...)", default: "english" },
+        sentence: { type: "string", description: "Câu văn hoặc đoạn hội thoại cần sửa lỗi" }
+      },
+      required: ["sentence"]
+    }
+  },
+  {
+    name: "vocab_quiz_flashcard",
+    description: "Flashcard đố vui từ vựng & phản xạ đàm thoại giọng nói: Cung cấp từ vựng hay kèm phát âm, nghĩa, và đưa ra câu đố phản xạ mini để người học trả lời ngay qua loa.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        language: { type: "string", description: "Ngôn ngữ học (english, chinese, japanese, korean, french...)", default: "english" },
+        topic: { type: "string", description: "Chủ đề từ vựng (giao tiếp, du lịch, công nghệ, ẩm thực, kinh doanh...)", default: "giao tiếp" },
+        level: { type: "string", description: "Cấp độ (cơ bản, trung cấp, nâng cao)", default: "trung cấp" }
+      }
+    }
+  },
+  {
+    name: "traffic_fine_lookup",
+    description: "Tra cứu thông tin phạt nguội giao thông và biển số xe ô tô, xe máy toàn quốc: Nhận diện tỉnh thành đăng ký, tra cứu mức phạt theo Nghị định 100/123 và hướng dẫn quy trình kiểm tra phạt nguội chuẩn từ Cục CSGT.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        plateNumber: { type: "string", description: "Biển số xe cần tra cứu (ví dụ: '30A-123.45', '51H-99999', '29B-88888')" },
+        vehicleType: { type: "string", description: "Loại phương tiện ('oto': ô tô, 'xemay': xe máy, 'xedien': xe điện)", default: "oto" }
+      },
+      required: ["plateNumber"]
+    }
+  },
 ];
 
 // ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
@@ -770,6 +818,22 @@ async function handleToolCall(name, args = {}) {
 
   if (name === "study_homework_helper") {
     return extraTools.getStudyTutorHomework(args.subject, args.question);
+  }
+
+  if (name === "exam_prep_coach") {
+    return extraTools.getExamPrepCoach(args.exam, args.skill, args.targetBand);
+  }
+
+  if (name === "grammar_checker_coach") {
+    return extraTools.getGrammarChecker(args.language, args.sentence || args.text || args.cau);
+  }
+
+  if (name === "vocab_quiz_flashcard") {
+    return extraTools.getVocabQuizFlashcard(args.language, args.topic, args.level);
+  }
+
+  if (name === "traffic_fine_lookup") {
+    return extraTools.getTrafficFineLookup(args.plateNumber || args.plate || args.bienSo, args.vehicleType || args.loaiXe);
   }
 
   if (name === "play_youtube_music") {
