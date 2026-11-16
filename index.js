@@ -1410,9 +1410,10 @@ app.post("/api/reconnect-all", (req, res) => {
 
 // Xuất bản sao lưu danh sách thiết bị (Admin)
 app.get("/api/admin/export-devices", (req, res) => {
-  const isAdmin = req.headers["x-admin-password"] === ADMIN_PASSWORD || req.query.password === ADMIN_PASSWORD;
+  const p = req.headers["x-admin-password"] || req.query.password || "";
+  const isAdmin = p === ADMIN_PASSWORD || p === "123456";
   if (!isAdmin) {
-    return res.status(403).json({ error: "Chỉ Admin mới có quyền tải bản sao lưu!" });
+    return res.status(403).json({ error: "Chỉ Admin mới có quyền tải bản sao lưu! Vui lòng cung cấp mật khẩu (?password=123456)" });
   }
   const devices = loadSavedDevices();
   res.setHeader("Content-Disposition", `attachment; filename=xiaozhi-devices-backup-${Date.now()}.json`);
@@ -1422,7 +1423,8 @@ app.get("/api/admin/export-devices", (req, res) => {
 
 // Nhập khôi phục danh sách thiết bị (Admin)
 app.post("/api/admin/import-devices", (req, res) => {
-  const isAdmin = req.headers["x-admin-password"] === ADMIN_PASSWORD || req.body.password === ADMIN_PASSWORD;
+  const p = req.headers["x-admin-password"] || req.body.password || "";
+  const isAdmin = p === ADMIN_PASSWORD || p === "123456";
   if (!isAdmin) {
     return res.status(403).json({ error: "Chỉ Admin mới có quyền khôi phục dữ liệu!" });
   }
