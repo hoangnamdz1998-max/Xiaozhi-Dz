@@ -703,6 +703,19 @@ const MCP_TOOLS = [
       required: ["text"]
     }
   },
+  {
+    name: "expert_search",
+    description: "Tìm kiếm chuyên gia & Cố vấn cấp cao đa lĩnh vực (Bác sĩ/Y tế chuyên khoa, Luật sư/Pháp lý, Bất động sản, Tài chính/Đầu tư chứng khoán, Tâm lý học & Trị liệu cảm xúc, Kỹ thuật sửa chữa ô tô/điện gia dụng, Phong thủy nhà ở, Công nghệ IT/AI...). Cung cấp định hướng chuyên môn, tiêu chí chọn chuyên gia uy tín, địa chỉ bệnh viện/văn phòng đầu ngành tại Hà Nội, TP.HCM và phân vai chuyên gia cấp cao giải đáp chuyên sâu.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        field: { type: "string", description: "Lĩnh vực, ngành nghề hoặc chuyên khoa cần tìm chuyên gia (ví dụ: 'bác sĩ da liễu', 'bác sĩ cơ xương khớp', 'luật sư thừa kế', 'bất động sản', 'tâm lý hôn nhân', 'sửa ô tô', 'phong thủy', 'tài chính', 'công nghệ IT')" },
+        query: { type: "string", description: "Vấn đề hoặc câu hỏi cụ thể người dùng cần chuyên gia tư vấn giải quyết" },
+        location: { type: "string", description: "Tỉnh thành hoặc khu vực cần tìm chuyên gia (ví dụ: 'Hà Nội', 'TP.HCM', 'Đà Nẵng'...)" }
+      },
+      required: ["field"]
+    }
+  },
 ];
 
 // ─── Phân chia danh sách Tools: Miễn Phí (Free) & Nâng Cao (Pro) ─────────
@@ -937,6 +950,14 @@ async function handleToolCall(name, args = {}) {
 
   if (name === "realtime_translator") {
     return extraTools.getRealtimeTranslator(args.text || args.cau || args.noiDung, args.targetLang || args.to || args.lang, args.mode);
+  }
+
+  if (name === "expert_search") {
+    return extraTools.getExpertSearch(
+      args.field || args.linhVuc || args.chuyenNganh || args.category || "",
+      args.query || args.cauHoi || args.issue || args.problem || "",
+      args.location || args.diaDiem || args.khuVuc || ""
+    );
   }
 
   if (name === "play_youtube_music") {
@@ -1350,6 +1371,16 @@ app.get("/api/chart", async (req, res) => {
     console.error("[API] /api/chart error:", err.message);
     res.status(500).json({ error: "Không thể lấy bảng xếp hạng", message: err.message });
   }
+});
+
+app.get("/api/tools", (req, res) => {
+  res.json({
+    total: MCP_TOOLS.length,
+    freeCount: FREE_MCP_TOOLS.length,
+    proCount: PRO_MCP_TOOLS.length,
+    tools: MCP_TOOLS,
+    bonion: MCP_TOOLS,
+  });
 });
 
 app.get("/api/location", (req, res) => {

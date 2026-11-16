@@ -1023,6 +1023,278 @@ Nhiệm vụ của bạn:
   };
 }
 
+// ─── 6. Tìm kiếm Chuyên gia & Cố vấn Cấp cao (Senior Expert Search & Consultation) ───
+const EXPERT_DOMAINS = {
+  y_te: {
+    tenNhom: "Y tế & Bác sĩ Chuyên khoa",
+    keywords: ["bác sĩ", "y tế", "sức khỏe", "da liễu", "tim mạch", "cơ xương khớp", "nhi khoa", "sản phụ khoa", "tiêu hóa", "thần kinh", "tai mũi họng", "mắt", "nha khoa", "ung bướu", "khám bệnh", "bệnh viện"],
+    coSoDauNganhHanoi: [
+      "Bệnh viện Bạch Mai (Đa khoa & chuyên khoa đầu ngành miền Bắc)",
+      "Bệnh viện Hữu nghị Việt Đức (Phẫu thuật & Ngoại khoa, Cơ xương khớp)",
+      "Bệnh viện Trung ương Quân đội 108",
+      "Bệnh viện Da liễu Trung ương & Da liễu Hà Nội",
+      "Bệnh viện Nhi Trung ương & BV Phụ sản Trung ương"
+    ],
+    coSoDauNganhHCM: [
+      "Bệnh viện Chợ Rẫy (Đa khoa tuyến cuối miền Nam)",
+      "Bệnh viện Đại học Y Dược TP.HCM",
+      "Bệnh viện Từ Dũ & BV Hùng Vương (Sản phụ khoa)",
+      "Bệnh viện Nhi Đồng 1 & Nhi Đồng 2",
+      "Bệnh viện Da liễu TP.HCM & BV Chấn thương Chỉnh hình"
+    ],
+    kenhDatLichUyTin: [
+      "BookingCare (bookingcare.vn) - Nền tảng đặt khám Giáo sư, Tiến sĩ, Bác sĩ CKII",
+      "Medpro (medpro.vn) - Ứng dụng đặt khám bệnh viện công tuyến đầu",
+      "Cổng tra cứu giấy phép hành nghề Y của Bộ Y tế (dichvucong.moh.gov.vn)"
+    ],
+    tieuChiChonChuyenGia: [
+      "Có chứng chỉ hành nghề Y hợp pháp do Bộ Y tế hoặc Sở Y tế cấp",
+      "Học hàm học vị rõ ràng (Phó giáo sư, Tiến sĩ, Bác sĩ CKII) có thâm niên tại các viện tuyến Trung ương",
+      "Không quảng cáo cam kết trị khỏi dứt điểm 100% thần tốc, không bán thực phẩm chức năng mập mờ"
+    ]
+  },
+  phap_ly: {
+    tenNhom: "Luật sư & Tư vấn Pháp lý",
+    keywords: ["luật", "luật sư", "pháp lý", "thừa kế", "đất đai", "ly hôn", "tranh chấp", "doanh nghiệp", "hình sự", "dân sự", "hợp đồng", "kiện tụng", "tố tụng"],
+    coSoDauNganhHanoi: [
+      "Đoàn Luật sư Thành phố Hà Nội",
+      "Trung tâm Trợ giúp pháp lý Nhà nước TP. Hà Nội",
+      "Các hãng luật uy tín: VILAF, YKVN, Bross & Partners, Apolat Legal"
+    ],
+    coSoDauNganhHCM: [
+      "Đoàn Luật sư TP. Hồ Chí Minh (hcmcbar.org)",
+      "Trung tâm Trợ giúp pháp lý Nhà nước TP.HCM",
+      "Trung tâm Trọng tài Quốc tế Việt Nam (VIAC - Chi nhánh TP.HCM)"
+    ],
+    kenhDatLichUyTin: [
+      "Liên đoàn Luật sư Việt Nam (lsvn.vn)",
+      "Cổng Dịch vụ công Trợ giúp Pháp lý Quốc gia (trogiupphaply.gov.vn)",
+      "Hệ thống cơ sở dữ liệu luật sư Bộ Tư pháp (moj.gov.vn)"
+    ],
+    tieuChiChonChuyenGia: [
+      "Có Thẻ Luật sư còn thời hạn do Bộ Tư pháp và Liên đoàn Luật sư Việt Nam cấp",
+      "Ký hợp đồng dịch vụ pháp lý minh bạch về thù lao, chi phí và phạm vi đại diện",
+      "Chuyên sâu đúng mảng việc (Luật sư Đất đai, Luật sư Tranh tụng Dân sự hoặc Doanh nghiệp)"
+    ]
+  },
+  bat_dong_san: {
+    tenNhom: "Bất động sản & Thẩm định Giá",
+    keywords: ["bất động sản", "nhà đất", "mua nhà", "bán nhà", "chung cư", "đất nền", "sổ đỏ", "sổ hồng", "quy hoạch", "thẩm định giá", "môi giới", "đầu tư bđs"],
+    coSoDauNganhHanoi: [
+      "Hội Môi giới Bất động sản Việt Nam (VARS)",
+      "Văn phòng Đăng ký Đất đai TP. Hà Nội (Kiểm tra quy hoạch, sang tên sổ)",
+      "Các đơn vị nghiên cứu thị trường: CBRE Việt Nam, Savills Hà Nội"
+    ],
+    coSoDauNganhHCM: [
+      "Hiệp hội Bất động sản TP.HCM (HoREA)",
+      "Văn phòng Đăng ký Đất đai TP.HCM & các chi nhánh quận/huyện",
+      "Savills TP.HCM, JLL Việt Nam, Colliers"
+    ],
+    kenhDatLichUyTin: [
+      "Hội Môi giới Bất động sản Việt Nam (vars.com.vn)",
+      "Cổng thông tin quy hoạch xây dựng Quốc gia (quyhoach.xaydung.gov.vn)",
+      "Batdongsan.com.vn (Chọn môi giới có chứng chỉ hành nghề xác thực)"
+    ],
+    tieuChiChonChuyenGia: [
+      "Có Chứng chỉ hành nghề Môi giới BĐS do Sở Xây dựng cấp",
+      "Minh bạch về pháp lý dự án (quy hoạch 1/500, giấy phép xây dựng, tình trạng thế chấp ngân hàng)",
+      "Nắm vững dữ liệu giao dịch thực tế của khu vực tối thiểu 3-5 năm gần nhất"
+    ]
+  },
+  tai_chinh: {
+    tenNhom: "Tài chính, Chứng khoán & Đầu tư",
+    keywords: ["tài chính", "chứng khoán", "đầu tư", "cổ phiếu", "quỹ đầu tư", "lãi suất", "tiền tệ", "bảo hiểm", "hoạch định tài chính", "quản lý gia sản"],
+    coSoDauNganhHanoi: [
+      "Sở Giao dịch Chứng khoán Hà Nội (HNX)",
+      "Các Công ty Chứng khoán Top 5: SSI, VNDIRECT, VPS, Mirae Asset",
+      "Ủy ban Chứng khoán Nhà nước (SSC)"
+    ],
+    coSoDauNganhHCM: [
+      "Sở Giao dịch Chứng khoán TP.HCM (HOSE)",
+      "Hiệp hội Tư vấn Tài chính Việt Nam (VFCA)",
+      "Các công ty quản lý quỹ hàng đầu: Dragon Capital, VinaCapital, SSIAM"
+    ],
+    kenhDatLichUyTin: [
+      "Hiệp hội Tư vấn Tài chính Việt Nam (vfca.vn)",
+      "Danh bạ người hành nghề chứng khoán được cấp phép bởi UBCKNN (ssc.gov.vn)",
+      "Báo cáo phân tích chuyên sâu của các CTCK Top đầu"
+    ],
+    tieuChiChonChuyenGia: [
+      "Có chứng chỉ hành nghề Phân tích Tài chính (CFA) hoặc chứng chỉ do UBCKNN cấp",
+      "Không bao giờ hứa hẹn lãi suất cam kết cố định cao phi thực tế (dấu hiệu lừa đảo đa cấp)",
+      "Lập kế hoạch phân bổ tài sản cá nhân hóa theo tỷ lệ rủi ro và mục tiêu tài chính"
+    ]
+  },
+  tam_ly: {
+    tenNhom: "Tâm lý học, Tham vấn & Trị liệu Cảm xúc",
+    keywords: ["tâm lý", "trị liệu", "trầm cảm", "stress", "lo âu", "hôn nhân", "gia đình", "nuôi dạy con", "trẻ tự kỷ", "khủng hoảng", "tổn thương", "chữa lành"],
+    coSoDauNganhHanoi: [
+      "Viện Sức khỏe Tâm thần - Bệnh viện Bạch Mai",
+      "Khoa Tâm bệnh - Bệnh viện Nhi Trung ương (Trẻ em & vị thành niên)",
+      "Viện Tâm lý Việt Pháp (Chuyên gia tham vấn tâm lý Pháp - Việt)"
+    ],
+    coSoDauNganhHCM: [
+      "Bệnh viện Tâm thần TP.HCM (Cơ sở Võ Văn Kiệt & Lê Minh Xuân)",
+      "Khoa Tâm lý học - Bệnh viện Đại học Y Dược TP.HCM",
+      "Trung tâm Tham vấn Tâm lý ĐH Khoa học Xã hội và Nhân văn TP.HCM"
+    ],
+    kenhDatLichUyTin: [
+      "Tổng đài Quốc gia Bảo vệ Trẻ em & Tham vấn Tâm lý: 111 (Miễn phí 24/7)",
+      "Hội Tâm lý học Việt Nam",
+      "Nền tảng BookingCare mục Chuyên gia Tham vấn Tâm lý & Trị liệu"
+    ],
+    tieuChiChonChuyenGia: [
+      "Tốt nghiệp Thạc sĩ / Tiến sĩ Tâm lý học lâm sàng hoặc Bác sĩ Chuyên khoa Tâm thần",
+      "Bảo mật tuyệt đối danh tính và mọi thông tin của thân chủ theo lời thề đạo đức",
+      "Thái độ thấu cảm, không áp đặt quan điểm đạo đức cá nhân lên thân chủ"
+    ]
+  },
+  ky_thuat: {
+    tenNhom: "Kỹ thuật, Điện lạnh & Sửa chữa Ô tô - Gia dụng",
+    keywords: ["sửa chữa", "thợ", "điện lạnh", "điều hòa", "máy giặt", "tủ lạnh", "ô tô", "xe hơi", "gara", "bảo dưỡng", "sửa nhà", "điện nước", "cơ điện"],
+    coSoDauNganhHanoi: [
+      "Hệ thống Trung tâm Bảo hành Ủy quyền chính hãng (Samsung, Daikin, Panasonic, Sony...)",
+      "Đại lý ô tô 3S/4S chính hãng (Toyota, Honda, Hyundai, Kia, VinFast...)",
+      "Trung tâm Dịch vụ Kỹ thuật Đại học Bách Khoa Hà Nội"
+    ],
+    coSoDauNganhHCM: [
+      "Mạng lưới Trạm Bảo hành Chính hãng toàn TP.HCM",
+      "Các chuỗi Gara ô tô chuẩn có phòng sơn sấy và máy quét chuẩn đoán OBD-II",
+      "Hội Kỹ sư Cơ điện & Điện lạnh TP.HCM"
+    ],
+    kenhDatLichUyTin: [
+      "Hotline bảo hành chính hãng in trên tem bảo hành điện tử của thiết bị",
+      "Ứng dụng dịch vụ gia đình có xác minh lý lịch thợ (Thợ Tốt, bTaskee, Rada)",
+      "Trực tiếp liên hệ cố vấn dịch vụ đại lý ủy quyền chính hãng"
+    ],
+    tieuChiChonChuyenGia: [
+      "Báo giá chi tiết linh kiện và tiền công trước khi tiến hành sửa chữa",
+      "Cam kết phụ tùng chính hãng mới 100%, có tem mác và phiếu bảo hành từ 6 - 12 tháng",
+      "Giữ lại linh kiện cũ bị hỏng để đối chiếu rõ ràng với khách hàng"
+    ]
+  },
+  phong_thuy: {
+    tenNhom: "Phong thủy Địa lý & Kiến trúc Khoa học",
+    keywords: ["phong thủy", "hướng nhà", "bát trạch", "huyền không", "đặt bàn thờ", "ngày tốt", "cung mệnh", "xây nhà", "động thổ", "màu sắc hợp mệnh"],
+    coSoDauNganhHanoi: [
+      "Viện Nghiên cứu và Ứng dụng Tiềm năng Con người",
+      "Hội đồng Cố vấn Phong thủy Địa lý Việt Nam",
+      "Các kiến trúc sư chuyên về phong thủy khoa học & vi khí hậu công trình"
+    ],
+    coSoDauNganhHCM: [
+      "Trung tâm Phong thủy Đông phương TP.HCM",
+      "Hội Kiến trúc sư TP.HCM (Tư vấn công năng kết hợp trường khí phong thủy)",
+      "Viện Ứng dụng Khoa học Tâm lý & Phương Đông"
+    ],
+    kenhDatLichUyTin: [
+      "Viện Nghiên cứu và Ứng dụng Tiềm năng Con người (viencoso.vn)",
+      "Các công ty tư vấn thiết kế kiến trúc chính quy có bộ phận chuyên gia phong thủy",
+      "Các diễn đàn Dịch học & Phong thủy chính thống có kiểm duyệt học thuật"
+    ],
+    tieuChiChonChuyenGia: [
+      "Giải thích phong thủy dựa trên khoa học (luồng khí, ánh sáng, hướng gió, từ trường), không dọa nạt",
+      "Tuyệt đối không ép buộc gia chủ mua các vật phẩm, bùa chú đắt tiền",
+      "Lấy công năng sống và sự tiện nghi của gia đình làm gốc, lấy đức làm đầu"
+    ]
+  },
+  cong_nghe: {
+    tenNhom: "Công nghệ Thông tin & Trí tuệ Nhân tạo (AI / Tech)",
+    keywords: ["công nghệ", "it", "lập trình", "ai", "phần mềm", "website", "an ninh mạng", "devops", "cloud", "chuyển đổi số", "mobile app"],
+    coSoDauNganhHanoi: [
+      "Viện Công nghệ Thông tin - Viện Hàn lâm Khoa học và Công nghệ Việt Nam",
+      "Trung tâm Giám sát An toàn Không gian mạng Quốc gia (NCSC)",
+      "Hiệp hội Phần mềm và Dịch vụ CNTT Việt Nam (VINASA)"
+    ],
+    coSoDauNganhHCM: [
+      "Công viên Phần mềm Quang Trung (QTSC)",
+      "Hội Tin học TP.HCM (HCA)",
+      "Viện Khoa học và Công nghệ Tính toán TP.HCM"
+    ],
+    kenhDatLichUyTin: [
+      "Cổng thông tin Hiệp hội Phần mềm VINASA (vinasa.org.vn)",
+      "Mạng lưới chuyên gia công nghệ TopDev, ITviec, VietnamWorks Tech Network",
+      "Hệ sinh thái Đổi mới sáng tạo & Khởi nghiệp Quốc gia (NIC)"
+    ],
+    tieuChiChonChuyenGia: [
+      "Có hồ sơ dự án thực chiến (Portfolio/GitHub) và kinh nghiệm triển khai hệ thống lớn",
+      "Có chứng chỉ quốc tế uy tín (AWS Certified Solutions Architect, Google Cloud, CISSP, PMP...)",
+      "Tập trung vào hiệu quả vận hành, bảo mật dữ liệu và khả năng mở rộng hệ thống"
+    ]
+  }
+};
+
+function getExpertSearch(field = "", query = "", location = "") {
+  const normField = (field || "").trim();
+  const normQuery = (query || "").trim();
+  const combinedText = `${normField} ${normQuery}`.toLowerCase();
+  const currentLoc = (location || "").trim() || autoDetectedLocation || "Hà Nội";
+  const isSouth = currentLoc.toLowerCase().includes("hồ chí minh") || currentLoc.toLowerCase().includes("hcm") || currentLoc.toLowerCase().includes("sài gòn");
+
+  // Tìm lĩnh vực khớp nhất theo từ khóa
+  let matchedKey = null;
+  for (const [key, domain] of Object.entries(EXPERT_DOMAINS)) {
+    if (domain.keywords.some(k => combinedText.includes(k))) {
+      matchedKey = key;
+      break;
+    }
+  }
+
+  // Nếu không khớp từ khóa cụ thể nào, phân loại chung
+  let domainInfo;
+  if (matchedKey) {
+    domainInfo = EXPERT_DOMAINS[matchedKey];
+  } else {
+    domainInfo = {
+      tenNhom: `Cố vấn Chuyên gia Lĩnh vực: ${normField || "Chuyên Môn Tổng Hợp"}`,
+      coSoDauNganhHanoi: [
+        "Các Viện nghiên cứu đầu ngành thuộc Viện Hàn lâm KH&CN Việt Nam",
+        "Trường Đại học Bách Khoa Hà Nội & ĐH Quốc Gia Hà Nội",
+        "Các Hiệp hội ngành nghề chính thức có pháp nhân Nhà nước"
+      ],
+      coSoDauNganhHCM: [
+        "Đại học Quốc gia TP.HCM & ĐH Bách Khoa TP.HCM",
+        "Các Trung tâm kiểm định, tư vấn và hiệp hội chuyên ngành TP.HCM",
+        "Mạng lưới chuyên gia cố vấn Đổi mới Sáng tạo miền Nam"
+      ],
+      kenhDatLichUyTin: [
+        "Các cổng thông tin hiệp hội nghề nghiệp chính thống tại Việt Nam",
+        "Nền tảng kết nối chuyên gia uy tín và xác minh hồ sơ năng lực",
+        "Kênh tư vấn dịch vụ công quốc gia: dichvucong.gov.vn"
+      ],
+      tieuChiChonChuyenGia: [
+        "Bằng cấp, chứng chỉ hành nghề được cơ quan nhà nước có thẩm quyền cấp phép",
+        "Hồ sơ thâm niên thực chiến có kiểm chứng độc lập",
+        "Quy trình tư vấn minh bạch, văn bản hợp đồng rõ ràng, tận tâm và có đạo đức nghề nghiệp"
+      ]
+    };
+  }
+
+  const coSoTheoVung = isSouth ? domainInfo.coSoDauNganhHCM : domainInfo.coSoDauNganhHanoi;
+  const coSoVungConLai = isSouth ? domainInfo.coSoDauNganhHanoi : domainInfo.coSoDauNganhHCM;
+
+  return {
+    linhVuc: normField || domainInfo.tenNhom,
+    vanDeCanTuVan: normQuery || "Tìm kiếm chuyên gia và cố vấn chuyên sâu",
+    khuVucHienTai: currentLoc,
+    nhomChuyenMon: domainInfo.tenNhom,
+    coSoDauNganhGoiY: {
+      khuVucChinh: coSoTheoVung,
+      toanQuoc: coSoVungConLai
+    },
+    kenhTraCuuDatLich: domainInfo.kenhDatLichUyTin,
+    tieuChiVangChonChuyenGia: domainInfo.tieuChiChonChuyenGia,
+    huongDanAI: `Bạn là Cố Vấn & Trợ Lý Tìm Kiếm Chuyên Gia Cấp Cao (Senior Expert Consultation & Directory Assistant) trên loa Xiaozhi AI.
+Người dùng đang cần tìm kiếm chuyên gia hoặc tư vấn về: '${normField || domainInfo.tenNhom}', vấn đề cụ thể: '${normQuery || "Tìm chuyên gia đầu ngành"}', khu vực: '${currentLoc}'.
+
+Nhiệm vụ của bạn:
+1. ĐÓNG VAI CHUYÊN GIA ĐẦU NGÀNH: Ngay lập tức hóa thân vào vai trò Vị Chuyên Gia Dày Dạn Kinh Nghiệm trong lĩnh vực '${domainInfo.tenNhom}' để phân tích tình huống, đưa ra nhận định chuyên môn sơ bộ chuẩn xác, khoa học và thấu đáo cho người dùng.
+2. GỢI Ý ĐỊA CHỈ & KÊNH LIÊN HỆ UY TÍN: Nêu rõ 2-3 cơ sở, bệnh viện, viện nghiên cứu hoặc hiệp hội đầu ngành uy tín tại ${currentLoc} (ví dụ: ${coSoTheoVung.slice(0, 2).join(", ")}).
+3. TIÊU CHÍ CHỌN CHUYÊN GIA & CẢNH BÁO LỪA ĐẢO: Nhắc nhở người dùng các dấu hiệu kiểm tra chứng chỉ hành nghề/bằng cấp thực tế và các chiêu trò lừa đảo, lang băm hoặc môi giới không có tâm cần tránh.
+4. SOẠN CÂU HỎI QUAN TRỌNG: Gợi ý 2-3 câu hỏi then chốt để người dùng chuẩn bị sẵn khi đến làm việc trực tiếp với chuyên gia ngoài đời thực.
+5. Giọng điệu đĩnh đạc, ấm áp, uyên bác và giàu tinh thần trách nhiệm.`
+  };
+}
+
 module.exports = {
   getWeather,
   getLunarCalendar,
@@ -1059,6 +1331,7 @@ module.exports = {
   getVocabQuizFlashcard,
   getTrafficFineLookup,
   getRealtimeTranslator,
+  getExpertSearch,
   setAutoDetectedLocation,
   getAutoDetectedLocation,
 };
