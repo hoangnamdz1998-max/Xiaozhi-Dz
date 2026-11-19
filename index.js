@@ -518,7 +518,7 @@ const MCP_TOOLS = [
   },
   {
     name: "play_youtube_music",
-    description: "Phát bài hát từ YouTube hoặc tự động tìm kiếm khi Zing MP3 không có hoặc người dùng yêu cầu: 'phát nhạc', 'mở bài hát', 'nghe nhạc youtube'. Công cụ này trích xuất luồng âm thanh trực tiếp từ YouTube để phát ra loa thiết bị.",
+    description: "Tìm kiếm thông tin bài hát nâng cao khi cần tra cứu. LƯU Ý BẮT BUỘC: Khi người dùng yêu cầu nghe nhạc, phát nhạc, mở bài hát (ví dụ: 'phát nhạc', 'mở bài Hãy Trao Cho Anh', 'nghe nhạc Sơn Tùng'), bạn BẮT BUỘC phải gọi công cụ phần cứng của thiết bị 'self.music.play_song' để loa ESP32 phát âm thanh trực tiếp. KHÔNG gọi công cụ này để phát âm thanh.",
     inputSchema: {
       type: "object",
       properties: {
@@ -813,20 +813,21 @@ async function handleToolCall(name, args = {}, deviceName = "") {
     const limit = args.limit || 5;
     const songs = await zing.searchSongs(q, limit);
     if (songs && songs.length > 0) {
+      const top = songs[0];
       return {
         nguon: "Zing MP3",
-        message: `Tìm thấy ${songs.length} bài hát trên Zing MP3 cho "${q}"`,
+        message: `Tìm thấy bài "${top.title}" của ${top.artist}. Để phát nhạc trực tiếp ra loa thiết bị, bạn hãy gọi công cụ phần cứng 'self.music.play_song' với song_name="${top.title}", artist_name="${top.artist}".`,
         songs,
       };
     }
-    // Fallback sang YouTube nếu Zing MP3 không thấy
-    console.log(`[Music] Zing MP3 không có "${q}", tự động fallback sang YouTube...`);
+    // Fallback nhanh sang YouTube nếu Zing MP3 không thấy
+    console.log(`[Music] Zing MP3 không có "${q}", thử tìm nhanh trên YouTube...`);
     const ytSongs = await youtube.searchYouTube(q, limit);
     return {
       nguon: "YouTube",
       message: ytSongs.length
-        ? `Zing MP3 không có bài này, đã tìm thấy ${ytSongs.length} kết quả trên YouTube cho "${q}"`
-        : `Không tìm thấy bài hát cho "${q}"`,
+        ? `Đã tìm thấy bài "${ytSongs[0].title}" trên YouTube. Để phát nhạc trực tiếp ra loa, hãy gọi công cụ phần cứng 'self.music.play_song' với song_name="${ytSongs[0].title}".`
+        : `Không tìm thấy bài hát cho "${q}".`,
       songs: ytSongs.map((v) => ({
         encodeId: v.videoId,
         title: v.title,
@@ -1062,52 +1063,44 @@ async function handleToolCall(name, args = {}, deviceName = "") {
 
   if (name === "play_youtube_music") {
     const q = args.query || args.q || args.song || "";
-    console.log(`[Music] 🎵 Đang xử lý phát nhạc: "${q}"`);
+    console.log(`[Music] 🎵 Đang xử lý tra cứu/phát bài: "${q}"`);
 
-    // 1. Nếu không chỉ định từ khóa "youtube", thử tìm Zing MP3 trước
-    const qLower = q.toLowerCase();
-    const isExplicitYouTube = qLower.includes("youtube") || qLower.includes("remix") || qLower.includes("live") || qLower.includes("cover");
-
-    if (!isExplicitYouTube) {
-      try {
-        const zingSongs = await zing.searchSongs(q, 1);
-        if (zingSongs && zingSongs.length > 0) {
-          const streamUrl = await zing.getStreamUrl(zingSongs[0].encodeId);
-          if (streamUrl) {
-            console.log(`[Music] ✅ Phát từ Zing MP3: "${zingSongs[0].title}"`);
-            return {
-              nguon: "Zing MP3",
-              message: `Đang phát "${zingSongs[0].title}" - ${zingSongs[0].artist} từ Zing MP3 ra loa thiết bị.`,
-              title: zingSongs[0].title,
-              artist: zingSongs[0].artist,
-              streamUrl,
-            };
-          }
-        }
-      } catch (zingErr) {
-        console.warn("[Music] Zing MP3 fallback sang YouTube:", zingErr.message);
+    // Luôn ưu tiên tìm kiếm trên Zing MP3 trước để lấy định dạng MP3 chuẩn tương thích với phần cứng ESP32
+    try {
+      const zingSongs = await zing.searchSongs(q, 3);
+      if (zingSongs && zingSongs.length > 0) {
+        const top = zingSongs[0];
+        console.log(`[Music] ✅ Đã tìm thấy trên Zing MP3: "${top.title}" - ${top.artist}`);
+        return {
+          success: true,
+          title: top.title,
+          artist: top.artist,
+          message: `Đã tìm thấy bài "${top.title}" của ${top.artist}. Để phát bài này ra loa thiết bị, bạn hãy gọi ngay công cụ phần cứng 'self.music.play_song' với song_name="${top.title}", artist_name="${top.artist}".`,
+        };
       }
+    } catch (zingErr) {
+      console.warn("[Music] Lỗi tìm Zing MP3:", zingErr.message);
     }
 
-    // 2. Tự động fallback sang YouTube nếu Zing MP3 không có hoặc người dùng yêu cầu YouTube
-    console.log(`[YouTube] 🔍 Tìm kiếm và phát từ YouTube: "${q}"`);
-    const results = await youtube.searchYouTube(q, 3);
-    if (!results || results.length === 0) {
-      return { message: `Không tìm thấy bài hát "${q}" trên cả Zing MP3 lẫn YouTube.` };
+    // Nếu không thấy trên Zing MP3, thử tìm nhanh trên YouTube
+    try {
+      const ytResults = await youtube.searchYouTube(q, 1);
+      if (ytResults && ytResults.length > 0) {
+        const topVideo = ytResults[0];
+        return {
+          success: true,
+          title: topVideo.title,
+          artist: topVideo.author,
+          message: `Đã tìm thấy bài "${topVideo.title}". Để phát nhạc ra loa, bạn hãy gọi công cụ phần cứng 'self.music.play_song' với song_name="${topVideo.title}".`,
+        };
+      }
+    } catch (ytErr) {
+      console.warn("[Music] Lỗi tìm YouTube:", ytErr.message);
     }
-    const topVideo = results[0];
-    const audioData = await youtube.getYouTubeAudioUrl(topVideo.videoId);
-    if (audioData && audioData.streamUrl) {
-      return {
-        nguon: "YouTube",
-        message: `Đang phát bài hát "${audioData.title}" của ${audioData.author} từ YouTube ra loa thiết bị.`,
-        title: audioData.title,
-        author: audioData.author,
-        streamUrl: audioData.streamUrl,
-      };
-    }
+
     return {
-      message: `Tìm thấy bài "${topVideo.title}" trên YouTube nhưng luồng âm thanh đang bận. Bạn vui lòng thử lại sau giây lát.`,
+      success: false,
+      message: `Không tìm thấy bài hát "${q}". Hãy thử lại với tên bài hát rõ ràng hơn.`,
     };
   }
 
@@ -1323,10 +1316,12 @@ app.get("/debug_stream", async (req, res) => {
 });
 
 // ─── API cho Firmware ESP32 (Esp32Music) ───────────────────────────────────
+const streamUrlCache = new Map();
+
 app.get("/stream_pcm", async (req, res) => {
   const song = req.query.song || "";
   const artist = req.query.artist || "";
-  const searchQuery = `${song} ${artist}`.trim();
+  let searchQuery = `${song} ${artist}`.trim();
 
   console.log(`[ESP32] 📻 Yêu cầu bài hát: "${searchQuery}"`);
   if (!searchQuery) {
@@ -1334,21 +1329,53 @@ app.get("/stream_pcm", async (req, res) => {
   }
 
   try {
-    const results = await zing.searchSongs(searchQuery, 1);
+    let results = await zing.searchSongs(searchQuery, 5);
+
+    // Nếu không thấy bài, thử làm sạch tiền tố câu nói (ví dụ: "phát bài", "mở nhạc")
+    if (!results || results.length === 0) {
+      const cleaned = searchQuery.replace(/^(phát|mở|nghe|bài hát|bài|nhạc)\s+/i, "").trim();
+      if (cleaned && cleaned !== searchQuery) {
+        results = await zing.searchSongs(cleaned, 5);
+      }
+    }
+
     if (!results || results.length === 0) {
       return res.status(404).json({ error: "Song not found" });
     }
 
-    const firstSong = results[0];
+    // Kiểm tra và chọn bài hát đầu tiên có stream URL hợp lệ (bỏ qua các bài VIP không có 128kbps)
+    let playableSong = null;
+    let playableUrl = null;
+
+    for (const s of results) {
+      if (streamUrlCache.has(s.encodeId)) {
+        playableSong = s;
+        playableUrl = streamUrlCache.get(s.encodeId);
+        break;
+      }
+      const streamUrl = await zing.getStreamUrl(s.encodeId);
+      if (streamUrl && typeof streamUrl === "string" && streamUrl.startsWith("http")) {
+        playableSong = s;
+        playableUrl = streamUrl;
+        streamUrlCache.set(s.encodeId, streamUrl);
+        setTimeout(() => streamUrlCache.delete(s.encodeId), 2 * 60 * 60 * 1000);
+        break;
+      }
+    }
+
+    if (!playableSong) {
+      playableSong = results[0];
+    }
+
     const responsePayload = {
-      title: firstSong.title,
-      artist: firstSong.artist,
-      audio_url: `/proxy_audio?id=${firstSong.encodeId}`,
-      lyric_url: `/proxy_lyric?id=${firstSong.encodeId}`,
+      title: playableSong.title,
+      artist: playableSong.artist,
+      audio_url: `/proxy_audio?id=${playableSong.encodeId}`,
+      lyric_url: `/proxy_lyric?id=${playableSong.encodeId}`,
       language: "vietnamese",
     };
 
-    console.log(`[ESP32] ✅ Trả về cho thiết bị:`, responsePayload);
+    console.log(`[ESP32] ✅ Trả về cho thiết bị: "${playableSong.title}" - ${playableSong.artist} (${playableSong.encodeId})`);
     res.json(responsePayload);
   } catch (err) {
     console.error(`[ESP32] ❌ Lỗi stream_pcm:`, err.message);
@@ -1373,27 +1400,23 @@ app.get("/proxy_audio", async (req, res) => {
   if (!id) return res.status(400).send("Missing id");
 
   try {
-    const streamUrl = await zing.getStreamUrl(id);
+    let streamUrl = streamUrlCache.get(id);
     if (!streamUrl) {
+      streamUrl = await zing.getStreamUrl(id);
+      if (streamUrl && typeof streamUrl === "string" && streamUrl.startsWith("http")) {
+        streamUrlCache.set(id, streamUrl);
+        setTimeout(() => streamUrlCache.delete(id), 2 * 60 * 60 * 1000);
+      }
+    }
+
+    if (!streamUrl || typeof streamUrl !== "string" || !streamUrl.startsWith("http")) {
+      console.warn(`[proxy_audio] ⚠️ Không lấy được streamUrl cho id=${id}`);
       return res.status(404).send("Stream URL not found");
     }
 
-    console.log(`[proxy_audio] 📡 Stream MP3 id=${id}`);
-    const audioRes = await fetch(streamUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Range: req.headers.range || "bytes=0-",
-      },
-    });
-
-    res.set({
-      "Content-Type": audioRes.headers.get("content-type") || "audio/mpeg",
-      "Content-Length": audioRes.headers.get("content-length") || "",
-      "Accept-Ranges": "bytes",
-    });
-
-    audioRes.body.pipe(res);
+    console.log(`[proxy_audio] 🚀 Chuyển hướng 302 trực tiếp tới Zing CDN cho id=${id}`);
+    // Chuyển hướng 302 để ESP32 tải trực tiếp từ CDN Zing MP3 tốc độ cao tại VN (giảm tải Render & loại bỏ delay)
+    return res.redirect(302, streamUrl);
   } catch (err) {
     console.error(`[proxy_audio] ❌ Lỗi:`, err.message);
     res.status(500).send(err.message);
@@ -1646,6 +1669,22 @@ app.patch("/api/devices/:name/auto-connect", (req, res) => {
   updateAutoConnect(req.params.name, autoConnect);
   res.json({ success: true });
 });
+
+app.get("/ping", (req, res) => res.send("pong"));
+app.get("/health", (req, res) => res.json({ status: "ok", time: new Date().toISOString() }));
+
+// Keep-alive chống ngủ đông (Render Free Tier sẽ ngủ sau 15 phút không có request)
+const RENDER_APP_URL = process.env.RENDER_EXTERNAL_URL || "https://server-mcp-xiaozhi-dz.onrender.com";
+if (RENDER_APP_URL) {
+  setInterval(async () => {
+    try {
+      await fetch(`${RENDER_APP_URL}/ping`, { timeout: 8000 });
+      console.log(`[KeepAlive] ⏰ Ping server để giữ luôn hoạt động: ${RENDER_APP_URL}`);
+    } catch (e) {
+      // ignore
+    }
+  }, 10 * 60 * 1000); // Mỗi 10 phút
+}
 
 // ─── Khởi động Server ────────────────────────────────────────────────────
 app.listen(PORT, async () => {

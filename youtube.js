@@ -1,10 +1,10 @@
 const fetch = require("node-fetch");
 
+// Danh sách các Invidious mirror đang hoạt động
 const INVIDIOUS_INSTANCES = [
-  "https://yewtu.be",
-  "https://inv.tux.pizza",
   "https://invidious.nerdvpn.de",
-  "https://invidious.drgns.space",
+  "https://inv.nadeko.net",
+  "https://yewtu.be",
 ];
 
 async function searchYouTube(query, limit = 5) {
@@ -12,8 +12,8 @@ async function searchYouTube(query, limit = 5) {
     try {
       const url = `${instance}/api/v1/search?q=${encodeURIComponent(query)}&type=video`;
       const res = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0" },
-        timeout: 6000,
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
+        timeout: 1500, // Timeout ngắn 1.5s để không bao giờ treo hệ thống
       });
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
@@ -25,7 +25,7 @@ async function searchYouTube(query, limit = 5) {
         }));
       }
     } catch (err) {
-      console.warn(`[YouTube] Instance ${instance} error:`, err.message);
+      // Bỏ qua và thử nhanh server tiếp theo
     }
   }
   return [];
@@ -36,8 +36,8 @@ async function getYouTubeAudioUrl(videoId) {
     try {
       const url = `${instance}/api/v1/videos/${videoId}`;
       const res = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0" },
-        timeout: 6000,
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
+        timeout: 2000,
       });
       const data = await res.json();
       if (data && Array.isArray(data.adaptiveFormats)) {
@@ -54,7 +54,7 @@ async function getYouTubeAudioUrl(videoId) {
         }
       }
     } catch (err) {
-      console.warn(`[YouTube Stream] Instance ${instance} error:`, err.message);
+      // ignore
     }
   }
   return null;

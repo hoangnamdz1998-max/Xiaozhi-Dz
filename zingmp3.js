@@ -30,6 +30,7 @@ async function ensureCookies() {
         "X-Forwarded-For": "113.161.72.10",
         "X-Real-IP": "113.161.72.10",
       },
+      timeout: 4000,
     });
     const setCookie = res.headers.raw()["set-cookie"];
     if (setCookie && Array.isArray(setCookie)) {
@@ -66,6 +67,7 @@ async function zingRequest(path, params = {}, hashStr = "") {
       "X-Real-IP": "113.161.72.10",
       Cookie: sessionCookies,
     },
+    timeout: 5000,
   });
   return await res.json();
 }
